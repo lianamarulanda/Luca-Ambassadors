@@ -8,13 +8,15 @@ const firebaseConfig = require('../../config.json');
 var firebase = require("firebase");
 
 export default class Api {
-    private myDatabase: any;
+  private myDatabase: any;
+  private authentication: any;
 
-    constructor() {
-        firebase.initializeApp(firebaseConfig);
-        // database instance - specifies firestore service
-        this.myDatabase = firebase.firestore();
-    }
+  constructor() {
+    firebase.initializeApp(firebaseConfig);
+    // database instance - specifies firestore service
+    this.myDatabase = firebase.firestore();
+    this.authentication = firebase.auth();
+  }
 
     // write to database
     public async writeData(): Promise<void> {
@@ -83,36 +85,60 @@ export default class Api {
         usersRef.delete();
     }
 
-    public async createUser(firstName: string, lastName: string, email: string, password: string): Promise<void> {
-        // create a user in the database w/passed in parameters
-        const usersRef = this.myDatabase.collection('users');
+  public async createUser(firstName: string, lastName: string, email: string, password: string): Promise<void> {
+    const usersRef = this.myDatabase.collection('users');
 
+    // create user in firebase authentication, only if email not already in use
+    this.authentication.createUserWithEmailAndPassword(email, password)
+      // if no error in authentication, create user in the database 
+      .then(() => {
         usersRef.add({
-                firstName: firstName,
-                lastName: lastName,
-                email: email
-            }).then((ref: { id: any; }) => {
-            // debug print statement
-            console.log('Added document with ID: ', ref.id);
-          });
-    }
+          firstName: firstName,
+          lastName: lastName,
+          email: email
+        })
+        .then((ref: { id: any; }) => {
+          // debug print statement
+          console.log('Added document with ID: ', ref.id);
+        });                             
+      })
+      .catch(function(error: any) {
+        // handle errors here
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorMessage + " " + errorCode);
+      });
+  }
     
-    public async loginUser(email: string, password: string)
-    {
-        const usersRef = this.myDatabase.collection('users');
-        usersRef.where('email', '==', email).get()
-            .then((snapshot: any) => {
-                if (snapshot.empty) {
-                    console.log('No matching documents.'); // debug print
-                }
-                else
-                {
-                    console.log(email); // debug print email
-                }
-            })
-            .catch((err: any) => {
-                console.log('Error getting documents', err); // debug print
-            });
-    }
+  public async loginUser(email: string, password: string): Promise<void> {
+    // firebase authentication
+    this.authentication.signInWithEmailAndPassword(email, password)
+      .catch(function(error: any) {
+          // handle errors here
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // delete later - debug print
+          console.log(errorMessage + " " + errorCode);
+      });
+  }
+
+  public async loadUser(email: string) {
+    // load user from database by querying email
+    const usersRef = this.myDatabase.collection('users');
+
+    usersRef.where('email', '==', email).get()
+      .then((snapshot: any) => {
+        if (snapshot.empty) {
+            console.log('No matching documents.'); // debug print
+        } else {
+            console.log(email); // debug print email
+        }
+      })
+      .catch((err: any) => {
+        console.log('Error getting documents', err); // debug print
+      });
+  }
+
+
 }
 
