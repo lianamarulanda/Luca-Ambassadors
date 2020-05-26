@@ -10,12 +10,16 @@ var firebase = require("firebase");
 export default class Api {
   private myDatabase: any;
   private authentication: any;
+  private usersRef: any;
+  private amRef: any;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
     // database instance - specifies firestore service
     this.myDatabase = firebase.firestore();
     this.authentication = firebase.auth();
+    this.usersRef = this.myDatabase.collection('users');
+    this.amRef = this.myDatabase.collection('ambassadors');
   }
 
     // write to database
@@ -85,23 +89,32 @@ export default class Api {
         usersRef.delete();
     }
 
+
+
   public async createUser(firstName: string, lastName: string, email: string, password: string): Promise<void> {
-    const usersRef = this.myDatabase.collection('users');
 
     // create user in firebase authentication, only if email not already in use
     this.authentication.createUserWithEmailAndPassword(email, password)
-      // if no error in authentication, create user in the database 
+      // if no error in authentication, create ambassador object in db 
       .then(() => {
-        usersRef.add({
-          firstName: firstName,
-          lastName: lastName,
-          email: email
+        this.amRef.add({
+          discountCodes: [123] // sample discount code for now
         })
-        .then((ref: { id: any; }) => {
-          // debug print statement
-          console.log('Added document with ID: ', ref.id);
-        });                             
+          // after adding the ambassador object, create the user object
+          .then((ref: { id: any; }) => {
+            this.usersRef.add({
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              ambassadorID: ref.id
+            })
+            .then((ref: { id: any; }) => {
+              // debug print statement
+              console.log('Added document with ID: ', ref.id);
+            });                             
+          });
       })
+      // create user in the database 
       .catch(function(error: any) {
         // handle errors here
         var errorCode = error.code;
@@ -124,9 +137,8 @@ export default class Api {
 
   public async loadUser(email: string) {
     // load user from database by querying email
-    const usersRef = this.myDatabase.collection('users');
-
-    usersRef.where('email', '==', email).get()
+    
+    this.usersRef.where('email', '==', email).get()
       .then((snapshot: any) => {
         if (snapshot.empty) {
             console.log('No matching documents.'); // debug print
@@ -138,6 +150,7 @@ export default class Api {
         console.log('Error getting documents', err); // debug print
       });
   }
+
 
 
 }
