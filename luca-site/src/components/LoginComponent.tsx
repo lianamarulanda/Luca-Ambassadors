@@ -79,11 +79,11 @@ function LoginComponent() {
   };
 
     // loginUser api will get called here
-    const handleLogin = (event: any) => {
+    const handleLogin = async (event: any) => {
       event.preventDefault()
       // debug print statement
       console.log(formData);
-      api.loginUser(formData.email, formData.password);
+      await api.loginUser(formData.email, formData.password);    
   };
 
 
@@ -145,7 +145,7 @@ function LoginComponent() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/register" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

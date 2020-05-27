@@ -6,6 +6,7 @@ import {
   } from 'react-router-dom';
 import LoginView from '../views/LoginView';
 import RegisterView from '../views/RegisterView';
+import Dashboard from '../views/DashboardView';
 
 const Routes = (): JSX.Element => {
     return(
@@ -13,6 +14,7 @@ const Routes = (): JSX.Element => {
         <Switch>
           <Route exact={true} path="/login" component={LoginView} />
           <Route exact={true} path="/register" component={RegisterView} />
+          <Route exact={true} path="/dashboard" component={Dashboard} />
         </Switch>
       </BrowserRouter>
     );

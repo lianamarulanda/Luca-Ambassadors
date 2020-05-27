@@ -53,7 +53,8 @@ const initialFormData = Object.freeze({
   firstName: "",
   lastName: "",
   email: "",
-  password: "" 
+  password: "",
+  discountCode: ""
 });
 
 export default function RegisterComponent() {
@@ -86,7 +87,10 @@ export default function RegisterComponent() {
         event.preventDefault()
         // debug print statement
         console.log(formData);
-        api.createUser(formData.firstName, formData.lastName, formData.email, formData.password);
+        if (formData.firstName === "" || formData.lastName === "" || formData.discountCode === "")
+          console.log("one or more fields are blank!");
+        else
+          api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode);
     };
 
   return (
@@ -151,6 +155,18 @@ export default function RegisterComponent() {
                 onChange={handleChange}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="discountCode"
+                label="Ambassador Code"
+                name="discountCode"
+                autoComplete="discount-code"
+                onChange={handleChange}
+              />
+            </Grid>
           </Grid>
           <Button
             onClick={handleRegistration}
@@ -164,7 +180,7 @@ export default function RegisterComponent() {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/login" variant="body2">
                 Already have an account? Sign in
               </Link>
             </Grid>

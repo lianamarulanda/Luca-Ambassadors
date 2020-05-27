@@ -1,7 +1,5 @@
 // import { Database } from 'firebase';
 
-import { getHeapSnapshot } from "v8";
-
 const firebaseConfig = require('../../config.json');
 
 // Might need to make this more efficient later
@@ -89,16 +87,13 @@ export default class Api {
         usersRef.delete();
     }
 
-
-
-  public async createUser(firstName: string, lastName: string, email: string, password: string): Promise<void> {
-
+  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<void> {
     // create user in firebase authentication, only if email not already in use
     this.authentication.createUserWithEmailAndPassword(email, password)
       // if no error in authentication, create ambassador object in db 
       .then(() => {
         this.amRef.add({
-          discountCodes: [123] // sample discount code for now
+          discountCode: discountCode
         })
           // after adding the ambassador object, create the user object
           .then((ref: { id: any; }) => {
@@ -123,9 +118,13 @@ export default class Api {
       });
   }
     
-  public async loginUser(email: string, password: string): Promise<void> {
+  public async loginUser(email: string, password: string): Promise<boolean> {
     // firebase authentication
     this.authentication.signInWithEmailAndPassword(email, password)
+      .then((user: any) => {
+        console.log("logged in user: " + user);
+        return true;
+      })
       .catch(function(error: any) {
           // handle errors here
           var errorCode = error.code;
@@ -133,7 +132,29 @@ export default class Api {
           // delete later - debug print
           console.log(errorMessage + " " + errorCode);
       });
+      return false;
   }
+
+  public async checkAdminStatus(): Promise<boolean> {
+    // authentication.currentUser seems to handle log in
+    this.authentication.currentUser.getIdTokenResult()
+      .then((idTokenResult: any) => {
+        // Confirm the user is an Admin.
+        if (!!idTokenResult.claims.admin) {
+          console.log("is admin");
+          return true;
+        } else {
+          console.log("is not admin");
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+
+      return false;
+  }
+
+
 
   public async loadUser(email: string) {
     // load user from database by querying email
