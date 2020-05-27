@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 
 import TotalSales from '../components/TotalSalesComponent';
+import Sidebar from '../components/SidebarComponent'
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -26,6 +27,7 @@ const Dashboard = () => {
           xl={3}
           xs={12}
         >
+          <Sidebar />
         </Grid>
         <Grid
           item
