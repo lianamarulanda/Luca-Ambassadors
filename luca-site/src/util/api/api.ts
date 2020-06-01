@@ -154,8 +154,6 @@ export default class Api {
       return false;
   }
 
-
-
   public async loadUser(email: string) {
     // load user from database by querying email
     
@@ -171,8 +169,5 @@ export default class Api {
         console.log('Error getting documents', err); // debug print
       });
   }
-
-
-
 }
 
