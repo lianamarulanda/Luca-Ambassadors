@@ -13,6 +13,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../util/api';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,6 +66,7 @@ const initialFormData = Object.freeze({
 
 function LoginComponent() {
   const classes = useStyles();
+  const history = useHistory();
   const api = React.useContext(DbContext);
   // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
@@ -78,13 +80,28 @@ function LoginComponent() {
     });
   };
 
-    // loginUser api will get called here
-    const handleLogin = async (event: any) => {
-      event.preventDefault()
-      // debug print statement
-      console.log(formData);
-      await api.loginUser(formData.email, formData.password);    
-  };
+  // loginUser api will get called here
+  const handleLogin = async (event: any) => {
+    event.preventDefault()
+    // debug print statement
+    console.log(formData);
+
+    api.loginUser(formData.email, formData.password)
+      .then((loggedIn: boolean) => {
+        if (loggedIn) {
+          api.checkAdminStatus()
+            .then((isAdmin: boolean) => {
+              if (!isAdmin) {
+                history.push("/dashboard");
+              } else {
+                // go to admin home page
+              }
+            })
+        } else {
+          // show error 
+        }
+      });
+};
 
 
   return (

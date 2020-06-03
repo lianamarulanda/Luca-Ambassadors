@@ -2,7 +2,6 @@ import React from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem';
@@ -10,10 +9,12 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import SettingsIcon from '@material-ui/icons/Settings';
-import MailIcon from '@material-ui/icons/Mail';
 import Avatar from '@material-ui/core/Avatar';
 import profilePic from '../images/happydog.jpg';
 import ViewQuiltIcon from '@material-ui/icons/ViewQuilt'
+import LogoutIcon from '@material-ui/icons/ExitToApp'
+import { DbContext } from '../util/api';
+
 
 const drawerWidth = 240;
 
@@ -41,7 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: theme.spacing(7),
       height: theme.spacing(7),
     },
-
     buttonText: {
       color: 'white',
       '&:hover': {
@@ -59,14 +59,20 @@ const useStyles = makeStyles((theme: Theme) =>
       fontStyle: 'italic',
       fontWeight: 'lighter'
     },
+    logoutButton: {
+      marginTop: "350px",
+      color: '#6c7878',
+    },
     icon: {
       color: 'white'
-    }
+    },
   }),
 );
 
 export default function Sidebar() {
   const classes = useStyles();
+  const dbContext = React.useContext(DbContext);
+  console.log(dbContext.userName); // debug
 
   return (
     <div className={classes.root}>
@@ -81,7 +87,7 @@ export default function Sidebar() {
       >
         <div className={classes.toolbar} />
         <Avatar alt="pic" src={profilePic} className={classes.large} style={{alignSelf: 'center'}} />
-        <Typography variant="h6" className={classes.nameText} component="h2"> Paulina Tobon </Typography>
+        <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userName + " " + dbContext.userLastName}</Typography>
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
 
         <List>
@@ -96,6 +102,10 @@ export default function Sidebar() {
           <ListItem button className={classes.buttonText}>
             <ListItemIcon className={classes.icon}> <SettingsIcon/> </ListItemIcon>
             <ListItemText primary={"Settings"} />
+          </ListItem>
+          <ListItem button className={classes.logoutButton}>
+            <ListItemIcon> <LogoutIcon/> </ListItemIcon>
+            <ListItemText primary={"Logout"} />
           </ListItem>
         </List>
       </Drawer>

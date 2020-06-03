@@ -1,8 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
-
-import TotalSales from '../components/TotalSalesComponent';
+import TotalCheckouts from '../components/TotalCheckoutsComponent';
 import Sidebar from '../components/SidebarComponent'
 
 const useStyles = makeStyles((theme: any) => ({
@@ -36,7 +35,7 @@ const Dashboard = () => {
           xl={3}
           xs={12}
         >
-          <TotalSales />
+          <TotalCheckouts />
         </Grid>
         <Grid
           item

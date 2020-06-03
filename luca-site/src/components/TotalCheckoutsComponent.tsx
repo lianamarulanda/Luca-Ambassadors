@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: any) => ({
   }
 }));
 
-const TotalSales = () => {
+const TotalCheckouts = () => {
   // const { className, ...rest } = props;
 
   const classes = useStyles();
@@ -62,7 +62,7 @@ const TotalSales = () => {
               gutterBottom
               variant="body2"
             >
-              TOTAL SALES
+              TOTAL CHECKOUTS
             </Typography>
             <Typography variant="h3">1,600</Typography>
           </Grid>
@@ -87,13 +87,21 @@ const TotalSales = () => {
             Since last month
           </Typography>
         </div>
+        <div className={classes.difference}>
+        <Typography 
+        // note to self- can make this a hover tooltip to look cooler
+          variant="caption"
+          >
+          Number of checkouts made using your code
+          </Typography>
+        </div>
       </CardContent>
     </Card>
   );
 };
 
-TotalSales.propTypes = {
+TotalCheckouts.propTypes = {
   className: PropTypes.string
 };
 
-export default TotalSales;
+export default TotalCheckouts;

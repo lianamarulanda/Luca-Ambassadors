@@ -1,6 +1,7 @@
-// import { Database } from 'firebase';
+import axios from 'axios';
 
 const firebaseConfig = require('../../config.json');
+const shopifyConfig = require('../../shopifyConfig.json');
 
 // Might need to make this more efficient later
 var firebase = require("firebase");
@@ -10,6 +11,8 @@ export default class Api {
   private authentication: any;
   private usersRef: any;
   private amRef: any;
+  public userName: string;
+  public userLastName: string;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -18,6 +21,8 @@ export default class Api {
     this.authentication = firebase.auth();
     this.usersRef = this.myDatabase.collection('users');
     this.amRef = this.myDatabase.collection('ambassadors');
+    this.userName = "";
+    this.userLastName = "";
   }
 
     // write to database
@@ -117,57 +122,73 @@ export default class Api {
         console.log(errorMessage + " " + errorCode);
       });
   }
-    
+
   public async loginUser(email: string, password: string): Promise<boolean> {
-    // firebase authentication
-    this.authentication.signInWithEmailAndPassword(email, password)
-      .then((user: any) => {
-        console.log("logged in user: " + user);
-        return true;
-      })
-      .catch(function(error: any) {
-          // handle errors here
-          var errorCode = error.code;
-          var errorMessage = error.message;
-          // delete later - debug print
-          console.log(errorMessage + " " + errorCode);
-      });
-      return false;
+    return new Promise((resolve) => {
+      // firebase authentication
+      this.authentication.signInWithEmailAndPassword(email, password)
+        .then(async (user: any) => {
+          console.log("logged in user: " + user);
+          await this.loadUser(email);
+          resolve(true);
+        })
+        .catch(function(error: any) {
+            // handle errors here
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            // delete later - debug print
+            console.log(errorMessage + " " + errorCode);
+            resolve(false);
+        });
+    })
   }
 
   public async checkAdminStatus(): Promise<boolean> {
-    // authentication.currentUser seems to handle log in
-    this.authentication.currentUser.getIdTokenResult()
-      .then((idTokenResult: any) => {
-        // Confirm the user is an Admin.
-        if (!!idTokenResult.claims.admin) {
-          console.log("is admin");
-          return true;
-        } else {
-          console.log("is not admin");
-        }
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-
-      return false;
+    return new Promise((resolve, reject) => {
+      // authentication.currentUser seems to handle log in
+      this.authentication.currentUser.getIdTokenResult()
+        .then((idTokenResult: any) => {
+          // Confirm the user is an Admin.
+          if (!!idTokenResult.claims.admin) {
+            console.log("is admin");
+            resolve(true);
+          } else {
+            console.log("is not admin");
+            resolve(false);
+          }
+        })
+        .catch((error: any) => {
+          console.log(error);
+          reject(error);
+        });
+    })
+  }
+  // query user in the database
+  public async loadUser(email: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // load user from database by querying email
+      this.usersRef.where('email', '==', email).get()
+        .then((snapshot: any) => {
+          if (snapshot.empty) {
+              console.log('No matching documents.'); // debug print
+              resolve();
+          } else {
+            snapshot.forEach((doc: any) => {
+              console.log(doc.id, '=>', doc.data());
+              this.userName = doc.data().firstName;
+              this.userLastName = doc.data().lastName;
+              resolve();
+            });
+          }
+        })
+        .catch((err: any) => {
+          console.log('Error getting documents', err); // debug print
+          reject();
+        });
+    })
   }
 
-  public async loadUser(email: string) {
-    // load user from database by querying email
-    
-    this.usersRef.where('email', '==', email).get()
-      .then((snapshot: any) => {
-        if (snapshot.empty) {
-            console.log('No matching documents.'); // debug print
-        } else {
-            console.log(email); // debug print email
-        }
-      })
-      .catch((err: any) => {
-        console.log('Error getting documents', err); // debug print
-      });
-  }
+
+
 }
 
