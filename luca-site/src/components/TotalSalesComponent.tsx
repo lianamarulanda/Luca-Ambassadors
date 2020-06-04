@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import PeopleIcon from '@material-ui/icons/PeopleOutlined';
+import MoneyIcon from '@material-ui/icons/Money';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -41,8 +41,9 @@ const useStyles = makeStyles((theme: any) => ({
   }
 }));
 
-const TotalCheckouts = () => {
+const TotalSales = () => {
   // const { className, ...rest } = props;
+  // note to self- each component can have a tooltip for extra info
 
   const classes = useStyles();
 
@@ -63,13 +64,13 @@ const TotalCheckouts = () => {
               gutterBottom
               variant="body2"
             >
-              TOTAL CHECKOUTS
+              TOTAL SALES
             </Typography>
-            <Typography variant="h3">10</Typography>
+            <Typography variant="h3">$200</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <PeopleIcon className={classes.icon} />
+              <MoneyIcon className={classes.icon} />
             </Avatar>
           </Grid>
         </Grid>
@@ -93,8 +94,8 @@ const TotalCheckouts = () => {
   );
 };
 
-TotalCheckouts.propTypes = {
+TotalSales.propTypes = {
   className: PropTypes.string
 };
 
-export default TotalCheckouts;
+export default TotalSales;
