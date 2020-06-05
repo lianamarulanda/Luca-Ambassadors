@@ -14,7 +14,7 @@ import profilePic from '../images/happydog.jpg';
 import ViewQuiltIcon from '@material-ui/icons/ViewQuilt'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../util/api';
-
+import Toolbar from '@material-ui/core/Toolbar';
 
 const drawerWidth = 240;
 
@@ -67,7 +67,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Sidebar() {
   const classes = useStyles();
   const dbContext = React.useContext(DbContext);
-  console.log(dbContext.userName); // debug
 
   return (
     <div className={classes.root}>
@@ -80,7 +79,7 @@ export default function Sidebar() {
         }}
         anchor="left"
       >
-        <div className={classes.toolbar} />
+        <Toolbar />
         <Avatar alt="pic" src={profilePic} className={classes.large} style={{alignSelf: 'center'}} />
         <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userName + " " + dbContext.userLastName}</Typography>
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
