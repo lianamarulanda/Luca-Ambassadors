@@ -11,7 +11,7 @@ import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Avatar from '@material-ui/core/Avatar';
 import profilePic from '../images/happydog.jpg';
-import ViewQuiltIcon from '@material-ui/icons/ViewQuilt'
+import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../util/api';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -86,7 +86,7 @@ export default function Sidebar() {
 
         <List>
           <ListItem button className={classes.buttonText}>
-            <ListItemIcon className={classes.icon}> <ViewQuiltIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <DashboardIcon/> </ListItemIcon>
             <ListItemText primary={"Dashboard"} />
           </ListItem>
           <ListItem button className={classes.buttonText}>

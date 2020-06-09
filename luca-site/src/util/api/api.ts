@@ -1,4 +1,5 @@
 import axios from 'axios';
+import orders from '../../orders.json';
 
 const firebaseConfig = require('../../config.json');
 const shopifyConfig = require('../../shopifyConfig.json');
@@ -173,10 +174,14 @@ export default class Api {
               console.log('No matching documents.'); // debug print
               resolve();
           } else {
-            snapshot.forEach((doc: any) => {
+            snapshot.forEach(async (doc: any) => {
               console.log(doc.id, '=>', doc.data());
+              // can make current user into a json object
               this.userName = doc.data().firstName;
               this.userLastName = doc.data().lastName;
+              const discountCode = await this.getAmbassador(doc.data().ambassadorID);
+              let array = await this.getOrders(discountCode);
+              console.log(this.getCodeData(array)); // add this and previous line elsewhere eventually
               resolve();
             });
           }
@@ -188,7 +193,58 @@ export default class Api {
     })
   }
 
+  public async getAmbassador(ambassadorID: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // query the ambassadors db for corresponding ambassador object
+      let ambassador = this.amRef.doc(ambassadorID);
 
+      ambassador.get()
+        .then((doc: any) => {
+          if (!doc.exists) {
+            console.log('No such document!');
+            reject();
+          } else {
+            resolve(doc.data().discountCode);
+          }
+        })
+        .catch((err: any) => {
+          console.log('Error getting document', err);
+          reject();
+        });
+    });
+  }
 
+  public async getOrders(discountCode: string): Promise<[]> {
+    return new Promise((resolve, reject) => {
+      // local array to store all the orders filtered by user discount code
+      var codeOrders: any = [];
+
+      orders.orders.forEach((order: any) => {
+        // print only discount codes associated w/order
+        if (order.discount_codes.length > 0)
+          if (order.discount_codes[0].code.toLowerCase() === discountCode.toLowerCase())
+            codeOrders.push(order);
+      })
+      // debug - print every item in codeOrders
+      codeOrders.forEach((order: any) => {
+        console.log(order.discount_codes[0].code);
+      })
+      resolve(codeOrders);
+    });
+  }
+
+  public getCodeData(codeOrders: []): object {
+    var codeData = {} as any;
+    var totalSales = 0;
+
+    codeOrders.forEach((order: any) => {
+      totalSales += order.subtotal_price;
+    })
+
+    codeData.totalSales = totalSales;
+    codeData.totalCheckouts = codeOrders.length;
+    codeData.totalCommissions = .20 * totalSales;
+    return codeData;
+  }
 }
 
