@@ -14,6 +14,7 @@ export default class Api {
   private amRef: any;
   public userName: string;
   public userLastName: string;
+  public codeData: object;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -24,6 +25,7 @@ export default class Api {
     this.amRef = this.myDatabase.collection('ambassadors');
     this.userName = "";
     this.userLastName = "";
+    this.codeData = {};
   }
 
     // write to database
@@ -181,7 +183,8 @@ export default class Api {
               this.userLastName = doc.data().lastName;
               const discountCode = await this.getAmbassador(doc.data().ambassadorID);
               let array = await this.getOrders(discountCode);
-              console.log(this.getCodeData(array)); // add this and previous line elsewhere eventually
+              this.codeData = this.getCodeData(array);
+              console.log(this.codeData); // debug
               resolve();
             });
           }
@@ -234,16 +237,62 @@ export default class Api {
   }
 
   public getCodeData(codeOrders: []): object {
+
+    var monthlyCommissions: number[] = [];
     var codeData = {} as any;
     var totalSales = 0;
+    let productMap = new Map();
 
     codeOrders.forEach((order: any) => {
-      totalSales += order.subtotal_price;
+      // DON'T FORGET TO CHECK FOR YEAR *see if the data should only be valid per year*
+      // if this app only cares for yearly data, our orders api call can be just starting from current year 
+      // accumulate the subtotal prices to see how much revenue was brought in
+      totalSales += parseFloat(order.subtotal_price);
+
+      // handle monthly commissions
+      var date = new Date(order.created_at);
+      // .getMonth will return actual month - 1, which fits our indexes 
+      if (typeof monthlyCommissions[date.getMonth()] === 'undefined') {
+        console.log("index is undefined!"); // debug
+        monthlyCommissions[date.getMonth()] = 0;
+      } 
+      console.log("index contains: " + monthlyCommissions[date.getMonth()]); // debug
+      monthlyCommissions[date.getMonth()] += (.20 * parseFloat(order.subtotal_price));
+
+      // handle product mapping
+      order.line_items.forEach((product: any) =>{
+        if (productMap.has(product.title)) {
+          productMap.set(product.title, productMap.get(product.title)+product.quantity);
+        } else {
+          productMap.set(product.title, product.quantity);
+        }
+      })
     })
 
+    // clean up monthlyCommissions to replace undefined indexes w/0, and round defined elements 
+    for (let i = 0; i < monthlyCommissions.length; i++) {
+      if (typeof monthlyCommissions[i] === 'undefined') {
+        monthlyCommissions[i] = 0;
+      } else {
+        monthlyCommissions[i] = parseFloat(monthlyCommissions[i].toFixed(2));
+      }
+    }
+
+    // sort productMap by value -> so highest values (counts) go first 
+    const sortedProducts= new Map(
+      Array
+        .from(productMap)
+        .sort((a, b) => {
+          // a[1], b[1] is the value of the map
+          return b[1] - a[1];
+        })
+    )
+    // set codeData fields
     codeData.totalSales = totalSales;
     codeData.totalCheckouts = codeOrders.length;
-    codeData.totalCommissions = .20 * totalSales;
+    codeData.totalCommissions = (.20 * totalSales);
+    codeData.monthlyCommissions = monthlyCommissions;
+    codeData.productMap = sortedProducts;
     return codeData;
   }
 }

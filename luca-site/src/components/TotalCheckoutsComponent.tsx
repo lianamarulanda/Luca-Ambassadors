@@ -1,9 +1,9 @@
 import React from 'react';
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import PeopleIcon from '@material-ui/icons/PeopleOutlined';
+import { DbContext } from '../util/api';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -29,14 +29,12 @@ const useStyles = makeStyles((theme: any) => ({
 }));
 
 const TotalCheckouts = () => {
-  // const { className, ...rest } = props;
-
+  const api = React.useContext(DbContext);
+  const data = api.codeData as any;
   const classes = useStyles();
 
   return (
     <Card
-      // {...rest}
-      // className={clsx(classes.root, className)}
     >
       <CardContent>
         <Grid

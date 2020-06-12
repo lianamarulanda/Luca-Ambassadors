@@ -9,7 +9,8 @@ import Sidebar from '../components/SidebarComponent'
 import TotalSales from '../components/TotalSalesComponent'
 import TotalCommission from '../components/TotalCommissionComponent'
 import TotalCheckouts from '../components/TotalCheckoutsComponent'
-
+import MonthlyCommissionsComponent from '../components/MonthlyCommissionsComponent'
+import TopProductsComponent from '../components/TopProductsComponent'
 
 const App: React.FC = () => {
   const classes = useStyles()
@@ -66,6 +67,7 @@ const App: React.FC = () => {
               xl={9}
               xs={12}
             >
+              <MonthlyCommissionsComponent />
             </Grid>
             <Grid
               item
@@ -74,6 +76,7 @@ const App: React.FC = () => {
               xl={3}
               xs={12}
             >
+              <TopProductsComponent />
             </Grid>
             <Grid
               item

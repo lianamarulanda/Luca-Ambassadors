@@ -1,9 +1,9 @@
 import React from 'react';
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import { DbContext } from '../util/api';
 
 const useStyles = makeStyles((theme: any) => ({
   card: {
@@ -31,14 +31,14 @@ const useStyles = makeStyles((theme: any) => ({
 }));
 
 const TotalCommission = () => {
-  //const { className, ...rest } = props;
-
+  const api = React.useContext(DbContext);
+  const data = api.codeData as any;
+  //var totalCommissions = data.totalCommissons.toFixed(2);
+  // console.log(typeof(totalCommissions));
   const classes = useStyles();
 
   return (
     <Card
-      //{...rest}
-      //className={clsx(classes.root, className)}
       className={classes.card}
     >
       <CardContent>
@@ -53,13 +53,13 @@ const TotalCommission = () => {
               gutterBottom
               variant="body2"
             >
-              TOTAL COMMISSION
+              TOTAL COMMISSIONS
             </Typography>
             <Typography
               color="inherit"
               variant="h3"
             >
-              $40
+              $20
             </Typography>
           </Grid>
           <Grid item>

@@ -1,10 +1,9 @@
 import React from 'react';
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import MoneyIcon from '@material-ui/icons/Money';
+import { DbContext } from '../util/api';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -30,15 +29,13 @@ const useStyles = makeStyles((theme: any) => ({
 }));
 
 const TotalSales = () => {
-  // const { className, ...rest } = props;
-  // note to self- each component can have a tooltip for extra info
-
+  const api = React.useContext(DbContext);
+  const data = api.codeData as any;
+  // var totalSales = data.totalSales.replace(/^0+/, '');
   const classes = useStyles();
 
   return (
     <Card
-      // {...rest}
-      // className={clsx(classes.root, className)}
     >
       <CardContent>
         <Grid
@@ -54,7 +51,7 @@ const TotalSales = () => {
             >
               TOTAL SALES
             </Typography>
-            <Typography variant="h3">$200</Typography>
+            <Typography variant="h3">$100</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
