@@ -51,7 +51,7 @@ const TotalSales = () => {
             >
               TOTAL SALES
             </Typography>
-            <Typography variant="h3">$100</Typography>
+            <Typography variant="h3">${data.totalSales.toFixed(2)}</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>

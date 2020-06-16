@@ -50,7 +50,7 @@ const TotalCheckouts = () => {
             >
               TOTAL CHECKOUTS
             </Typography>
-            <Typography variant="h3">10</Typography>
+            <Typography variant="h3">{data.totalCheckouts}</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>

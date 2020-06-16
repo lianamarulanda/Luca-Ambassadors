@@ -12,8 +12,7 @@ export default class Api {
   private authentication: any;
   private usersRef: any;
   private amRef: any;
-  public userName: string;
-  public userLastName: string;
+  public userData: any;
   public codeData: object;
 
   constructor() {
@@ -23,9 +22,8 @@ export default class Api {
     this.authentication = firebase.auth();
     this.usersRef = this.myDatabase.collection('users');
     this.amRef = this.myDatabase.collection('ambassadors');
-    this.userName = "";
-    this.userLastName = "";
     this.codeData = {};
+    this.userData = {};
   }
 
     // write to database
@@ -178,13 +176,13 @@ export default class Api {
           } else {
             snapshot.forEach(async (doc: any) => {
               console.log(doc.id, '=>', doc.data());
-              // can make current user into a json object
-              this.userName = doc.data().firstName;
-              this.userLastName = doc.data().lastName;
+              this.userData.firstName = doc.data().firstName;
+              this.userData.lastName = doc.data().lastName;
               const discountCode = await this.getAmbassador(doc.data().ambassadorID);
               let array = await this.getOrders(discountCode);
               this.codeData = this.getCodeData(array);
               console.log(this.codeData); // debug
+              console.log(this.userData); // debug
               resolve();
             });
           }

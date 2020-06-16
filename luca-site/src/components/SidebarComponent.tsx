@@ -15,6 +15,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../util/api';
 import Toolbar from '@material-ui/core/Toolbar';
+import { Link } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -81,7 +82,7 @@ export default function Sidebar() {
       >
         <Toolbar />
         <Avatar alt="pic" src={profilePic} className={classes.large} style={{alignSelf: 'center'}} />
-        <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userName + " " + dbContext.userLastName}</Typography>
+        <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
 
         <List>

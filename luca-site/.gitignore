@@ -26,3 +26,5 @@ src/config.json
 notes.txt
 src/shopifyConfig.json
 src/orders.json
+src/oldRegistrationPage.txt
+src/TableData.ts

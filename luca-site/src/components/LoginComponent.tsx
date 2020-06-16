@@ -34,18 +34,22 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     marginTop: '50px',
-    marginRight: '350px',
+    // marginRight: '350px',
     marginBottom: '50px',
     fontWeight: 100,
     color: '#4f4f4f',
     fontFamily: 'serif',
+  },
+  gridTitle : {
+    textAlign: 'left',
   },
   form: {
     width: '70%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
   signUp: {
-    marginLeft: '450px',
+    textAlign: 'right',
+    alignItems: 'right',
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -58,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       backgroundColor: '#10675E',
     }
-  },
+  }
 }));
 
 function Copyright() {
@@ -124,66 +128,72 @@ function LoginComponent() {
       <CssBaseline />
       <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
         <div className={classes.paper}>
-          <Grid item>
-            <Link href="/register" className={classes.signUp} variant="body2">
-              {"Don't have an account? Sign up"}
-            </Link>
-          </Grid>
-          <Typography className={classes.title} component="h1" variant="h3">
-                Sign in
-          </Typography>
-          <form className={classes.form} noValidate>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={handleChange}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={handleChange}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Grid item>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                onClick={handleLogin}
-              >
-                Sign In
-              </Button>
+          <Grid> 
+            <Grid item className={classes.signUp}>
+              <Link href="/register" className={classes.signUp} variant="body2">
+                {"Don't have an account? Sign up"}
+              </Link>
             </Grid>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
+            <Grid>
+              <Grid item className={classes.gridTitle}>
+                <Typography className={classes.title} component="h1" variant="h3">
+                  Sign in
+                </Typography>
               </Grid>
+              <form className={classes.form} noValidate>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  onChange={handleChange}
+                />
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox value="remember" color="primary" />}
+                  label="Remember me"
+                />
+                <Grid item>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={handleLogin}
+                  >
+                    Sign In
+                  </Button>
+                </Grid>
+                <Grid container>
+                  <Grid item xs>
+                    <Link href="#" variant="body2">
+                      Forgot password?
+                    </Link>
+                  </Grid>
+                </Grid>
+                <Box mt={35}>
+                  <Copyright />
+                </Box>
+              </form>
             </Grid>
-            <Box mt={35}>
-              <Copyright />
-            </Box>
-          </form>
+          </Grid>
         </div>
       </Grid>
       <Grid item xs={false} sm={4} md={6} className={classes.image} />

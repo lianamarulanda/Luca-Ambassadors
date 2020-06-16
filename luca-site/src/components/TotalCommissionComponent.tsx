@@ -34,7 +34,6 @@ const TotalCommission = () => {
   const api = React.useContext(DbContext);
   const data = api.codeData as any;
   //var totalCommissions = data.totalCommissons.toFixed(2);
-  // console.log(typeof(totalCommissions));
   const classes = useStyles();
 
   return (
@@ -59,7 +58,7 @@ const TotalCommission = () => {
               color="inherit"
               variant="h3"
             >
-              $20
+            ${data.totalCommissions.toFixed(2)}
             </Typography>
           </Grid>
           <Grid item>
