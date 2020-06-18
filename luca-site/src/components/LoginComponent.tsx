@@ -120,7 +120,7 @@ function LoginComponent() {
           // show error 
         }
       });
-};
+  };
 
 
   return (

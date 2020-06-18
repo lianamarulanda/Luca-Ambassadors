@@ -39,27 +39,6 @@ export default class Api {
           });
     }
 
-    // update database - test updating user / querying email
-    public async updateEmail() : Promise<void> {
-        const usersRef = this.myDatabase.collection('users');
-        var query = usersRef.where('email', '==', 'ainovamc@gmail.com').get()
-            .then((snapshot: any) => {
-                if (snapshot.empty) {
-                    console.log('No matching documents.');
-                }
-             
-             snapshot.forEach((doc : any) => {
-                    console.log(doc.id, '=>', doc.data());
-                    console.log('updating data...');
-                    // update the users that meet the query
-                    usersRef.doc(doc.id).update({email: 'ainovamc2@gmail.com'});
-                });
-            })
-            .catch((err: any) => {
-                console.log('Error getting documents', err);
-            });
-    }
-
     // read from database
     public async getData(): Promise<void> {
         const usersRef = this.myDatabase.collection('users');
@@ -212,6 +191,143 @@ export default class Api {
           console.log('Error getting document', err);
           reject();
         });
+    });
+  }
+
+  public async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (newPassword !== confirmPassword) {
+        resolve("passwords not equal");
+        return;
+      }
+      var user = this.authentication.currentUser;
+      var credential = firebase.auth.EmailAuthProvider.credential(
+        user.email,
+        oldPassword
+      );
+
+      // Prompt the user to re-provide their sign-in credentials
+      user.reauthenticateWithCredential(credential).then(function() {
+        // User re-authenticated.
+        // can now update the password
+        var newPass = newPassword;
+    
+        user.updatePassword(newPass).then(function() {
+          // Update successful.
+          resolve("success");
+        }).catch((err: any) => {
+          // error happened - perhaps new password isnt strong enough 
+          // https://firebase.google.com/docs/auth/web/manage-users
+          resolve(err.message);
+        });
+
+      }).catch(function(error: any) {
+        // An error happened- perhaps old password is wrong
+        resolve(error.message);
+      });
+    });
+  }
+
+  public async updateEmail(newEmail: string, confirmEmail: string, password: string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (confirmEmail !== newEmail) {
+        resolve("emails not equal");
+        return;
+      }
+      
+      var user = this.authentication.currentUser;
+      var oldEmail = user.email;
+      var credential = firebase.auth.EmailAuthProvider.credential(
+        user.email,
+        password
+      );
+
+      // re-authenticate user 
+      user.reauthenticateWithCredential(credential).then(() => {
+        // User reauthenticated, can now update email
+        // update in firebase authentication
+        user.updateEmail(newEmail).then(() => {
+          // successfully updated in authentication, now update in database
+          this.usersRef.where('email', '==', oldEmail).get()
+            .then((snapshot: any) => {
+              if (snapshot.empty) {
+                resolve("No matching documents");
+                // do i need to return here?
+              }
+            
+              snapshot.forEach((doc : any) => {
+                this.usersRef.doc(doc.id).update({email: newEmail});
+                resolve("success");
+              });
+            })
+            .catch((err: any) => {
+              // Error happened w database update
+              // can also resolve error codes
+              resolve(err.message);
+            });
+
+        }).catch(function(error: any) {
+          // An error happened w/updating email in authentication
+          resolve(error.message);
+        });
+
+      }).catch(function(error: any) {
+        // An error happened w/reauthenticating - perhaps pass is wrong
+        resolve(error.message);
+      });
+    });
+  }
+
+  public async updatePersonalInfo(firstName: string, lastName: string, amCode: string, password: string): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      var user = this.authentication.currentUser;
+      var credential = firebase.auth.EmailAuthProvider.credential(
+        user.email,
+        password
+      );
+
+      // re-authenticate user using given password
+      await user.reauthenticateWithCredential(credential).then(async () => {
+        // query user in database baed on the current logged in user email 
+        await this.usersRef.where('email', '==', user.email).get()
+          .then((snapshot: any) => {
+            if (snapshot.empty) {
+              resolve("No matching email");
+              return;
+            } snapshot.forEach((doc : any) => {
+              // update database for filled in fields
+              if (firstName !== "") {
+                // update firstName
+                console.log("updating first name...");
+                this.usersRef.doc(doc.id).update({firstName: firstName});
+                // do i need to do a .catch after calling update function?
+                console.log("updated first name");
+              }
+        
+              if (lastName !== "") {
+                // update lastName
+                console.log("updating last name...");
+                this.usersRef.doc(doc.id).update({lastName: lastName});
+                console.log("updated last name");
+              }
+              if (amCode !== "") {
+                // update ambassador code
+                console.log("updating ambassador code...");
+                this.amRef.doc(doc.data().ambassadorID).update({discountCode: amCode});
+                console.log("updated ambassador code");
+              }
+              resolve("success");
+            });
+          }).catch((err: any) => {
+            // Error happened w database query
+            resolve(err.message);
+            return;
+          });
+      }).catch(function(error: any) {
+        // error occured w/reauthentication
+        resolve(error.message);
+        return;
+      }); 
     });
   }
 
