@@ -1,10 +1,12 @@
 import * as functions from 'firebase-functions';
 var admin = require("firebase-admin");
+import axios from 'axios';
 
 // Start writing Firebase Functions
 // https://firebase.google.com/docs/functions/typescript
 
 var serviceAccount = require('../adminConfig.json');
+var shopify = require('../shopifyConfig.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -27,6 +29,18 @@ export const addAdminRole = functions.https.onRequest((request, response) => {
     })
     .catch((err: any) => response.status(400).send(err));
 
+});
+
+export const getOrders = functions.https.onRequest((request, response) => {
+
+  //console.log(shopify.apiKey);
+  //console.log(shopify.apiPass);
+  
+  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json')
+  .then(result => {
+    // console.log(response.data);
+    response.status(200).send(result.data);
+  })
 });
 
 

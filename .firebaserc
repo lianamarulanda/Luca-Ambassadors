@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "luca-ambassadors"
+  },
+  "targets": {
+    "luca-ambassadors": {
+      "hosting": {
+        "website": [
+          "luca-ambassadors"
+        ],
+        "server": [
+          "luca-server"
+        ]
+      }
+    }
   }
 }
