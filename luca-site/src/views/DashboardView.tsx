@@ -5,14 +5,14 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
 import { Grid } from '@material-ui/core';
-import Sidebar from '../components/SidebarComponent'
-import TotalSales from '../components/TotalSalesComponent'
-import TotalCommission from '../components/TotalCommissionComponent'
-import TotalCheckouts from '../components/TotalCheckoutsComponent'
-import MonthlyCommissionsComponent from '../components/MonthlyCommissionsComponent'
-import TopProductsComponent from '../components/TopProductsComponent'
-import WelcomeComponent from '../components/WelcomeComponent'
-import OrdersComponent from '../components/OrdersComponent'
+import Sidebar from '../components/layout/SidebarComponent'
+import TotalSales from '../components/dashboard/TotalSalesComponent'
+import TotalCommission from '../components/dashboard/TotalCommissionsComponent'
+import TotalCheckouts from '../components/dashboard/TotalCheckoutsComponent'
+import MonthlyCommissionsComponent from '../components/dashboard/MonthlyCommissionsComponent'
+import TopProductsComponent from '../components/dashboard/TopProductsComponent'
+import WelcomeComponent from '../components/dashboard/WelcomeComponent'
+import OrdersComponent from '../components/dashboard/OrdersComponent'
 
 const App: React.FC = () => {
   const classes = useStyles()

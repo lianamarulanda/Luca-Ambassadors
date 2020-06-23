@@ -1,5 +1,5 @@
 import React from 'react';
-import RegisterComponent from '../components/RegisterComponent';
+import RegisterComponent from '../components/register/RegisterComponent';
 
 function RegisterView() {
   return (

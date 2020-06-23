@@ -1,9 +1,9 @@
 import React from 'react';
-import SettingsComponent from '../components/SettingsComponent'
+import SettingsComponent from '../components/settings/SettingsComponent' // do i need an index?
 import { makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Sidebar from '../components/SidebarComponent';
+import Sidebar from '../components/layout/SidebarComponent';
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography';
 

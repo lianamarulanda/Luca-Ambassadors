@@ -6,9 +6,8 @@ import { TextField } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid } from '@material-ui/core'; 
-import { DbContext } from '../util/api'
-
+import { Grid } from '@material-ui/core';
+import { DbContext } from '../../util/api';
 
 const useStyles = makeStyles({
   root: {
@@ -25,12 +24,13 @@ const useStyles = makeStyles({
 });
 
 const initialFormData = Object.freeze({
-  newEmail: "",
-  confirmEmail: "",
+  firstName: "",
+  lastName: "",
+  amCode: "",
   password: "",
 });
 
-export default function UpdateEmail() {
+export default function UpdatePersonalInfo() {
   const classes = useStyles();
   const api = React.useContext(DbContext);
   // state handling
@@ -44,19 +44,25 @@ export default function UpdateEmail() {
         [event.target.name]: event.target.value.trim()
     });
   };
-  // updateEmail api will get called here
+
+  // updatePersonalInfo api will get called here
   const handleUpdate = async (event: any) => {
     event.preventDefault()
     // debug print statement
     console.log(formData);
-    api.updateEmail(formData.newEmail, formData.confirmEmail, formData.password)
-      .then((status: string) => {
-        if (status === "success") {
-          console.log("email updated!");
-        } else {
-          console.log(status);
-        }
-      });
+
+    if (formData.firstName == "" && formData.lastName == "" && formData.amCode == "") {
+      console.log("Fill out at least one of the fields!");
+    } else {
+      api.updatePersonalInfo(formData.firstName, formData.lastName, formData.amCode, formData.password)
+        .then((status: string) => {
+          if (status === "success") {
+            console.log("information updated!");
+          } else {
+            console.log(status);
+          }
+        });
+    }
   };
 
   return (
@@ -66,37 +72,43 @@ export default function UpdateEmail() {
       <div className={classes.paper}>
         <Grid>
           <form>
-            <Grid item className={classes.align}>
+          <Grid item className={classes.align}>
               <CardHeader
-                subheader="Update email"
+                subheader="Update personal info"
               />
             </Grid>
             <CardContent>
               <TextField
                   fullWidth
-                  label="New email"
-                  name="newEmail"
+                  label="First name"
+                  name="firstName"
                   variant="outlined"
-                  required
                   autoFocus
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  label="Last name"
+                  name="lastName"
+                  style={{ marginTop: '1rem' }}
+                  variant="outlined"
                   onChange={handleChange}
                 />
               <TextField
                 fullWidth
-                label="Confirm new email"
-                name="confirmEmail"
+                label="Ambassador code"
+                name="amCode"
                 style={{ marginTop: '1rem' }}
                 variant="outlined"
-                required
                 onChange={handleChange}
               />
               <TextField
                 fullWidth
-                label="Confirm password"
+                label="Password"
                 name="password"
+                required
                 style={{ marginTop: '1rem' }}
                 variant="outlined"
-                required
                 type="password"
                 onChange={handleChange}
               />

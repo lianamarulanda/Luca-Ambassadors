@@ -13,9 +13,8 @@ import Avatar from '@material-ui/core/Avatar';
 import profilePic from '../images/happydog.jpg';
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
-import { DbContext } from '../util/api';
+import { DbContext } from '../../util/api';
 import Toolbar from '@material-ui/core/Toolbar';
-import { Link } from "react-router-dom";
 
 const drawerWidth = 240;
 

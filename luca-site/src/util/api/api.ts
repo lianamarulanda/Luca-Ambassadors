@@ -14,6 +14,7 @@ export default class Api {
   private amRef: any;
   public userData: any;
   public codeData: object;
+  public orderRequest: any;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -24,20 +25,35 @@ export default class Api {
     this.amRef = this.myDatabase.collection('ambassadors');
     this.codeData = {};
     this.userData = {};
+    this.orderRequest = {
+      "order": {
+
+        "customer": {
+          "first_name": "",
+          "last_name": "",
+          "email" : "",
+        },
+        "test": true,
+        "email": "", 
+        "send_receipt": true,
+        "shipping_address": {
+          "first_name": "",
+          "last_name": "",
+          "address1": "",
+          "address2": "",
+          "city": "",
+          "province": "",
+          "country": "",
+          "zip": ""
+        },
+        "line_items": [
+          {
+            "quantity": 0,
+          },
+        ],
+      }
+    };
   }
-
-    // write to database
-    public async writeData(): Promise<void> {
-        const usersRef = this.myDatabase.collection('users');
-
-        usersRef.add({
-                age: 59,
-                firstName: 'Julio',
-                lastName: 'Marulanda'
-            }).then((ref: { id: any; }) => {
-            console.log('Added document with ID: ', ref.id);
-          });
-    }
 
     // read from database
     public async getData(): Promise<void> {
@@ -330,6 +346,35 @@ export default class Api {
       }); 
     });
   }
+
+  public saveAddress(address1: string, address2: string, city: string, state: string, country: string, zip: string): void
+  {
+    // may need to add first and last name to address
+    this.orderRequest.order.shipping_address.address1 = address1;
+    this.orderRequest.order.shipping_address.address2 = address2;
+    this.orderRequest.order.shipping_address.city = city;
+    this.orderRequest.order.shipping_address.province = state;
+    this.orderRequest.order.shipping_address.country = country;
+    this.orderRequest.order.shipping_address.zip = zip;
+    // debug
+    console.log(this.orderRequest);
+  }
+
+  public submitOrder(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      var email = this.authentication.currentUser.email;
+
+      this.orderRequest.order.email = email;
+      this.orderRequest.order.customer.first_name = this.userData.firstName;
+      this.orderRequest.order.customer.last_name = this.userData.lastName;
+      this.orderRequest.order.customer.email = email;
+
+      // test line items
+      this.orderRequest.order.line_items.title = "Matteo Bracelet in Maroon";
+      this.orderRequest.order.line_items.quantity = 1;
+    });
+  }
+
 
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {

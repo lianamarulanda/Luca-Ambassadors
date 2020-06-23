@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
-import MoneyIcon from '@material-ui/icons/Money';
-import { DbContext } from '../util/api';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import { DbContext } from '../../util/api';
 
 const useStyles = makeStyles((theme: any) => ({
-  root: {
-    height: '100%'
+  card: {
+    backgroundColor: '#168C80',
+    color: 'white'
   },
   content: {
     alignItems: 'center',
@@ -18,24 +19,26 @@ const useStyles = makeStyles((theme: any) => ({
     textAlign: 'left'
   },
   avatar: {
-    backgroundColor: theme.palette.success.main,
+    backgroundColor: 'white',
+    color: '#168C80',
     height: 56,
     width: 56
   },
   icon: {
     height: 32,
     width: 32
-  },
+  }
 }));
 
-const TotalSales = () => {
+const TotalCommission = () => {
   const api = React.useContext(DbContext);
   const data = api.codeData as any;
-  // var totalSales = data.totalSales.replace(/^0+/, '');
+  //var totalCommissions = data.totalCommissons.toFixed(2);
   const classes = useStyles();
 
   return (
     <Card
+      className={classes.card}
     >
       <CardContent>
         <Grid
@@ -45,17 +48,22 @@ const TotalSales = () => {
           <Grid item>
             <Typography
               className={classes.title}
-              color="textSecondary"
+              color="inherit"
               gutterBottom
               variant="body2"
             >
-              TOTAL SALES
+              TOTAL COMMISSIONS
             </Typography>
-            <Typography variant="h3">${data.totalSales.toFixed(2)}</Typography>
+            <Typography
+              color="inherit"
+              variant="h3"
+            >
+            ${data.totalCommissions.toFixed(2)}
+            </Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <MoneyIcon className={classes.icon} />
+              <AttachMoneyIcon className={classes.icon} />
             </Avatar>
           </Grid>
         </Grid>
@@ -64,8 +72,8 @@ const TotalSales = () => {
   );
 };
 
-TotalSales.propTypes = {
+TotalCommission.propTypes = {
   className: PropTypes.string
 };
 
-export default TotalSales;
+export default TotalCommission;
