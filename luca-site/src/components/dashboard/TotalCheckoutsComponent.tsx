@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import PeopleIcon from '@material-ui/icons/PeopleOutlined';
-import { DbContext } from '../util/api';
+import { DbContext } from '../../util/api';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
