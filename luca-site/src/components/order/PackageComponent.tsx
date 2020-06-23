@@ -9,7 +9,7 @@ export default function PackageComponent() {
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
-        Select accessories
+        Select package
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
