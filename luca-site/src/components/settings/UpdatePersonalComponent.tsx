@@ -51,7 +51,7 @@ export default function UpdatePersonalInfo() {
     // debug print statement
     console.log(formData);
 
-    if (formData.firstName == "" && formData.lastName == "" && formData.amCode == "") {
+    if (formData.firstName === "" && formData.lastName === "" && formData.amCode === "") {
       console.log("Fill out at least one of the fields!");
     } else {
       api.updatePersonalInfo(formData.firstName, formData.lastName, formData.amCode, formData.password)
