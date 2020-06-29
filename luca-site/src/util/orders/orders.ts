@@ -4,7 +4,6 @@ export default class orders {
   constructor() {
     this.orderRequest = {
       "order": {
-
         "customer": {
           "first_name": "",
           "last_name": "",
@@ -13,7 +12,9 @@ export default class orders {
         "test": true,
         "email": "", 
         "send_receipt": true,
-        "shipping_address": {
+        "shipping_address": {          
+          "first_name": "",
+          "last_name": "",
           "address1": "",
           "address2": "",
           "city": "",

@@ -93,24 +93,11 @@ export default function OrderComponent() {
       });
   });
 
-  const setActiveStep = (step: number) => {
-    
+  const setActiveStep = (step: number) => { 
     updateState({
       ...orderData, // gets current state values, prevents from resetting key-val pair
-
       activeStep: step
     });
-    if (step === 1)
-    {
-      // update address in order api
-      orderApi.orderRequest.order.shipping_address.address1 = orderData.address1;
-      orderApi.orderRequest.order.shipping_address.address2 = orderData.address2;
-      orderApi.orderRequest.order.shipping_address.city = orderData.city;
-      orderApi.orderRequest.order.shipping_address.province = orderData.province;
-      orderApi.orderRequest.order.shipping_address.zip = orderData.zip;
-      orderApi.orderRequest.order.shipping_address.country = orderData.country;
-      orderApi.printRequest();
-    }
   };
 
   const handleNext = () => {
@@ -118,7 +105,15 @@ export default function OrderComponent() {
       if (orderData.address1 === "" || orderData.city === "" || orderData.province === "" || orderData.zip === "" || orderData.country === "") {
         console.log("please fill out all fields!"); 
       } else {
-      setActiveStep(orderData.activeStep + 1);
+        // update address in order api
+        orderApi.orderRequest.order.shipping_address.address1 = orderData.address1;
+        orderApi.orderRequest.order.shipping_address.address2 = orderData.address2;
+        orderApi.orderRequest.order.shipping_address.city = orderData.city;
+        orderApi.orderRequest.order.shipping_address.province = orderData.province;
+        orderApi.orderRequest.order.shipping_address.zip = orderData.zip;
+        orderApi.orderRequest.order.shipping_address.country = orderData.country;
+        orderApi.printRequest();
+        setActiveStep(orderData.activeStep + 1);
       }
     } else if (orderData.activeStep === 1) {
       if (orderApi.orderRequest.order.line_items.length === 0) {
@@ -126,18 +121,21 @@ export default function OrderComponent() {
       } else {
         setActiveStep(orderData.activeStep + 1);
       }
-      
+    } else {
+      setActiveStep(orderData.activeStep + 1);
     }
   };
 
   const handleBack = () => {
+    if (orderData.activeStep === 2) 
+      orderApi.orderRequest.order.line_items = [];
+
     setActiveStep(orderData.activeStep - 1);
   };
 
   const handleAddress = (event: any) => {
     updateState({
         ...orderData,
-
         [event.target.name]: event.target.value.trim()
     });
   };
@@ -145,8 +143,9 @@ export default function OrderComponent() {
   const getStepContent= (step: any) => {
     switch (step) {
       case 0:
-        return <AddressComponent handleChange={handleAddress} />;
+        return <AddressComponent handleChange={handleAddress} {...orderData} />;
       case 1: {
+        console.log(allProducts);
         return <PackageComponent />;
       }
       case 2: {

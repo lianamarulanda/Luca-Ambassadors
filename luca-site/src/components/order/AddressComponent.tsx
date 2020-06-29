@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 
 
-export default function AddressComponent({handleChange} : { handleChange: any}) {
+export default function AddressComponent(props: any) {
   
   return (
     <React.Fragment>
@@ -20,8 +20,9 @@ export default function AddressComponent({handleChange} : { handleChange: any}) 
             name="address1"
             label="Address"
             fullWidth
+            defaultValue={props.address1}
             autoComplete="shipping address-line1"
-            onChange={handleChange}
+            onChange={props.handleChange}
           />
         </Grid>
         <Grid item xs={12}>
@@ -30,8 +31,9 @@ export default function AddressComponent({handleChange} : { handleChange: any}) 
             name="address2"
             label="Apartment, suite, etc."
             fullWidth
+            defaultValue={props.address2}
             autoComplete="shipping address-line2"
-            onChange={handleChange}
+            onChange={props.handleChange}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -41,8 +43,9 @@ export default function AddressComponent({handleChange} : { handleChange: any}) 
             name="city"
             label="City"
             fullWidth
+            defaultValue={props.city}
             autoComplete="shipping address-level2"
-            onChange={handleChange}
+            onChange={props.handleChange}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -52,7 +55,8 @@ export default function AddressComponent({handleChange} : { handleChange: any}) 
             name="province" 
             label="State/Province/Region"
             fullWidth 
-            onChange={handleChange} 
+            defaultValue={props.province}
+            onChange={props.handleChange} 
             />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -62,8 +66,9 @@ export default function AddressComponent({handleChange} : { handleChange: any}) 
             name="zip"
             label="Zip / Postal code"
             fullWidth
+            defaultValue={props.zip}
             autoComplete="shipping postal-code"
-            onChange={handleChange}
+            onChange={props.handleChange}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -73,8 +78,9 @@ export default function AddressComponent({handleChange} : { handleChange: any}) 
             name="country"
             label="Country"
             fullWidth
+            defaultValue={props.country}
             autoComplete="shipping country"
-            onChange={handleChange}
+            onChange={props.handleChange}
           />
         </Grid>
       </Grid>
