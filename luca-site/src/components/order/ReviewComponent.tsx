@@ -5,7 +5,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Grid from '@material-ui/core/Grid';
-
+import PropTypes from 'prop-types';
+import { ordersContext } from '../../util/orders'; 
 const products = [
   { name: 'Product 1', desc: 'A nice thing', price: '$9.99' },
   { name: 'Product 2', desc: 'Another thing', price: '$3.45' },
@@ -13,7 +14,7 @@ const products = [
   { name: 'Product 4', desc: 'Best thing of all', price: '$14.11' },
   { name: 'Shipping', desc: '', price: 'Free' },
 ];
-const addresses = ['1 Material-UI Drive', 'Reactville', 'Anytown', '99999', 'USA'];
+
 const payments = [
   { name: 'Card type', detail: 'Visa' },
   { name: 'Card holder', detail: 'Mr John Smith' },
@@ -33,8 +34,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ReviewComponent() {
+export default function ReviewComponent(orderData: any) {
   const classes = useStyles();
+  const addresses = [orderData.address1, orderData.city, orderData.province, orderData.zip, orderData.country];
+  const orderApi = React.useContext(ordersContext);
 
   return (
     <React.Fragment>
@@ -42,10 +45,10 @@ export default function ReviewComponent() {
         Order summary
       </Typography>
       <List disablePadding>
-        {products.map((product) => (
-          <ListItem className={classes.listItem} key={product.name}>
-            <ListItemText primary={product.name} secondary={product.desc} />
-            <Typography variant="body2">{product.price}</Typography>
+        {orderApi.orderRequest.order.line_items.map((product: string) => (
+          <ListItem className={classes.listItem} key={product}>
+            <ListItemText primary={product} secondary={"A nice thing"} />
+            <Typography variant="body2">$10</Typography>
           </ListItem>
         ))}
         <ListItem className={classes.listItem}>
@@ -83,4 +86,7 @@ export default function ReviewComponent() {
       </Grid>
     </React.Fragment>
   );
+}
+ReviewComponent.propTypes = {
+  orderData: PropTypes.any,
 }

@@ -1,48 +1,142 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import { makeStyles } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core/';
+import ProductsComponent from './ProductsComponent';
+
+const useStyles = makeStyles((theme: any) => ({
+  card: {
+    padding: theme.spacing(2),
+    '&:hover': {
+      backgroundColor: '#6c7878',
+    },
+    textTransform: "none",
+    width: '100%',
+    length: '100%'
+  },
+  selectedCard: {
+    padding: theme.spacing(2),
+    backgroundColor: '#6c7878',
+    textTransform: "none",
+    width: '100%',
+    length: '100%'
+  },
+  title: {
+    marginBottom: '30px'
+  },
+}));
+
+const initialState= Object.freeze({
+  isDisplayed: false,
+  packageSelection: "",
+
+});
 
 export default function PackageComponent() {
+  const classes = useStyles();
+
+  const [selectionState, setCurrentSelection] = React.useState(initialState);
+
+  const handleSelect = (selection: string) => {
+
+    if (selectionState.isDisplayed && selection === selectionState.packageSelection) {
+      setCurrentSelection({
+        ...selectionState,
+        isDisplayed: !selectionState.isDisplayed,
+        packageSelection: ""
+      });
+    } else if (selectionState.isDisplayed && selection !== "") {
+      setCurrentSelection({
+        ...selectionState,
+        packageSelection: selection
+      });
+     } else if (!selectionState.isDisplayed && selection !== "") {
+      setCurrentSelection({
+        ...selectionState,
+        isDisplayed: !selectionState.isDisplayed,
+        packageSelection: selection
+      });        
+     }
+  };
+
+
   return (
     <React.Fragment>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom className={classes.title}>
         Select package
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <TextField required id="cardName" label="Name on card" fullWidth autoComplete="cc-name" />
+      <Grid container spacing={3}>        
+        <Grid item xs={4} >
+          <Button 
+          variant="outlined" 
+          className={selectionState.packageSelection === "1 Bracelet Set" ? classes.selectedCard : classes.card } 
+          onClick={() => handleSelect("1 Bracelet Set")}
+          >
+            1 Bracelet Set
+          </Button>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField
-            required
-            id="cardNumber"
-            label="Card number"
-            fullWidth
-            autoComplete="cc-number"
-          />
+        <Grid item xs={4}>
+          <Button 
+          variant="outlined" 
+          className={selectionState.packageSelection === "2 Single Bracelets" ? classes.selectedCard : classes.card }  
+          onClick={() => handleSelect("2 Single Bracelets")}
+          >
+            2 Single Bracelets
+          </Button>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField required id="expDate" label="Expiry date" fullWidth autoComplete="cc-exp" />
+        <Grid item xs={4}>
+          <Button 
+          variant="outlined" 
+          className={selectionState.packageSelection === "2 Anklets" ? classes.selectedCard : classes.card }  
+          onClick={() => handleSelect("2 Anklets")}
+          >
+            2 Anklets
+          </Button>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField
-            required
-            id="cvv"
-            label="CVV"
-            helperText="Last three digits on signature strip"
-            fullWidth
-            autoComplete="cc-csc"
-          />
+        <Grid item xs={4}>
+          <Button 
+          variant="outlined" 
+          style={{ fontSize: '13px', padding: '18px'}} 
+          className={selectionState.packageSelection === "1 Bracelet + 1 Anklet" ? classes.selectedCard : classes.card } 
+          onClick={() => handleSelect("2 1 Bracelet + 1 Anklet")}>
+            1 Bracelet + 1 Anklet
+          </Button>
+        </Grid>
+        <Grid item xs={4}>
+          <Button 
+          variant="outlined" 
+          className={selectionState.packageSelection === "1 Necklace" ? classes.selectedCard : classes.card }  
+          onClick={() => handleSelect("1 Necklace")}
+          >
+            1 Necklace
+          </Button>
+        </Grid>
+        <Grid item xs={4}>
+          <Button 
+          variant="outlined" 
+          className={selectionState.packageSelection === "1 Pair of Earrings" ? classes.selectedCard : classes.card } 
+          onClick={() => handleSelect("1 Pair of Earrings")}
+          >
+            1 Pair of Earrings
+          </Button>
         </Grid>
         <Grid item xs={12}>
-          <FormControlLabel
-            control={<Checkbox color="secondary" name="saveCard" value="yes" />}
-            label="Remember credit card details for next time"
-          />
+          <Button 
+          variant="outlined" 
+          className={selectionState.packageSelection === "1 Baseball Cap" ? classes.selectedCard : classes.card } 
+          onClick={() => handleSelect("1 Baseball Cap")}
+          >
+            1 Baseball Cap
+          </Button>
         </Grid>
       </Grid>
+
+      { selectionState.isDisplayed && 
+      <div>
+        <br />
+          <ProductsComponent packageSelection={selectionState.packageSelection} />
+      </div>
+      }
     </React.Fragment>
 )};

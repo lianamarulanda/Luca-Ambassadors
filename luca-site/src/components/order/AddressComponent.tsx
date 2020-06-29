@@ -2,44 +2,11 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import { DbContext } from '../../util/api';
+import PropTypes from 'prop-types';
 
-const initialFormData = Object.freeze({
-  address1: "",
-  address2: "",
-  city: "",
-  state: "",
-  country: "",
-  zip: ""
-});
 
-export default function AddressComponent() {
-  const api = React.useContext(DbContext);
-  const [formData, updateFormData] = React.useState(initialFormData);
-
-  const handleChange = (event: any) => {
-    updateFormData({
-        ...formData,
-
-        [event.target.name]: event.target.value.trim()
-    });
-  };
-
-  const handleAddress = async (event: any) => {
-    event.preventDefault()
-    // debug print statement
-    console.log(formData);
-
-    if (formData.address1 === "" || formData.city === "" || formData.state === "" || formData.zip === "" || formData.country === "") {
-      console.log("please fill out all fields!");
-    } else {
-      api.saveAddress(formData.address1, formData.address2, formData.city, formData.state, formData.country, formData.zip);
-    }
-
-  };
-
+export default function AddressComponent({handleChange} : { handleChange: any}) {
+  
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -81,8 +48,8 @@ export default function AddressComponent() {
         <Grid item xs={12} sm={6}>
           <TextField
             required
-            id="state" 
-            name="state" 
+            id="province" 
+            name="province" 
             label="State/Province/Region"
             fullWidth 
             onChange={handleChange} 
@@ -113,4 +80,8 @@ export default function AddressComponent() {
       </Grid>
     </React.Fragment>
   );
+}
+
+AddressComponent.propTypes = {
+  handleChange: PropTypes.any,
 }

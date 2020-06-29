@@ -13,6 +13,9 @@ import Typography from '@material-ui/core/Typography';
 import AddressComponent from './AddressComponent';
 import PackageComponent from './PackageComponent';
 import ReviewComponent from './ReviewComponent';
+import { ordersContext } from '../../util/orders';
+import { DbContext } from '../../util/api';
+
 
 function Copyright() {
   return (
@@ -64,33 +67,96 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const steps = ['Shipping address', 'Payment details', 'Review your order'];
+const steps = ['Shipping address', 'Select items', 'Review your order'];
 
-function getStepContent(step: any) {
-  switch (step) {
-    case 0:
-      return <AddressComponent />;
-    case 1:
-      return <PackageComponent />;
-    case 2:
-      return <ReviewComponent />;
-    default:
-      throw new Error('Unknown step');
-  }
-}
+const orderState = Object.freeze({
+  activeStep: 0,
+  address1: "",
+  address2 : "",
+  city: "",
+  province: "",
+  zip: "",
+  country: "",
+});
 
-export default function Checkout() {
+export default function OrderComponent() {
   const classes = useStyles();
-  const [activeStep, setActiveStep] = React.useState(0);
+  const orderApi = React.useContext(ordersContext);
+  const dbApi = React.useContext(DbContext);
+  const [orderData, updateState] = React.useState(orderState);
+  const [allProducts, updateAllProducts] = React.useState([] as object[]);
+
+  React.useEffect(() => {
+    dbApi.getAllProducts()
+      .then((products) => {
+        updateAllProducts(products);
+      });
+  });
+
+  const setActiveStep = (step: number) => {
+    
+    updateState({
+      ...orderData, // gets current state values, prevents from resetting key-val pair
+
+      activeStep: step
+    });
+    if (step === 1)
+    {
+      // update address in order api
+      orderApi.orderRequest.order.shipping_address.address1 = orderData.address1;
+      orderApi.orderRequest.order.shipping_address.address2 = orderData.address2;
+      orderApi.orderRequest.order.shipping_address.city = orderData.city;
+      orderApi.orderRequest.order.shipping_address.province = orderData.province;
+      orderApi.orderRequest.order.shipping_address.zip = orderData.zip;
+      orderApi.orderRequest.order.shipping_address.country = orderData.country;
+      orderApi.printRequest();
+    }
+  };
 
   const handleNext = () => {
-    
-    setActiveStep(activeStep + 1);
+    if (orderData.activeStep === 0) {
+      if (orderData.address1 === "" || orderData.city === "" || orderData.province === "" || orderData.zip === "" || orderData.country === "") {
+        console.log("please fill out all fields!"); 
+      } else {
+      setActiveStep(orderData.activeStep + 1);
+      }
+    } else if (orderData.activeStep === 1) {
+      if (orderApi.orderRequest.order.line_items.length === 0) {
+        console.log("please select at least one item!");
+      } else {
+        setActiveStep(orderData.activeStep + 1);
+      }
+      
+    }
   };
 
   const handleBack = () => {
-    setActiveStep(activeStep - 1);
+    setActiveStep(orderData.activeStep - 1);
   };
+
+  const handleAddress = (event: any) => {
+    updateState({
+        ...orderData,
+
+        [event.target.name]: event.target.value.trim()
+    });
+  };
+
+  const getStepContent= (step: any) => {
+    switch (step) {
+      case 0:
+        return <AddressComponent handleChange={handleAddress} />;
+      case 1: {
+        return <PackageComponent />;
+      }
+      case 2: {
+        console.log(orderData);
+        return <ReviewComponent {...orderData} />;
+      }
+      default:
+        throw new Error('Unknown step');
+    }
+  }
 
   return (
     <React.Fragment>
@@ -107,7 +173,7 @@ export default function Checkout() {
           <Typography component="h1" variant="h4" align="center">
             Order Accessories Package 
           </Typography>
-          <Stepper activeStep={activeStep} className={classes.stepper}>
+          <Stepper activeStep={orderData.activeStep} className={classes.stepper}>
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -115,7 +181,7 @@ export default function Checkout() {
             ))}
           </Stepper>
           <React.Fragment>
-            {activeStep === steps.length ? (
+            {orderData.activeStep === steps.length ? (
               <React.Fragment>
                 <Typography variant="h5" gutterBottom>
                   Thank you for your order.
@@ -127,9 +193,9 @@ export default function Checkout() {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {getStepContent(activeStep)}
+                {getStepContent(orderData.activeStep)}
                 <div className={classes.buttons}>
-                  {activeStep !== 0 && (
+                  {orderData.activeStep !== 0 && (
                     <Button onClick={handleBack} className={classes.button}>
                       Back
                     </Button>
@@ -140,7 +206,7 @@ export default function Checkout() {
                     onClick={handleNext}
                     className={classes.button}
                   >
-                    {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
+                    {orderData.activeStep === steps.length - 1 ? 'Place order' : 'Next'}
                   </Button>
                 </div>
               </React.Fragment>
