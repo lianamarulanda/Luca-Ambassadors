@@ -1,3 +1,5 @@
+import { getMaxListeners } from "process";
+
 export default class orders {
 
   public orderRequest: any;
@@ -5,16 +7,16 @@ export default class orders {
     this.orderRequest = {
       "order": {
         "customer": {
-          "first_name": "",
-          "last_name": "",
-          "email" : "",
+          "first_name": "Liana",
+          "last_name": "Marulanda",
+          "email" : "lianamarulanda@gmail.com",
         },
         "test": true,
-        "email": "", 
+        "email": "lianamarulanda@gmail.com", 
         "send_receipt": true,
         "shipping_address": {          
-          "first_name": "",
-          "last_name": "",
+          "first_name": "Liana",
+          "last_name": "Marulanda",
           "address1": "",
           "address2": "",
           "city": "",

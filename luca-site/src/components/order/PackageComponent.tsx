@@ -33,7 +33,7 @@ const initialState= Object.freeze({
 
 });
 
-export default function PackageComponent() {
+export default function PackageComponent(props: any) {
   const classes = useStyles();
 
   const [selectionState, setCurrentSelection] = React.useState(initialState);
@@ -98,7 +98,7 @@ export default function PackageComponent() {
           <Button 
           variant="outlined" 
           style={{ fontSize: '13px', padding: '18px'}} 
-          className={selectionState.packageSelection === "1 Bracelet + 1 Anklet" ? classes.selectedCard : classes.card } 
+          className={selectionState.packageSelection === "2 1 Bracelet + 1 Anklet" ? classes.selectedCard : classes.card } 
           onClick={() => handleSelect("2 1 Bracelet + 1 Anklet")}>
             1 Bracelet + 1 Anklet
           </Button>
@@ -135,7 +135,7 @@ export default function PackageComponent() {
       { selectionState.isDisplayed && 
       <div>
         <br />
-          <ProductsComponent packageSelection={selectionState.packageSelection} />
+          <ProductsComponent packageSelection={selectionState.packageSelection} {...props} />
       </div>
       }
     </React.Fragment>

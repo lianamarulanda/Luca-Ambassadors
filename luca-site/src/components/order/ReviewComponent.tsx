@@ -45,9 +45,9 @@ export default function ReviewComponent(orderData: any) {
         Order summary
       </Typography>
       <List disablePadding>
-        {orderApi.orderRequest.order.line_items.map((product: string) => (
-          <ListItem className={classes.listItem} key={product}>
-            <ListItemText primary={product} secondary={"A nice thing"} />
+        {orderApi.orderRequest.order.line_items.map((product: any) => (
+          <ListItem className={classes.listItem} key={product.variant_id}>
+            <ListItemText primary={product.variant_id} />
             <Typography variant="body2">$10</Typography>
           </ListItem>
         ))}

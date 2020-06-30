@@ -87,11 +87,13 @@ export default function OrderComponent() {
   const [allProducts, updateAllProducts] = React.useState([] as object[]);
 
   React.useEffect(() => {
-    dbApi.getAllProducts()
-      .then((products) => {
-        updateAllProducts(products);
-      });
-  });
+    if (allProducts.length === 0) {
+      dbApi.getAllProducts()
+        .then((products) => {
+          updateAllProducts(products);
+        });
+    }
+  }, []);
 
   const setActiveStep = (step: number) => { 
     updateState({
@@ -112,7 +114,6 @@ export default function OrderComponent() {
         orderApi.orderRequest.order.shipping_address.province = orderData.province;
         orderApi.orderRequest.order.shipping_address.zip = orderData.zip;
         orderApi.orderRequest.order.shipping_address.country = orderData.country;
-        orderApi.printRequest();
         setActiveStep(orderData.activeStep + 1);
       }
     } else if (orderData.activeStep === 1) {
@@ -121,8 +122,11 @@ export default function OrderComponent() {
       } else {
         setActiveStep(orderData.activeStep + 1);
       }
-    } else {
-      setActiveStep(orderData.activeStep + 1);
+    } else if (orderData.activeStep === 2) {
+      dbApi.placeOrder(orderApi.orderRequest).then(() => {
+        console.log("i got here 3");
+        setActiveStep(orderData.activeStep + 1);
+      });
     }
   };
 
@@ -145,11 +149,9 @@ export default function OrderComponent() {
       case 0:
         return <AddressComponent handleChange={handleAddress} {...orderData} />;
       case 1: {
-        console.log(allProducts);
-        return <PackageComponent />;
+        return <PackageComponent {...allProducts} />;
       }
       case 2: {
-        console.log(orderData);
         return <ReviewComponent {...orderData} />;
       }
       default:
@@ -160,13 +162,6 @@ export default function OrderComponent() {
   return (
     <React.Fragment>
       <CssBaseline />
-      <AppBar position="absolute" color="default" className={classes.appBar}>
-        <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
-            Company name
-          </Typography>
-        </Toolbar>
-      </AppBar>
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">

@@ -1,5 +1,7 @@
 import axios from 'axios';
 import orders from '../../orders.json';
+import { promises } from 'fs';
+import { configure } from '@testing-library/react';
 
 const firebaseConfig = require('../../config.json');
 const shopifyConfig = require('../../shopifyConfig.json');
@@ -46,11 +48,7 @@ export default class Api {
           "country": "",
           "zip": ""
         },
-        "line_items": [
-          {
-            "quantity": 0,
-          },
-        ],
+        "line_items": [],
       }
     };
   }
@@ -347,35 +345,35 @@ export default class Api {
     });
   }
 
-  public saveAddress(address1: string, address2: string, city: string, state: string, country: string, zip: string): void
-  {
-    // may need to add first and last name to address
-    this.orderRequest.order.shipping_address.address1 = address1;
-    this.orderRequest.order.shipping_address.address2 = address2;
-    this.orderRequest.order.shipping_address.city = city;
-    this.orderRequest.order.shipping_address.province = state;
-    this.orderRequest.order.shipping_address.country = country;
-    this.orderRequest.order.shipping_address.zip = zip;
-    // debug
-    console.log(this.orderRequest);
-  }
+  // public saveAddress(address1: string, address2: string, city: string, state: string, country: string, zip: string): void
+  // {
+  //   // may need to add first and last name to address
+  //   this.orderRequest.order.shipping_address.address1 = address1;
+  //   this.orderRequest.order.shipping_address.address2 = address2;
+  //   this.orderRequest.order.shipping_address.city = city;
+  //   this.orderRequest.order.shipping_address.province = state;
+  //   this.orderRequest.order.shipping_address.country = country;
+  //   this.orderRequest.order.shipping_address.zip = zip;
+  //   // debug
+  //   console.log(this.orderRequest);
+  // }
 
-  public submitOrder(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      var email = this.authentication.currentUser.email;
+  // public submitOrder(): Promise<boolean> {
+  //   return new Promise((resolve, reject) => {
+  //     var email = this.authentication.currentUser.email;
+  //     // fill remaining details
+  //     this.orderRequest.order.email = email;
+  //     this.orderRequest.order.customer.first_name = this.userData.firstName;
+  //     this.orderRequest.order.customer.last_name = this.userData.lastName;
+  //     this.orderRequest.order.customer.email = email;
 
-      this.orderRequest.order.email = email;
-      this.orderRequest.order.customer.first_name = this.userData.firstName;
-      this.orderRequest.order.customer.last_name = this.userData.lastName;
-      this.orderRequest.order.customer.email = email;
+  //     // test line items
+  //     this.orderRequest.order.line_items.title = "Matteo Bracelet in Maroon";
+  //     this.orderRequest.order.line_items.quantity = 1;
+  //   });
+  // }
 
-      // test line items
-      this.orderRequest.order.line_items.title = "Matteo Bracelet in Maroon";
-      this.orderRequest.order.line_items.quantity = 1;
-    });
-  }
-
-
+  // may nt need to be async
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {
       // local array to store all the orders filtered by user discount code
@@ -453,6 +451,31 @@ export default class Api {
     codeData.monthlyCommissions = monthlyCommissions;
     codeData.productMap = sortedProducts;
     return codeData;
+  }
+
+  public async getAllProducts(): Promise<object[]> {
+    return new Promise((resolve, reject) => {
+      var allProducts = [] as object[];
+
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getProducts')
+      .then((response: any) => {
+        allProducts = response;
+        resolve(allProducts);
+      })
+    });
+  }
+  
+  public placeOrder(orderRequest: object): Promise<number> {
+    return new Promise((resolve, reject) => {
+      console.log("i got here");
+      console.log(orderRequest);
+
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
+      .then((response: any) => {
+        console.log("i got here 2");
+        resolve(response.data.order.id);
+      })
+    });
   }
 }
 
