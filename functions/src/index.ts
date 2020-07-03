@@ -32,13 +32,37 @@ export const addAdminRole = functions.https.onRequest((request, response) => {
 });
 
 export const getOrders = functions.https.onRequest((request, response) => {
-  //console.log(shopify.apiKey);
-  //console.log(shopify.apiPass);
-  
-  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json')
-  .then(result => {
-    response.status(200).send(result.data);
+  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json?limit=250')
+  .then(async result => {
+    var allOrders = [] as object[];
+    // get all results that have a discount code applied
+    result.data.orders.forEach((order: any) => {
+      if (order.discount_codes.length !== 0 && order.discount_applications[0].type !== "automatic") {
+        allOrders.push(order);
+      }
+    })
+
+    console.log("before while loop - headers link is: " + result.headers.link);
+    var url = helper(result.headers.link);
+    console.log("url before entering while loop: " + url);
+    var cnt = 0
+    while (url !== "") {
+      var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
+      nextOrders.data.orders.forEach((order: any) => {
+        if (order.discount_codes.length !== 0 && order.discount_applications[0].type !== "automatic") {
+          allOrders.push(order);
+          }
+      })
+      console.log("nextOrders headers link is: " + nextOrders.headers.link);
+      url = helper(nextOrders.headers.link);
+      console.log("url now in while loop: " + url);
+      console.log(cnt++);
+    }  
+    response.status(200).send(allOrders);
   })
+  .catch((err: string) => {
+    response.status(400).send(err);
+  });
 });
 
 export const createOrder = functions.https.onRequest((request, response) => {
@@ -53,25 +77,6 @@ export const createOrder = functions.https.onRequest((request, response) => {
       .status(200)
       .send();
   } else {
-    // // test creating an order
-    // const requestObject = {
-    //   "order": {
-    //     "customer": {
-    //       // including first/last name optional - will tie email to existing customer regardless
-    //       // but better to include first/last name in case new customer
-    //       "email": "lianamarulanda@gmail.com",
-    //     },
-    //     "email": "lianamarulanda@gmail.com",
-    //     "send_receipt": true,
-    //     "test": true,
-    //     "line_items": [
-    //       {
-    //         "variant_id": 29764331176039,
-    //         "quantity": 1
-    //       }
-    //     ]z
-    //   }
-    // };
 
     axios.post('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json', request.body)
       .then(result => {
@@ -84,29 +89,46 @@ export const createOrder = functions.https.onRequest((request, response) => {
 });
 
 export const getProducts = functions.https.onRequest((request, response) => {
-
   var allProducts = [] as object[];
-
   axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?limit=250')
-  .then(async (result: any) => {
-    console.log(result);
-    allProducts = result.data.products;
+    .then(async (result: any) => {
+      result.data.products.forEach((product: any) => {
+        if (product.variants.length > 1) {
+          for (var i = 0; i < product.variants.length; i++) {
+            if (product.variants[i].inventory_quantity !== 0 && product.image !== null) {
+              allProducts.push(product);
+              break;
+            }
+          }
+        } else if (product.variants[0].inventory_quantity !== 0 && product.image !== null) {
+          allProducts.push(product);
+        }
+      })
+      /*
+      helper ->
+        input result.headers.link
+        output: the "next" link if its there, else, empty
+      */
+      var url = helper(result.headers.link);
+      while (url !== "") {
+        var nextProducts: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
+        nextProducts.data.products.forEach((product: any) => {
+          if (product.variants.length > 1) {
+            for (var i = 0; i < product.variants.length; i++) {
+              if (product.variants[i].inventory_quantity !== 0 && product.image !== null) {
+                allProducts.push(product);
+                break;
+              }
+            }
+          } else if (product.variants[0].inventory_quantity !== 0 && product.image !== null) {
+            allProducts.push(product);
+          }
+        })
 
-    /*
-    helper ->
-      input result.headers.link
-      output: the "next" link if its there, else, empty
-    */
-   var url = helper(result.headers.link);
-   while (url !== "") {
-    var nextProducts: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
-    console.log(nextProducts.body);
-    allProducts = allProducts.concat(nextProducts.data.products);
-    url = helper(nextProducts.headers.link);
-   }
-
-    response.set('Access-Control-Allow-Origin', '*').status(200).send(allProducts);
-  }) 
+        url = helper(nextProducts.headers.link);
+      }  
+      response.set('Access-Control-Allow-Origin', '*').status(200).send(allProducts);
+    }) 
 });
 
 function helper(inputString: string): string {
@@ -114,10 +136,13 @@ function helper(inputString: string): string {
   if (inputString === undefined)
     return "";
 
-  if (inputString.includes(`rel="next"`)) {
+  if (inputString.includes(`rel="next"`) && !inputString.includes(`rel="previous"`)) {
       // split by comma b/c , indicates split between next/prev
       var linkArr = inputString.split(',');
-      var nextString = linkArr[0];
+      if (!inputString.includes(`rel="previous"`))
+        var nextString = linkArr[0];
+      else 
+        var nextString = linkArr[1];
       // split by semi colon to remove rel={next}
       linkArr = nextString.split(';');
       nextString = linkArr[0];
@@ -129,5 +154,3 @@ function helper(inputString: string): string {
       return "";
     }
 }
-
-
