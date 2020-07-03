@@ -8,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import PropTypes from 'prop-types';
 import { ordersContext } from '../../util/orders';
+import square from '../../images/square.jpg';
 
 // sort the products to load based on package component
 function filterProducts(productType: string, allProducts: object[]): object[] {
@@ -16,51 +17,51 @@ function filterProducts(productType: string, allProducts: object[]): object[] {
   switch(productType) {
     case "1 Bracelet Set": {
       allProducts.forEach((product: any) => {
-        if (product.tags.includes("Sets") && product.variants[0].inventory_quantity !== 0) {
+        if (product.tags.includes("Sets")) {
           filteredProducts.push(product);
         }
       })
       break;
     } case "2 Single Bracelets": {
       allProducts.forEach((product: any) => {
-        if (product.product_type === "Bracelet" && !product.tags.includes("Sets") && product.variants[0].inventory_quantity !== 0) {
+        if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
           filteredProducts.push(product);
         }
       })
       break;
     } case "2 Anklets": {
       allProducts.forEach((product: any) => {
-        if (product.product_type === "anklet" && product.variants[0].inventory_quantity !== 0) {
+        if (product.product_type === "anklet") {
           filteredProducts.push(product);
         }
       })
       break;
     } case "2 1 Bracelet + 1 Anklet": {
       allProducts.forEach((product: any) => {
-        if (product.product_type === "Bracelet" && !product.tags.includes("Sets") && product.variants[0].inventory_quantity !== 0) {
+        if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
           filteredProducts.push(product);
-        } if (product.product_type === "anklet" && product.variants[0].inventory_quantity !== 0) {
+        } if (product.product_type === "anklet" && product.images.length > 0) {
           filteredProducts.push(product);
         }
       })
       break;
     } case "1 Necklace": {
       allProducts.forEach((product: any) => {
-        if (product.product_type === "Necklace" && product.variants[0].inventory_quantity !== 0) {
+        if (product.product_type === "Necklace") {
           filteredProducts.push(product);
         }
       })
       break;
     } case "1 Pair of Earrings": {
       allProducts.forEach((product: any) => {
-        if (product.product_type === "Earrings" && product.variants[0].inventory_quantity !== 0) {
+        if (product.product_type === "Earrings") {
           filteredProducts.push(product);
         }
       })
       break;
     } case "1 Baseball Cap": {
       allProducts.forEach((product: any) => {
-        if (product.product_type === "Hats" && product.variants[0].inventory_quantity !== 0) {
+        if (product.product_type === "Hats") {
           filteredProducts.push(product);
         }
       })
@@ -68,27 +69,7 @@ function filterProducts(productType: string, allProducts: object[]): object[] {
     }
   }
 
-  return createTiles(filteredProducts);
-}
-
-function createTiles(products: object[]): object[]
-{
-  var tiles = [] as object[];
-  products.forEach((product: any) => {
-    if (product.images[0] === undefined)
-      console.log("undefined product!" + product.title);
-    else {
-      tiles.push({
-        img: product.images[0].src,
-        title: product.title,
-        link: "https://www.luca-love.com/products/" + product.handle,
-        variant_id: product.variants[0].id,
-      })
-    }
-
-  })
-
-  return tiles;
+  return filteredProducts;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -159,33 +140,38 @@ export default function ProductsComponent(props: any) {
     // clear products from order request
     orderApi.orderRequest.order.line_items = newProducts;
 
+    // set max quantity in order data
+    props.totalQuantity(max);
   }
 
-  const handleSelect = (variant_id: string) => {
-    const newProducts = selectionState.productsSelected.slice();
-    if (newProducts.includes(variant_id)) {
-      // delete from products array
-      var index = newProducts.indexOf(variant_id);
+  const handleSelect = (productTile: any) => {
+    var newProducts = selectionState.productsSelected.slice();
+    if (newProducts.includes(productTile.variants[0].id)) {
+      // delete the product bc deselected
+      var index = newProducts.indexOf(productTile.variants[0].id);
       newProducts.splice(index, 1);
+      orderApi.orderRequest.order.line_items.splice(index, 1);
     } else if (newProducts.length < selectionState.maxQuantity) {
-      newProducts.push(variant_id);
+      newProducts.push(productTile.variants[0].id);
+      orderApi.orderRequest.order.line_items.push({
+        title: productTile.title,
+        variant_id: productTile.variants[0].id,
+        quantity: 1
+      });
+    } else if (newProducts.length === selectionState.maxQuantity && selectionState.maxQuantity === 1) {
+      // replace current product w/new one
+      newProducts[0] = productTile.variants[0].id;
+      orderApi.orderRequest.order.line_items[0] = {
+        title: productTile.title,
+        variant_id: productTile.variants[0].id,
+        quantity: 1
+      }
     }
 
     setProductSelection({
       ...selectionState,
       productsSelected: newProducts,
     });
-    
-    var productsToOrder = [] as object[];
-
-    newProducts.forEach((productID: string) => {
-      productsToOrder.push({
-        variant_id: productID,
-        quantity: 1
-      })
-    })
-
-    orderApi.orderRequest.order.line_items = productsToOrder;
   };
 
   return (
@@ -196,15 +182,15 @@ export default function ProductsComponent(props: any) {
         </GridListTile>
         {selectionState.loadedProducts.map((tile: any) => (
           <GridListTile 
-          key={tile.img}  
-          className={selectionState.productsSelected.includes(tile.variant_id) ? classes.selectedTile : classes.tile}
+          key={tile.id}  
+          className={selectionState.productsSelected.includes(tile.variants[0].id) ? classes.selectedTile : classes.tile}
           >
-            <img src={tile.img} alt={tile.title} onClick={() => handleSelect(tile.variant_id)} />
+            <img src={tile.image !== null ? tile.image.src : square} alt={tile.title} onClick={() => handleSelect(tile)} />
             <GridListTileBar
               className={classes.tileBar}
               title={tile.title}
               actionIcon={
-                <IconButton href={tile.link} target="_blank" aria-label={`info about ${tile.title}`} className={classes.icon}>
+                <IconButton href={`https://luca-love.com/products/${tile.handle}`} target="_blank" aria-label={`info about ${tile.title}`} className={classes.icon}>
                   <InfoIcon />
                 </IconButton>
               }

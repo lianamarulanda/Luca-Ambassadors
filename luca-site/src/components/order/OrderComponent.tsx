@@ -1,8 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
+import Sidebar from '../layout/SidebarComponent';
 import Paper from '@material-ui/core/Paper';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -15,20 +14,6 @@ import PackageComponent from './PackageComponent';
 import ReviewComponent from './ReviewComponent';
 import { ordersContext } from '../../util/orders';
 import { DbContext } from '../../util/api';
-
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -77,6 +62,8 @@ const orderState = Object.freeze({
   province: "",
   zip: "",
   country: "",
+  totalQuantity: 0,
+  orderNum: 0,
 });
 
 export default function OrderComponent() {
@@ -101,6 +88,12 @@ export default function OrderComponent() {
       activeStep: step
     });
   };
+  const setOrderNumber = (orderNumber: number) => {
+    updateState({
+      ...orderData,
+      orderNum: orderNumber
+    })
+  }
 
   const handleNext = () => {
     if (orderData.activeStep === 0) {
@@ -123,17 +116,14 @@ export default function OrderComponent() {
         setActiveStep(orderData.activeStep + 1);
       }
     } else if (orderData.activeStep === 2) {
-      dbApi.placeOrder(orderApi.orderRequest).then(() => {
-        console.log("i got here 3");
+      dbApi.placeOrder(orderApi.orderRequest).then((orderNum: any) => {
+        setOrderNumber(orderNum);
         setActiveStep(orderData.activeStep + 1);
       });
     }
   };
 
   const handleBack = () => {
-    if (orderData.activeStep === 2) 
-      orderApi.orderRequest.order.line_items = [];
-
     setActiveStep(orderData.activeStep - 1);
   };
 
@@ -144,12 +134,20 @@ export default function OrderComponent() {
     });
   };
 
+  const handleTotalQuantity = (maxQuantity: number) => {
+    updateState({
+      ...orderData,
+      totalQuantity: maxQuantity
+    });
+    console.log("new total quantity + " + maxQuantity);
+  }
+
   const getStepContent= (step: any) => {
     switch (step) {
       case 0:
         return <AddressComponent handleChange={handleAddress} {...orderData} />;
       case 1: {
-        return <PackageComponent {...allProducts} />;
+        return <PackageComponent {...allProducts} totalQuantity={handleTotalQuantity} />;
       }
       case 2: {
         return <ReviewComponent {...orderData} />;
@@ -162,6 +160,7 @@ export default function OrderComponent() {
   return (
     <React.Fragment>
       <CssBaseline />
+      <Sidebar />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
@@ -181,7 +180,7 @@ export default function OrderComponent() {
                   Thank you for your order.
                 </Typography>
                 <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order confirmation, and will
+                  Your order number is #{orderData.orderNum}. We have emailed your order confirmation, and will
                   send you an update when your order has shipped.
                 </Typography>
               </React.Fragment>
@@ -207,7 +206,6 @@ export default function OrderComponent() {
             )}
           </React.Fragment>
         </Paper>
-        <Copyright />
       </main>
     </React.Fragment>
   );

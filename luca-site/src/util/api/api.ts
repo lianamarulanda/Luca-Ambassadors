@@ -16,7 +16,7 @@ export default class Api {
   private amRef: any;
   public userData: any;
   public codeData: object;
-  public orderRequest: any;
+  private signedInStatus: boolean;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -27,30 +27,23 @@ export default class Api {
     this.amRef = this.myDatabase.collection('ambassadors');
     this.codeData = {};
     this.userData = {};
-    this.orderRequest = {
-      "order": {
+    this.signedInStatus = false;
 
-        "customer": {
-          "first_name": "",
-          "last_name": "",
-          "email" : "",
-        },
-        "test": true,
-        "email": "", 
-        "send_receipt": true,
-        "shipping_address": {
-          "first_name": "",
-          "last_name": "",
-          "address1": "",
-          "address2": "",
-          "city": "",
-          "province": "",
-          "country": "",
-          "zip": ""
-        },
-        "line_items": [],
+    this.authentication.onAuthStateChanged((authUser: any) => {
+      if (authUser === null || authUser.email === null) {
+        this.signedInStatus = false;
+      } else {
+        this.signedInStatus = true;
       }
-    };
+    });
+  }
+
+  public setSignedInStatus(state: boolean): void {
+    this.signedInStatus = state;
+  }
+
+  public isSignedIn(): boolean {
+    return this.signedInStatus;
   }
 
     // read from database
@@ -345,34 +338,6 @@ export default class Api {
     });
   }
 
-  // public saveAddress(address1: string, address2: string, city: string, state: string, country: string, zip: string): void
-  // {
-  //   // may need to add first and last name to address
-  //   this.orderRequest.order.shipping_address.address1 = address1;
-  //   this.orderRequest.order.shipping_address.address2 = address2;
-  //   this.orderRequest.order.shipping_address.city = city;
-  //   this.orderRequest.order.shipping_address.province = state;
-  //   this.orderRequest.order.shipping_address.country = country;
-  //   this.orderRequest.order.shipping_address.zip = zip;
-  //   // debug
-  //   console.log(this.orderRequest);
-  // }
-
-  // public submitOrder(): Promise<boolean> {
-  //   return new Promise((resolve, reject) => {
-  //     var email = this.authentication.currentUser.email;
-  //     // fill remaining details
-  //     this.orderRequest.order.email = email;
-  //     this.orderRequest.order.customer.first_name = this.userData.firstName;
-  //     this.orderRequest.order.customer.last_name = this.userData.lastName;
-  //     this.orderRequest.order.customer.email = email;
-
-  //     // test line items
-  //     this.orderRequest.order.line_items.title = "Matteo Bracelet in Maroon";
-  //     this.orderRequest.order.line_items.quantity = 1;
-  //   });
-  // }
-
   // may nt need to be async
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {
@@ -472,8 +437,7 @@ export default class Api {
 
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
       .then((response: any) => {
-        console.log("i got here 2");
-        resolve(response.data.order.id);
+        resolve(response.data.order.order_number);
       })
     });
   }
