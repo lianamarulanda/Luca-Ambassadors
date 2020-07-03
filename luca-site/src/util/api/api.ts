@@ -46,39 +46,6 @@ export default class Api {
     return this.signedInStatus;
   }
 
-    // read from database
-    public async getData(): Promise<void> {
-        const usersRef = this.myDatabase.collection('users');
-
-        usersRef.get()
-            .then((snapshot: any[]) => {
-                    snapshot.forEach(doc => {
-                    console.log(doc.id, '=>', doc.data());
-                });
-            })
-            .catch((err: any) => {
-                console.log('Error getting documents', err);
-            });
-    }
-
-    // delete from database 
-    public async deleteData(): Promise<void> {
-        // delete specific fields - in this case, age, from specified user given PK
-        const usersRef = this.myDatabase.collection('users').doc('QfeWa5sMNdH4ii2fJt8V');
-
-        var FieldValue = firebase.firestore.FieldValue;
-        
-        usersRef.update({
-            age: FieldValue.delete()
-        });
-    }
-    // delete entire user doc 
-    public async deleteUser(docId: string): Promise<void> {
-        // delete user w passed in docId string
-        const usersRef = this.myDatabase.collection('users').doc(docId);
-        usersRef.delete();
-    }
-
   public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<void> {
     // create user in firebase authentication, only if email not already in use
     this.authentication.createUserWithEmailAndPassword(email, password)
@@ -167,8 +134,7 @@ export default class Api {
               const discountCode = await this.getAmbassador(doc.data().ambassadorID);
               let array = await this.getOrders(discountCode);
               this.codeData = this.getCodeData(array);
-              console.log(this.codeData); // debug
-              console.log(this.userData); // debug
+              this.getUserOrders(orders);
               resolve();
             });
           }
@@ -417,6 +383,21 @@ export default class Api {
     codeData.productMap = sortedProducts;
     return codeData;
   }
+
+  public getUserOrders(allOrders: any) {
+    console.log(this.authentication.currentUser.email);
+    console.log(allOrders);
+    var orders  = [] as object[];
+    allOrders.orders.forEach((order: any) => {
+      if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) 
+        orders.push({
+          id: order.id,
+          date: order.created_at,
+          number: order.name
+        })
+    })
+    this.userData.userOrders = orders;
+  } 
 
   public async getAllProducts(): Promise<object[]> {
     return new Promise((resolve, reject) => {

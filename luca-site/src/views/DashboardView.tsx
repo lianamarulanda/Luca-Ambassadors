@@ -13,10 +13,32 @@ import MonthlyCommissionsComponent from '../components/dashboard/MonthlyCommissi
 import TopProductsComponent from '../components/dashboard/TopProductsComponent'
 import WelcomeComponent from '../components/dashboard/WelcomeComponent'
 import OrdersComponent from '../components/dashboard/OrdersComponent'
+import { useHistory } from 'react-router-dom'
+import { DbContext } from '../util/api';
 
 const App: React.FC = () => {
-  const classes = useStyles()
+  const classes = useStyles();
 
+  const history = useHistory();
+  const api = React.useContext(DbContext);
+  const [loaded, setLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!api.isSignedIn()) {
+      // history.push('/login');
+    }
+
+    setLoaded(true);
+  }, [history, api]);
+
+
+  // if (loaded) {
+  //   return(<div>I'm logged in</div>);
+  // } else {
+  //   return(<div>I'm not logged in</div>);
+  // }
+
+  
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
@@ -29,7 +51,7 @@ const App: React.FC = () => {
           >
             <Grid
               item
-              lg={3}
+              lg={4}
               sm={6}
               xl={3}
               xs={12}
@@ -38,7 +60,7 @@ const App: React.FC = () => {
             </Grid>
             <Grid
               item
-              lg={3}
+              lg={4}
               sm={6}
               xl={3}
               xs={12}
@@ -47,7 +69,7 @@ const App: React.FC = () => {
             </Grid>
             <Grid
               item
-              lg={3}
+              lg={4}
               sm={6}
               xl={3}
               xs={12}
@@ -56,15 +78,7 @@ const App: React.FC = () => {
             </Grid>
             <Grid
               item
-              lg={3}
-              sm={6}
-              xl={3}
-              xs={12}
-            >
-            </Grid>
-            <Grid
-              item
-              lg={8}
+              lg={6}
               md={12}
               xl={9}
               xs={12}
@@ -73,7 +87,7 @@ const App: React.FC = () => {
             </Grid>
             <Grid
               item
-              lg={4}
+              lg={6}
               md={6}
               xl={3}
               xs={12}
@@ -82,22 +96,27 @@ const App: React.FC = () => {
             </Grid>
             <Grid
               item
+              lg={9}
+              md={6}
+              xl={3}
+              xs={12}
             >
               <OrdersComponent />
             </Grid>
-            <Grid
+            {/* <Grid
               item
               lg={8}
               md={12}
               xl={9}
               xs={12}
             >
-            </Grid>
+            </Grid> */}
           </Grid>
         </Container>
       </main>
     </div>
   )
+  
 }
 
 const useStyles = makeStyles(theme => ({

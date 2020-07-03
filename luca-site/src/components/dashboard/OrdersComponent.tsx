@@ -1,135 +1,128 @@
-import React, { useState } from 'react';
-import clsx from 'clsx';
-import moment from 'moment';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
-import {
-  Card,
-  CardActions,
-  CardHeader,
-  CardContent,
-  Button,
-  Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip,
-  TableSortLabel
-} from '@material-ui/core';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import { DbContext } from '../../util/api';
 
-import mockData from '../../TableData';
-// import { StatusBullet } from 'components';
+interface Column {
+  id: 'number' | 'date';
+  label: string;
+  minWidth?: number;
+  align?: 'right';
+  format?: (value: number) => string;
+}
 
-const useStyles = makeStyles((theme: any) => ({
-  root: {},
-  content: {
-    padding: 0
+const columns: Column[] = [
+  { id: 'number', label: 'Order Number', minWidth: 170 },
+  { id: 'date', label: 'Date', minWidth: 100 },
+];
+
+interface Data {
+  name: string;
+  date: string;
+}
+
+// function createData(name: string, code: string, population: number, size: number): Data {
+//   return { name, code, population, size, density };
+// }
+
+// const rows = [
+//   createData('India', 'IN', 1324171354, 3287263),
+//   createData('China', 'CN', 1403500365, 9596961),
+//   createData('Italy', 'IT', 60483973, 301340),
+//   createData('United States', 'US', 327167434, 9833520),
+//   createData('Canada', 'CA', 37602103, 9984670),
+//   createData('Australia', 'AU', 25475400, 7692024),
+//   createData('Germany', 'DE', 83019200, 357578),
+//   createData('Ireland', 'IE', 4857000, 70273),
+//   createData('Mexico', 'MX', 126577691, 1972550),
+//   createData('Japan', 'JP', 126317000, 377973),
+//   createData('France', 'FR', 67022000, 640679),
+//   createData('United Kingdom', 'GB', 67545757, 242495),
+//   createData('Russia', 'RU', 146793744, 17098246),
+//   createData('Nigeria', 'NG', 200962417, 923768),
+//   createData('Brazil', 'BR', 210147125, 8515767),
+// ];
+
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
   },
-  inner: {
-    minWidth: 800
+  container: {
+    maxHeight: 440,
   },
-  statusContainer: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  status: {
-    marginRight: '8px'
-  },
-  actions: {
-    justifyContent: 'flex-end'
+  title: {
+    fontWeight: 'bolder'
   }
-}));
+});
 
-const statusColors = {
-  delivered: 'success',
-  pending: 'info',
-  refunded: 'danger'
-};
-
-const OrdersComponent = () => {
-
+export default function StickyHeadTable() {
   const classes = useStyles();
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const api = React.useContext(DbContext);
+  const data = api.userData.userOrders as [];
 
-  const [orders] = useState(mockData);
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   return (
-    <Card
-      className={clsx(classes.root)}
-    >
-      <CardHeader
-        title="Latest Orders"
-      />
-      <Divider />
-      <CardContent className={classes.content}>
-        <PerfectScrollbar>
-          <div className={classes.inner}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Order Ref</TableCell>
-                  <TableCell sortDirection="desc">
-                    <Tooltip
-                      enterDelay={300}
-                      title="Sort"
-                    >
-                      <TableSortLabel
-                        active
-                        direction="desc"
-                      >
-                        Date
-                      </TableSortLabel>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell>Status</TableCell>
+    <Paper className={classes.root}>
+      <TableContainer className={classes.container}>
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
+                  className={classes.title}
+                >
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
+              return (
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  {columns.map((column) => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell key={column.id} align={column.align}>
+                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {orders.map((order: any) => (
-                  <TableRow
-                    hover
-                    key={order.id}
-                  >
-                    <TableCell>{order.ref}</TableCell>
-                    <TableCell>
-                      {moment(order.createdAt).format('DD/MM/YYYY')}
-                    </TableCell>
-                    <TableCell>
-                      <div className={classes.statusContainer}>
-                        {/* <StatusBullet
-                          className={classes.status}
-                          color="blue"
-                          size="sm"
-                        /> */}
-                        {order.status}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </PerfectScrollbar>
-      </CardContent>
-      <Divider />
-      <CardActions className={classes.actions}>
-        <Button
-          color="primary"
-          size="small"
-          variant="text"
-        >
-          View all <ArrowRightIcon />
-        </Button>
-      </CardActions>
-    </Card>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component="div"
+        count={data.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
-};
-
-OrdersComponent.propTypes = {
-  className: PropTypes.string
-};
-
-export default OrdersComponent;
+}
