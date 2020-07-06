@@ -135,7 +135,7 @@ export default function PackageComponent(props: any) {
       { selectionState.isDisplayed && 
       <div>
         <br />
-          <ProductsComponent packageSelection={selectionState.packageSelection} {...props} totalQuantity={props.totalQuantity} />
+          <ProductsComponent packageSelection={selectionState.packageSelection} {...props} />
       </div>
       }
     </React.Fragment>

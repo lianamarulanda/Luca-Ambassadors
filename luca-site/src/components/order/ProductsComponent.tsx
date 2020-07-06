@@ -140,8 +140,8 @@ export default function ProductsComponent(props: any) {
     // clear products from order request
     orderApi.orderRequest.order.line_items = newProducts;
 
-    // set max quantity in order data
-    props.totalQuantity(max);
+    // set max quantity in order context
+    orderApi.maxQuantity = max;
   }
 
   const handleSelect = (productTile: any) => {

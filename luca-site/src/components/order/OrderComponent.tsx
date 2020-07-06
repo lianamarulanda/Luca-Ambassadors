@@ -7,7 +7,6 @@ import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
-import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import AddressComponent from './AddressComponent';
 import PackageComponent from './PackageComponent';
@@ -62,8 +61,6 @@ const orderState = Object.freeze({
   province: "",
   zip: "",
   country: "",
-  totalQuantity: 0,
-  orderNum: 0,
 });
 
 export default function OrderComponent() {
@@ -72,6 +69,7 @@ export default function OrderComponent() {
   const dbApi = React.useContext(DbContext);
   const [orderData, updateState] = React.useState(orderState);
   const [allProducts, updateAllProducts] = React.useState([] as object[]);
+  const [reload, setReload] = React.useState(false);
 
   React.useEffect(() => {
     if (allProducts.length === 0) {
@@ -86,19 +84,14 @@ export default function OrderComponent() {
     updateState({
       ...orderData, // gets current state values, prevents from resetting key-val pair
       activeStep: step
-    });
+    });   
   };
-  const setOrderNumber = (orderNumber: number) => {
-    updateState({
-      ...orderData,
-      orderNum: orderNumber
-    })
-  }
-
+  
   const handleNext = () => {
     if (orderData.activeStep === 0) {
       if (orderData.address1 === "" || orderData.city === "" || orderData.province === "" || orderData.zip === "" || orderData.country === "") {
-        console.log("please fill out all fields!"); 
+        orderApi.addressError = true;
+        setReload(!reload);
       } else {
         // update address in order api
         orderApi.orderRequest.order.shipping_address.address1 = orderData.address1;
@@ -107,23 +100,28 @@ export default function OrderComponent() {
         orderApi.orderRequest.order.shipping_address.province = orderData.province;
         orderApi.orderRequest.order.shipping_address.zip = orderData.zip;
         orderApi.orderRequest.order.shipping_address.country = orderData.country;
+        orderApi.addressError = false; 
         setActiveStep(orderData.activeStep + 1);
       }
     } else if (orderData.activeStep === 1) {
       if (orderApi.orderRequest.order.line_items.length === 0) {
-        console.log("please select at least one item!");
+        orderApi.productError = true;
+        setReload(!reload);
       } else {
+        orderApi.productError = false;
         setActiveStep(orderData.activeStep + 1);
       }
     } else if (orderData.activeStep === 2) {
       dbApi.placeOrder(orderApi.orderRequest).then((orderNum: any) => {
-        setOrderNumber(orderNum);
+        orderApi.orderNumber = orderNum;
         setActiveStep(orderData.activeStep + 1);
       });
     }
   };
 
   const handleBack = () => {
+    if (orderData.activeStep === 1)
+      orderApi.productError = false;
     setActiveStep(orderData.activeStep - 1);
   };
 
@@ -134,20 +132,12 @@ export default function OrderComponent() {
     });
   };
 
-  const handleTotalQuantity = (maxQuantity: number) => {
-    updateState({
-      ...orderData,
-      totalQuantity: maxQuantity
-    });
-    console.log("new total quantity + " + maxQuantity);
-  }
-
   const getStepContent= (step: any) => {
     switch (step) {
       case 0:
         return <AddressComponent handleChange={handleAddress} {...orderData} />;
       case 1: {
-        return <PackageComponent {...allProducts} totalQuantity={handleTotalQuantity} />;
+        return <PackageComponent {...allProducts}  />;
       }
       case 2: {
         return <ReviewComponent {...orderData} />;
@@ -163,6 +153,20 @@ export default function OrderComponent() {
       <Sidebar />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
+          { orderApi.addressError  && 
+          <div>
+            <Typography variant="overline" color="error" display="block" gutterBottom>
+            Please fill out ALL required fields!
+            </Typography>
+          </div>
+          }
+          { orderApi.productError && 
+          <div>
+            <Typography variant="overline" color="error" display="block" gutterBottom>
+            Please select a product!
+            </Typography>
+          </div>
+          }
           <Typography component="h1" variant="h4" align="center">
             Order Accessories Package 
           </Typography>
@@ -180,7 +184,7 @@ export default function OrderComponent() {
                   Thank you for your order.
                 </Typography>
                 <Typography variant="subtitle1">
-                  Your order number is #{orderData.orderNum}. We have emailed your order confirmation, and will
+                  Your order number is #{orderApi.orderNumber}. We have emailed your order confirmation, and will
                   send you an update when your order has shipped.
                 </Typography>
               </React.Fragment>

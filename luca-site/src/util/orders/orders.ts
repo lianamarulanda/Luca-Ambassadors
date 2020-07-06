@@ -2,6 +2,11 @@
 export default class orders {
 
   public orderRequest: any;
+  public addressError: boolean;
+  public productError: boolean;
+  public orderNumber: number;
+  public maxQuantity: number;
+
   constructor() {
     this.orderRequest = {
       "order": {
@@ -26,9 +31,9 @@ export default class orders {
         "line_items": [],
       }
     };
-  }
-  public printRequest() {
-    console.log("ORDER REQUEST FROM CONTEXT: " + this.orderRequest.order.line_items);
-    console.log("ORDER REQUEST ADDRESS " + this.orderRequest.order.shipping_address.address1);
+    this.addressError = false;
+    this.productError = false;
+    this.orderNumber = 0;
+    this.maxQuantity = 0;
   }
 }

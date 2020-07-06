@@ -4,7 +4,7 @@ import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
-import ListItem from '@material-ui/core/ListItem';
+import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
@@ -15,6 +15,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../../util/api';
 import Toolbar from '@material-ui/core/Toolbar';
+import { useHistory } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -43,6 +44,12 @@ const useStyles = makeStyles((theme: Theme) =>
         color: '#6c7878',
       }
     },
+    logo: {
+      maxWidth: 160,
+      height: 80,
+      alignSelf: 'center',
+      marginBottom: '15px'
+    },
     nameText: {
       color: 'white',
       fontWeight: 'bold',
@@ -50,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     subText: {
       color: '#e3e6e6',
-      paddingBottom: '80px',
+      paddingBottom: '70px',
       fontStyle: 'italic',
       fontWeight: 'lighter'
     },
@@ -67,6 +74,11 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Sidebar() {
   const classes = useStyles();
   const dbContext = React.useContext(DbContext);
+  const history = useHistory();
+
+  function redirect(link: string) {
+    history.push(`/${link}`);
+  }
 
   return (
     <div className={classes.root}>
@@ -80,20 +92,20 @@ export default function Sidebar() {
         anchor="left"
       >
         <Toolbar />
-        <Avatar alt="pic" src={profilePic} className={classes.large} style={{alignSelf: 'center'}} />
+        {/* <Avatar alt="pic" src='https://cdn.shopify.com/s/files/1/0689/5177/t/11/assets/logo.png?231' className={classes.large} style={{alignSelf: 'center'}} /> */}
+        <img src='https://cdn.shopify.com/s/files/1/0689/5177/t/11/assets/logo.png?231' className={classes.logo} alt="logo" />
         <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
-
         <List>
-          <ListItem button className={classes.buttonText}>
+          <ListItem button className={classes.buttonText} onClick={() => redirect("dashboard")}>
             <ListItemIcon className={classes.icon}> <DashboardIcon/> </ListItemIcon>
             <ListItemText primary={"Dashboard"} />
           </ListItem>
-          <ListItem button className={classes.buttonText}>
+          <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
             <ListItemIcon className={classes.icon}> <ShoppingCartIcon/> </ListItemIcon>
             <ListItemText primary={"Order Accessories"} />
           </ListItem>
-          <ListItem button className={classes.buttonText}>
+          <ListItem button className={classes.buttonText} onClick={() => redirect("settings")}>
             <ListItemIcon className={classes.icon}> <SettingsIcon/> </ListItemIcon>
             <ListItemText primary={"Settings"} />
           </ListItem>

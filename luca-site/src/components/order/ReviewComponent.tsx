@@ -45,7 +45,7 @@ export default function ReviewComponent(orderData: any) {
 
   const increaseQuantity = (product: any) => {
     for (var i = 0; i < orderApi.orderRequest.order.line_items.length; i++) {
-      if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id && totalQuantity < orderData.totalQuantity) {
+      if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id && totalQuantity < orderApi.maxQuantity) {
         orderApi.orderRequest.order.line_items[i].quantity++;
         break;
       }
@@ -54,9 +54,13 @@ export default function ReviewComponent(orderData: any) {
   }
   const decreaseQuantity = (product: any) => {
     for (var i = 0; i < orderApi.orderRequest.order.line_items.length; i++) {
-      if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id && totalQuantity > 1 ) {
-        if (orderApi.orderRequest.order.line_items[i].quantity >= 0)
+      if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id) {
+        if (orderApi.orderRequest.order.line_items[i].quantity > 1)
           orderApi.orderRequest.order.line_items[i].quantity--;
+        else if (orderApi.orderRequest.order.line_items[i].quantity === 1) {
+          // remove if they set quantity to 0
+          orderApi.orderRequest.order.line_items.splice(i, 1);;
+        }
         break;
       }
     }
