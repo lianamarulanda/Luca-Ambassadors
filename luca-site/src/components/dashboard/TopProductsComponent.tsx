@@ -11,14 +11,13 @@ const TopProductsComponent = () => {
 
   // populate the arrays of product labels and corresponding quantities for the graph
   var count = 0;
-  data.productMap.forEach((value: number, key: string) => {
+  for (let [key, value] of data.productMap) {
     productLabels.push(key);
     productQuantities.push(value);
     count++;
     if (count === 5)
-      return;
-  });
-
+      break;
+  }
 
   console.log(data.productMap);
   console.log(productLabels);
@@ -51,7 +50,7 @@ const TopProductsComponent = () => {
       categories: productLabels,
     },
     title: {
-      text: 'Top Products Sold',
+      text: 'Top 5 Products Sold',
       align: 'left'
     },
   },

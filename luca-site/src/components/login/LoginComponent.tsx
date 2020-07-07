@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100vh',
   },
   image: {
-    backgroundImage: 'url(https://scontent-iad3-1.cdninstagram.com/v/t51.2885-15/73414117_186091762583756_3668277161097506400_n.jpg?_nc_cat=105&_nc_sid=8ae9d6&_nc_ohc=Pb3m2nm7U1AAX_XgVpk&_nc_ht=scontent-iad3-1.cdninstagram.com&oh=f3abf00d24fb16b1ca040fef73512e86&oe=5EE25105)',
+    backgroundImage: 'url(https://scontent-iad3-1.cdninstagram.com/v/t51.2885-15/104958300_299363731109248_9195902582336997418_n.jpg?_nc_cat=109&_nc_sid=8ae9d6&_nc_ohc=iBhOpKOghQQAX_8IcDZ&_nc_ht=scontent-iad3-1.cdninstagram.com&oh=44d8c81dcadb0155220565cc7fae0bdf&oe=5F2B8539)',
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
@@ -44,23 +44,24 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
   },
   form: {
-    width: '70%', // Fix IE 11 issue.
+    width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
   signUp: {
     textAlign: 'right',
     alignItems: 'right',
+    padding: theme.spacing(4)
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: '#168C80',
+    backgroundColor: '#D9BBB0',
     width: '50%',
     borderRadius: "5em",
     padding: 9,
     textTransform: "none",
     fontWeight: 500,
     '&:hover': {
-      backgroundColor: '#10675E',
+      backgroundColor: '#bfa298',
     }
   }
 }));
@@ -89,6 +90,7 @@ function LoginComponent() {
   const api = React.useContext(DbContext);
   // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
+  const [error, setError] = React.useState(false);
 
   const handleChange = (event: any) => {
     updateFormData({
@@ -117,7 +119,7 @@ function LoginComponent() {
               }
             })
         } else {
-          // show error 
+          setError(true); 
         }
       });
   };
@@ -127,72 +129,73 @@ function LoginComponent() {
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
       <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
+        <Grid item className={classes.signUp}>
+          <Link href="/register" className={classes.signUp} variant="body2">
+            {"Don't have an account? Sign up"}
+          </Link>
+        </Grid>
         <div className={classes.paper}>
-          <Grid> 
-            <Grid item className={classes.signUp}>
-              <Link href="/register" className={classes.signUp} variant="body2">
-                {"Don't have an account? Sign up"}
-              </Link>
-            </Grid>
-            <Grid>
-              <Grid item className={classes.gridTitle}>
-                <Typography className={classes.title} component="h1" variant="h3">
-                  Sign in
+          <Grid style={{alignItems: 'center'}}>
+            <Grid item className={classes.gridTitle}>
+              <Typography className={classes.title} component="h1" variant="h3">
+                Sign in
+              </Typography>
+              { error && 
+              <div>
+                <Typography variant="overline" color="error" display="block" gutterBottom>
+                  Email or password is invalid!
                 </Typography>
-              </Grid>
-              <form className={classes.form} noValidate>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  autoFocus
-                  onChange={handleChange}
-                />
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  onChange={handleChange}
-                />
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
-                />
-                <Grid item>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    onClick={handleLogin}
-                  >
-                    Sign In
-                  </Button>
-                </Grid>
-                <Grid container>
-                  <Grid item xs>
-                    <Link href="#" variant="body2">
-                      Forgot password?
-                    </Link>
-                  </Grid>
-                </Grid>
-                <Box mt={35}>
-                  <Copyright />
-                </Box>
-              </form>
+              </div>
+              }
             </Grid>
+            <form className={classes.form} noValidate>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                onChange={handleChange}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                onChange={handleChange}
+              />
+              <Grid item>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  onClick={handleLogin}
+                >
+                  Sign In
+                </Button>
+              </Grid>
+              <Grid container style={{alignSelf:'center'}}>
+                <Grid item xs style={{alignSelf:'center'}}>
+                  <Link href="#" variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+              </Grid>
+              <Box mt={25} style={{alignSelf:'center'}}>
+                <Copyright />
+              </Box>
+            </form>
           </Grid>
         </div>
       </Grid>

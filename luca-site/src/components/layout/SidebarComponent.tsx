@@ -10,12 +10,13 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Avatar from '@material-ui/core/Avatar';
-import profilePic from '../../images/happydog.jpg';
+import drawerImage from '../../images/sidebar2.jpg';
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../../util/api';
 import Toolbar from '@material-ui/core/Toolbar';
 import { useHistory } from 'react-router-dom';
+import logo from '../../images/logo2.png'
 
 const drawerWidth = 240;
 
@@ -30,7 +31,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawerPaper: {
       width: drawerWidth,
-      background: 'linear-gradient(45deg, #F2E4D8 30%, #168C80 90%)',
+      //background: 'linear-gradient(45deg, #F2E4D8 30%, #168C80 90%)',
+      backgroundImage: 'url(' + drawerImage + ')',
     },
     // necessary for content to be below app bar
     toolbar: theme.mixins.toolbar,
@@ -93,7 +95,7 @@ export default function Sidebar() {
       >
         <Toolbar />
         {/* <Avatar alt="pic" src='https://cdn.shopify.com/s/files/1/0689/5177/t/11/assets/logo.png?231' className={classes.large} style={{alignSelf: 'center'}} /> */}
-        <img src='https://cdn.shopify.com/s/files/1/0689/5177/t/11/assets/logo.png?231' className={classes.logo} alt="logo" />
+        <img src={logo} className={classes.logo} alt="logo" />
         <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
         <List>

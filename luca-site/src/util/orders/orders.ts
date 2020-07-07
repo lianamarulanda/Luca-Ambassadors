@@ -11,16 +11,16 @@ export default class orders {
     this.orderRequest = {
       "order": {
         "customer": {
-          "first_name": "Liana",
-          "last_name": "Marulanda",
-          "email" : "lianamarulanda@gmail.com",
+          "first_name": "",
+          "last_name": "",
+          "email" : "",
         },
         "test": true,
-        "email": "lianamarulanda@gmail.com", 
+        "email": "", 
         "send_receipt": true,
         "shipping_address": {          
-          "first_name": "Liana",
-          "last_name": "Marulanda",
+          "first_name": "",
+          "last_name": "",
           "address1": "",
           "address2": "",
           "city": "",

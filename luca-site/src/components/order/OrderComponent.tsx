@@ -109,6 +109,10 @@ export default function OrderComponent() {
         setReload(!reload);
       } else {
         orderApi.productError = false;
+        orderApi.orderRequest.order.customer.first_name = dbApi.userData.firstName;
+        orderApi.orderRequest.order.customer.last_name = dbApi.userData.lastName;
+        orderApi.orderRequest.order.customer.email = dbApi.userData.email;
+        orderApi.orderRequest.order.email = dbApi.userData.email;
         setActiveStep(orderData.activeStep + 1);
       }
     } else if (orderData.activeStep === 2) {

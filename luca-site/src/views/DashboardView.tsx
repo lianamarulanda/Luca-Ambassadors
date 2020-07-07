@@ -15,36 +15,43 @@ import WelcomeComponent from '../components/dashboard/WelcomeComponent'
 import OrdersComponent from '../components/dashboard/OrdersComponent'
 import { useHistory } from 'react-router-dom'
 import { DbContext } from '../util/api';
+import { UserContext } from '../util/user';
 
 const App: React.FC = () => {
   const classes = useStyles();
 
   const history = useHistory();
   const api = React.useContext(DbContext);
+  const user = React.useContext(UserContext);
   const [loaded, setLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    if (!api.isSignedIn()) {
-      // history.push('/login');
+    if (!user.isSignedIn()) {
+      history.push('/login');
+    } else {
+      setLoaded(true);
     }
-
-    setLoaded(true);
-  }, [history, api]);
-
+  }, [history, api, user]);
 
   // if (loaded) {
+  //   console.log(user.getEmail());
+
   //   return(<div>I'm logged in</div>);
   // } else {
+  //   console.log(user.getEmail());
+
   //   return(<div>I'm not logged in</div>);
   // }
 
-  
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
+          <Typography variant="h6" gutterBottom style={{textAlign: 'left', fontWeight: 700, marginBottom:'30px'}}>
+          Sales and revenue details
+          </Typography>
           <Grid
             container
             spacing={4}
@@ -91,8 +98,16 @@ const App: React.FC = () => {
               md={6}
               xl={3}
               xs={12}
+             
             >
               <TopProductsComponent />
+            </Grid>
+            <Grid container>
+              <Grid item>
+                <Typography variant="h6" style={{fontWeight: 700, padding:'22px'}}>
+                Your orders
+                </Typography>
+              </Grid>
             </Grid>
             <Grid
               item
@@ -116,7 +131,6 @@ const App: React.FC = () => {
       </main>
     </div>
   )
-  
 }
 
 const useStyles = makeStyles(theme => ({

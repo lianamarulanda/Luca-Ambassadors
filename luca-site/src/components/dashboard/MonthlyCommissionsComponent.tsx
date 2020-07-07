@@ -55,7 +55,7 @@ const MonthlyCommissionsComponent = () => {
         curve: 'straight'
       },
       title: {
-        text: 'Commissions Earned by Month ($)',
+        text: 'Commissions Earned by Month ($) 2020',
         align: 'left'
       },
       grid: {
