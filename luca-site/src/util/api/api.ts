@@ -16,9 +16,9 @@ export default class Api {
   private amRef: any;
   public userData: any;
   public codeData: object;
-  private signedInStatus: boolean;
+  private userState: object;
 
-  constructor() {
+  constructor(user: any) {
     firebase.initializeApp(firebaseConfig);
     // database instance - specifies firestore service
     this.myDatabase = firebase.firestore();
@@ -27,23 +27,28 @@ export default class Api {
     this.amRef = this.myDatabase.collection('ambassadors');
     this.codeData = {};
     this.userData = {};
-    this.signedInStatus = false;
+    this.userState = user;
 
     this.authentication.onAuthStateChanged((authUser: any) => {
       if (authUser === null || authUser.email === null) {
-        this.signedInStatus = false;
+        this.userState = user.reset();
       } else {
-        this.signedInStatus = true;
+        this.userState = user.setEmail("Hello :)");
+        this.userState = user.setIdentifier("Hello again :)");
       }
     });
   }
 
-  public setSignedInStatus(state: boolean): void {
-    this.signedInStatus = state;
-  }
-
-  public isSignedIn(): boolean {
-    return this.signedInStatus;
+  isInitialized(): Promise<any> {
+    return new Promise((resolve) => {
+      this.authentication.onAuthStateChanged((user: any) => {
+        if (user) {
+          resolve(user);
+        } else {
+          resolve(null);
+        }
+      });
+    });
   }
 
   public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<void> {
@@ -304,7 +309,6 @@ export default class Api {
     });
   }
 
-  // may nt need to be async
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {
       // local array to store all the orders filtered by user discount code
