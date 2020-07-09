@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme: any) => ({
   card: {
     padding: theme.spacing(2),
     '&:hover': {
-      backgroundColor: '#6c7878',
+      backgroundColor: '#8CA888',
     },
     textTransform: "none",
     width: '100%',
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: any) => ({
   },
   selectedCard: {
     padding: theme.spacing(2),
-    backgroundColor: '#6c7878',
+    backgroundColor: '#8CA888',
     textTransform: "none",
     width: '100%',
     length: '100%'

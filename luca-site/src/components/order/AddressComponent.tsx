@@ -3,10 +3,21 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
 
+const useStyles = makeStyles({
+  fieldOutline: {
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "#2E5941"
+    },
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#2E5941"
+    }
+  },
+});
 
 export default function AddressComponent(props: any) {
-  
+  const classes = useStyles();
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -23,6 +34,7 @@ export default function AddressComponent(props: any) {
             defaultValue={props.address1}
             autoComplete="shipping address-line1"
             onChange={props.handleChange}
+            className={classes.fieldOutline}
           />
         </Grid>
         <Grid item xs={12}>
@@ -34,6 +46,7 @@ export default function AddressComponent(props: any) {
             defaultValue={props.address2}
             autoComplete="shipping address-line2"
             onChange={props.handleChange}
+            className={classes.fieldOutline}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -46,6 +59,7 @@ export default function AddressComponent(props: any) {
             defaultValue={props.city}
             autoComplete="shipping address-level2"
             onChange={props.handleChange}
+            className={classes.fieldOutline}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -57,6 +71,7 @@ export default function AddressComponent(props: any) {
             fullWidth 
             defaultValue={props.province}
             onChange={props.handleChange} 
+            className={classes.fieldOutline}
             />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -69,6 +84,7 @@ export default function AddressComponent(props: any) {
             defaultValue={props.zip}
             autoComplete="shipping postal-code"
             onChange={props.handleChange}
+            className={classes.fieldOutline}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -81,6 +97,7 @@ export default function AddressComponent(props: any) {
             defaultValue={props.country}
             autoComplete="shipping country"
             onChange={props.handleChange}
+            className={classes.fieldOutline}
           />
         </Grid>
       </Grid>

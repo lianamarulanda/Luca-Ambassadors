@@ -24,8 +24,10 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     textAlign: 'left',
     fontWeight: 'bolder',
-
   },
+  icon: {
+    color: '#2E5941'
+  }
 }));
 
 
@@ -79,10 +81,10 @@ export default function ReviewComponent(orderData: any) {
           <ListItem className={classes.listItem} key={product.variant_id}>
             <ListItemText primary={product.title} />
             <Typography variant="body2">Qty: {product.quantity}</Typography>
-            <IconButton color="primary" aria-label="add quantity" onClick={() => increaseQuantity(product)}> 
+            <IconButton className={classes.icon} aria-label="add quantity" onClick={() => increaseQuantity(product)}> 
               <AddBoxIcon />
             </IconButton>
-            <IconButton color="primary" aria-label="subtract quantity" onClick={() => decreaseQuantity(product)}>
+            <IconButton className={classes.icon} aria-label="subtract quantity" onClick={() => decreaseQuantity(product)}>
               <RemoveIcon />
             </IconButton>
           </ListItem>

@@ -9,6 +9,9 @@ import InfoIcon from '@material-ui/icons/Info';
 import PropTypes from 'prop-types';
 import { ordersContext } from '../../util/orders';
 import square from '../../images/square.jpg';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { Grid } from '@material-ui/core';
 
 // sort the products to load based on package component
 function filterProducts(productType: string, allProducts: object[]): object[] {
@@ -98,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     selectedTile: {
-      backgroundColor: '#168C80',
+      backgroundColor: '#427340',
       cursor: 'pointer',
       '&:hover': {
         boxShadow: theme.shadows[15],
@@ -178,7 +181,14 @@ export default function ProductsComponent(props: any) {
     <div className={classes.root}>
       <GridList cellHeight={180} className={classes.gridList}>
         <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
-          <ListSubheader component="div">Select items</ListSubheader>
+          <Grid container style={{justifyContent: 'center'}}>
+            <ListSubheader component="div">Select items</ListSubheader>
+            <Tooltip title={<div><Typography variant="subtitle1">Click on a product's info button to view more details.</Typography><br /> <Typography variant="subtitle1">The quantities will be selected in the next step.</Typography></div>} >
+              <IconButton aria-label="info">
+                <InfoIcon fontSize="small"/>
+              </IconButton>
+            </Tooltip> 
+          </Grid>
         </GridListTile>
         {selectionState.loadedProducts.map((tile: any) => (
           <GridListTile 

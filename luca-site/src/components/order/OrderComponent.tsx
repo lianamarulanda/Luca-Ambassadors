@@ -15,9 +15,6 @@ import { ordersContext } from '../../util/orders';
 import { DbContext } from '../../util/api';
 
 const useStyles = makeStyles((theme) => ({
-  appBar: {
-    position: 'relative',
-  },
   layout: {
     width: 'auto',
     marginLeft: theme.spacing(2),
@@ -48,7 +45,24 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1),
+    color: 'white',
+    backgroundColor: '#427340',
+    '&:hover': {
+      color: 'white',
+      backgroundColor: '#2E5941'
+    }
   },
+  stepperIcon: {
+    color: "#2E5941",
+    "&$activeIcon": {
+      color: "#8CA888"
+    },
+    "&$completedIcon": {
+      color: "#8CA888"
+    }
+  },
+  activeIcon: {}, //needed so that the &$active tag works
+  completedIcon: {},
 }));
 
 const steps = ['Shipping address', 'Select items', 'Review your order'];
@@ -153,8 +167,6 @@ export default function OrderComponent() {
 
   return (
     <React.Fragment>
-      <CssBaseline />
-      <Sidebar />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           { orderApi.addressError  && 
@@ -171,13 +183,23 @@ export default function OrderComponent() {
             </Typography>
           </div>
           }
-          <Typography component="h1" variant="h4" align="center">
-            Order Accessories Package 
+          <Typography component="h1" variant="h4" align="center" style={{fontFamily: 'helvetica'}}>
+            Order Monthly Package 
           </Typography>
           <Stepper activeStep={orderData.activeStep} className={classes.stepper}>
             {steps.map((label) => (
               <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+                <StepLabel 
+                  StepIconProps={{ 
+                    classes:{ 
+                      root: classes.stepperIcon,
+                      active: classes.activeIcon,
+                      completed: classes.completedIcon
+                    } 
+                  }}
+                >
+                  {label}
+                </StepLabel>
               </Step>
             ))}
           </Stepper>
@@ -203,7 +225,6 @@ export default function OrderComponent() {
                   )}
                   <Button
                     variant="contained"
-                    color="primary"
                     onClick={handleNext}
                     className={classes.button}
                   >
