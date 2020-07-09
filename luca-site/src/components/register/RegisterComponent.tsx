@@ -34,31 +34,35 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     marginTop: '50px',
-    marginRight: '350px',
     marginBottom: '50px',
     fontWeight: 100,
     color: '#4f4f4f',
     fontFamily: 'serif',
   },
   form: {
-    width: '70%', // Fix IE 11 issue.
+    width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
   signIn: {
-    marginLeft: '450px',
+    textAlign: 'right',
+    alignItems: 'right',
+    padding: theme.spacing(4)
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: '#005C37',
+    backgroundColor: '#BF7C63',
     width: '50%',
     borderRadius: "5em",
     padding: 9,
     textTransform: "none",
     fontWeight: 500,
     '&:hover': {
-      backgroundColor: '#004328',
-    }
+      backgroundColor: '#8C7264',
+    },
   },
+  gridTitle: {
+    textAlign: 'left',
+  }
 }));
 
 function Copyright() {
@@ -88,6 +92,7 @@ export default function RegisterComponent() {
   const classes = useStyles();
   const history = useHistory();
   const api = React.useContext(DbContext);
+  const [error, setError] = React.useState(false);
 
   // React.useState() initializes our state,
   // a state is a collection of private variables used by the current component
@@ -113,30 +118,40 @@ export default function RegisterComponent() {
   // createUser api will get called here
   const handleRegistration = (event: any) => {
     event.preventDefault()
-    // debug print statement
-    console.log(formData);
     if (formData.firstName === "" || formData.lastName === "" || formData.discountCode === "")
-      console.log("one or more fields are blank!");
-    else
+      setError(true); 
+    else {
       api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode);
+      history.push('/verify');
+    }
   };
 
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
       <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
+        <Grid item className={classes.signIn}>
+          <Link href="/login" className={classes.signIn} variant="body2">
+            {"Already have an account? Sign in"}
+          </Link>
+        </Grid>
         <div className={classes.paper}>
-          <Grid item>
-            <Link href="/login" className={classes.signIn} variant="body2">
-              {"Already have an account? Sign in"}
-            </Link>
-          </Grid>
-          <Typography className={classes.title} component="h1" variant="h3">
+          <Grid style={{alignItems: 'center'}}>
+            <Grid item className={classes.gridTitle}>
+              <Typography className={classes.title} component="h1" variant="h3">
                 Sign up
-          </Typography>
-          <form className={classes.form} noValidate>
+              </Typography>
+              { error && 
+              <div>
+                <Typography variant="overline" color="error" display="block" gutterBottom>
+                  Please fill out ALL required fields!
+                </Typography>
+              </div>
+              }
+            </Grid>
+            <form className={classes.form} noValidate>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={false} sm={6}>
                   <TextField
                     autoComplete="fname"
                     name="firstName"
@@ -149,7 +164,7 @@ export default function RegisterComponent() {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={false} sm={6}>
                   <TextField
                     variant="outlined"
                     required
@@ -161,63 +176,64 @@ export default function RegisterComponent() {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    required
-                    fullWidth
-                    margin="normal"
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    required
-                    margin="normal"
-                    fullWidth
-                    id="discountCode"
-                    label="Ambassador Code"
-                    name="discountCode"
-                    autoComplete="discount-code"
-                    onChange={handleChange}
-                  />
-                </Grid>
               </Grid>
-                <Grid item>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    onClick={handleRegistration}
-                  >
-                    Sign Up
-                  </Button>
-                </Grid>
-            <Box mt={20}>
-              <Copyright />
-            </Box>
-          </form>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  margin="normal"
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  margin="normal"
+                  fullWidth
+                  id="discountCode"
+                  label="Ambassador Code"
+                  name="discountCode"
+                  autoComplete="discount-code"
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  onClick={handleRegistration}
+                >
+                  Sign Up
+                </Button>
+              </Grid>
+              <Box mt={14} style={{alignSelf:'center'}}>
+                <Copyright />
+              </Box>
+            </form>
+          </Grid>
         </div>
       </Grid>
       <Grid item xs={false} sm={4} md={6} className={classes.image} />
