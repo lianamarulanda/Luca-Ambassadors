@@ -11,7 +11,6 @@ import TotalCommission from '../components/dashboard/TotalCommissionsComponent'
 import TotalCheckouts from '../components/dashboard/TotalCheckoutsComponent'
 import MonthlyCommissionsComponent from '../components/dashboard/MonthlyCommissionsComponent'
 import TopProductsComponent from '../components/dashboard/TopProductsComponent'
-import WelcomeComponent from '../components/dashboard/WelcomeComponent'
 import OrdersComponent from '../components/dashboard/OrdersComponent'
 import { useHistory } from 'react-router-dom'
 import { DbContext } from '../util/api';
@@ -49,8 +48,8 @@ const App: React.FC = () => {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <Typography variant="h6" gutterBottom style={{textAlign: 'left', fontWeight: 700, marginBottom:'30px'}}>
-          Sales and revenue details
+          <Typography variant="h4" gutterBottom style={{textAlign: 'left', fontWeight: 700, marginBottom:'30px'}}>
+          Overview
           </Typography>
           <Grid
             container
@@ -104,16 +103,13 @@ const App: React.FC = () => {
             </Grid>
             <Grid container>
               <Grid item>
-                <Typography variant="h6" style={{fontWeight: 700, padding:'22px'}}>
+                <Typography variant="h4" style={{fontWeight: 700, padding:'22px'}}>
                 Your orders
                 </Typography>
               </Grid>
             </Grid>
             <Grid
               item
-              lg={9}
-              md={6}
-              xl={3}
               xs={12}
             >
               <OrdersComponent />

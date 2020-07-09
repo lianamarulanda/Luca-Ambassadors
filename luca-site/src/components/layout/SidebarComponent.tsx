@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
     buttonText: {
       color: 'white',
       '&:hover': {
-        color: '#6c7878',
+        color: '#cfd3d3',
       }
     },
     logo: {
@@ -65,7 +65,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     logoutButton: {
       marginTop: "350px",
-      color: '#6c7878',
+      color: 'white',
+      '&:hover': {
+        color: '#cfd3d3',
+      }
     },
     icon: {
       color: 'white'
@@ -112,7 +115,7 @@ export default function Sidebar() {
             <ListItemText primary={"Settings"} />
           </ListItem>
           <ListItem button className={classes.logoutButton}>
-            <ListItemIcon> <LogoutIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <LogoutIcon/> </ListItemIcon>
             <ListItemText primary={"Logout"} />
           </ListItem>
         </List>

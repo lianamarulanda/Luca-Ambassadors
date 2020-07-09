@@ -23,16 +23,23 @@ const MonthlyCommissionsComponent = () => {
 
   var monthLabels: string[] = [];
 
-  for (var i = 0; i < data.monthlyCommissions.length; i++) {
-    monthLabels.push(monthLookup[i]);
-  }
+  monthLabels.push("Jan");
+  monthLabels.push("Feb");
+  monthLabels.push("Mar");
+
+
+  // for (var i = 0; i < data.monthlyCommissions.length; i++) {
+  //   monthLabels.push(monthLookup[i]);
+  // }
 
   console.log(monthLabels);
 
   const state = {
     series: [{
-        name: "Commissions Amount",
-        data: data.monthlyCommissions,
+        name: "Commissions Amount ($)",
+        // data: data.monthlyCommissions,
+        data: [5, 15, 20], 
+        colors:['#F44336']
     }],
     options: {
       chart: {
@@ -52,7 +59,8 @@ const MonthlyCommissionsComponent = () => {
         enabled: false
       },
       stroke: {
-        curve: 'straight'
+        curve: 'straight',
+        colors: ['#83A672'],
       },
       title: {
         text: 'Commissions Earned by Month ($) 2020',
@@ -68,6 +76,8 @@ const MonthlyCommissionsComponent = () => {
         categories: monthLabels
       }
     },
+    
+    
   } as any;
 
   return (
