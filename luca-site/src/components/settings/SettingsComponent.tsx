@@ -11,6 +11,7 @@ import UpdateEmail from './UpdateEmailComponent';
 import UpdatePersonalInfo from './UpdatePersonalComponent';
 import { Card } from '@material-ui/core';
 
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: any;
@@ -44,10 +45,9 @@ function a11yProps(index: any) {
   };
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles((theme: any) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
   },
   card: {
     width: '100%',
@@ -56,6 +56,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   labels: {
     textTransform: "none"
   },
+  indicator: {
+    backgroundColor: '#2E5941',
+  },
+  selectedTab: {
+    textTransform: 'none',
+    color: '#2E5941'
+  }
 }));
 
 export default function SimpleTabs() {
@@ -73,13 +80,14 @@ export default function SimpleTabs() {
           <Tabs value={value} 
           onChange={handleChange} 
           aria-label="simple tabs example"
-          indicatorColor="primary"
-          textColor="primary"
+          classes={{
+            indicator: classes.indicator
+          }}
           centered
           >
-            <Tab className={classes.labels} label="Personal info" {...a11yProps(0)} />
-            <Tab className={classes.labels} label="Email" {...a11yProps(1)} />
-            <Tab className={classes.labels} label="Password" {...a11yProps(2)} />
+            <Tab className={value === 0 ? classes.selectedTab : classes.labels} label="Personal info" {...a11yProps(0)} />
+            <Tab className={value === 1 ? classes.selectedTab : classes.labels} label="Email" {...a11yProps(1)} />
+            <Tab className={value === 2 ? classes.selectedTab : classes.labels} label="Password" {...a11yProps(2)} />
           </Tabs>
         </Paper>
         <Divider variant="middle" light={true} />

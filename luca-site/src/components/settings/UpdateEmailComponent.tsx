@@ -21,6 +21,14 @@ const useStyles = makeStyles({
   },
   align: {
     textAlign: 'left'
+  },
+  fieldOutline: {
+    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#2E5941"
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "#2E5941"
+    }
   }
 });
 
@@ -80,6 +88,7 @@ export default function UpdateEmail() {
                   required
                   autoFocus
                   onChange={handleChange}
+                  className={classes.fieldOutline}
                 />
               <TextField
                 fullWidth
@@ -89,6 +98,7 @@ export default function UpdateEmail() {
                 variant="outlined"
                 required
                 onChange={handleChange}
+                className={classes.fieldOutline}
               />
               <TextField
                 fullWidth
@@ -99,11 +109,16 @@ export default function UpdateEmail() {
                 required
                 type="password"
                 onChange={handleChange}
+                className={classes.fieldOutline}
               />
               <Grid item className={classes.align}>
                 <Button
-                  style={{ marginTop: '1rem' }}
-                  color="primary"
+                  style={
+                  { 
+                    marginTop: '1rem',
+                    border: 'solid 1px #2E5941',
+                    color: '#2E5941'
+                  }}
                   variant="outlined"
                   onClick={handleUpdate}
                 >

@@ -15,7 +15,6 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     height: '100vh',
     overflow: 'auto',
-    backgroundColor: theme.palette.background.paper,
   },
   container: {
     paddingTop: theme.spacing(4),
@@ -44,6 +43,7 @@ function SettingsView() {
             color="inherit"
             gutterBottom
             variant="h4"
+            style={{fontWeight:700}}
           >
                 Settings
           </Typography>
