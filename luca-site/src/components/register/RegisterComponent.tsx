@@ -92,7 +92,7 @@ export default function RegisterComponent() {
   const classes = useStyles();
   const history = useHistory();
   const api = React.useContext(DbContext);
-  const [error, setError] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   // React.useState() initializes our state,
   // a state is a collection of private variables used by the current component
@@ -119,10 +119,15 @@ export default function RegisterComponent() {
   const handleRegistration = (event: any) => {
     event.preventDefault()
     if (formData.firstName === "" || formData.lastName === "" || formData.discountCode === "")
-      setError(true); 
+      setError("Please fill out all required fields!"); 
     else {
-      api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode);
-      history.push('/verify');
+      api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode)
+        .then(() => {
+          history.push('/verify');
+        })
+        .catch((error: string) => {
+          setError(error); 
+        });
     }
   };
 
@@ -141,10 +146,10 @@ export default function RegisterComponent() {
               <Typography className={classes.title} component="h1" variant="h3">
                 Sign up
               </Typography>
-              { error && 
+              { error !== "" && 
               <div>
                 <Typography variant="overline" color="error" display="block" gutterBottom>
-                  Please fill out ALL required fields!
+                  { error }
                 </Typography>
               </div>
               }

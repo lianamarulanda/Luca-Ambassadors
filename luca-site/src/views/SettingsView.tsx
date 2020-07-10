@@ -6,6 +6,9 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Sidebar from '../components/layout/SidebarComponent';
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography';
+import { DbContext } from '../util/api';
+import { useHistory } from 'react-router-dom';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -28,9 +31,18 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-
 function SettingsView() {
   const classes = useStyles();
+  const api = React.useContext(DbContext);
+  const history = useHistory();
+
+
+  React.useEffect(() => {
+    if (!api.isLoggedIn()) {
+      history.push('/login');
+    } 
+  }, [history, api]);
+
 
   return (
     <div className={clsx(classes.root)}>

@@ -85,6 +85,12 @@ export default function Sidebar() {
     history.push(`/${link}`);
   }
 
+  function logout() {
+    dbContext.logout().then(() => {
+      history.push('/login');
+    })
+  }
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -114,7 +120,7 @@ export default function Sidebar() {
             <ListItemIcon className={classes.icon}> <SettingsIcon/> </ListItemIcon>
             <ListItemText primary={"Settings"} />
           </ListItem>
-          <ListItem button className={classes.logoutButton}>
+          <ListItem button className={classes.logoutButton} onClick={() => logout()}>
             <ListItemIcon className={classes.icon}> <LogoutIcon/> </ListItemIcon>
             <ListItemText primary={"Logout"} />
           </ListItem>

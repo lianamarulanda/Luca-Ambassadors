@@ -90,7 +90,7 @@ function LoginComponent() {
   const api = React.useContext(DbContext);
   // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
-  const [error, setError] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   const handleChange = (event: any) => {
     updateFormData({
@@ -104,23 +104,19 @@ function LoginComponent() {
   // loginUser api will get called here
   const handleLogin = async (event: any) => {
     event.preventDefault()
-    // debug print statement
-    console.log(formData);
-
     api.loginUser(formData.email, formData.password)
-      .then((loggedIn: boolean) => {
-        if (loggedIn) {
-          api.checkAdminStatus()
-            .then((isAdmin: boolean) => {
-              if (!isAdmin) {
-                history.push("/dashboard");
-              } else {
-                // go to admin home page
-              }
-            })
-        } else {
-          setError(true); 
-        }
+      .then(() => {
+        api.checkAdminStatus()
+          .then((isAdmin: boolean) => {
+            if (!isAdmin) {
+              history.push("/dashboard");
+            } else {
+              // go to admin home page
+            }
+          })
+      })
+      .catch((error: string) =>{
+        setError(error);
       });
   };
 
@@ -140,10 +136,10 @@ function LoginComponent() {
               <Typography className={classes.title} component="h1" variant="h3">
                 Sign in
               </Typography>
-              { error && 
+              { error !== "" && 
               <div>
                 <Typography variant="overline" color="error" display="block" gutterBottom>
-                  Email or password is invalid!
+                  { error }
                 </Typography>
               </div>
               }

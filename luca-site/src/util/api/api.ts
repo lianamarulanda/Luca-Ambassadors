@@ -1,7 +1,7 @@
 import axios from 'axios';
-import orders from '../../orders.json';
 import { promises } from 'fs';
 import { configure } from '@testing-library/react';
+import orders from '../../orders.json';
 
 const firebaseConfig = require('../../config.json');
 const shopifyConfig = require('../../shopifyConfig.json');
@@ -15,90 +15,119 @@ export default class Api {
   private usersRef: any;
   private amRef: any;
   public userData: any;
-  public codeData: object;
-  private userState: object;
+  private orders: object[];
 
-  constructor(user: any) {
+  constructor() {
     firebase.initializeApp(firebaseConfig);
     // database instance - specifies firestore service
     this.myDatabase = firebase.firestore();
     this.authentication = firebase.auth();
     this.usersRef = this.myDatabase.collection('users');
     this.amRef = this.myDatabase.collection('ambassadors');
-    this.codeData = {};
     this.userData = {};
-    this.userState = user;
-
-    this.authentication.onAuthStateChanged((authUser: any) => {
-      if (authUser === null || authUser.email === null) {
-        this.userState = user.reset();
-      } else {
-        this.userState = user.setEmail("Hello :)");
-        this.userState = user.setIdentifier("Hello again :)");
-      }
-    });
+    this.orders = [] as object[];
   }
 
-  isInitialized(): Promise<any> {
+  // True if user is logged in, false if user is not logged in
+  public async isInitialized(): Promise<boolean> {
     return new Promise((resolve) => {
-      this.authentication.onAuthStateChanged((user: any) => {
+      this.authentication.onAuthStateChanged(async (user: any) => {
         if (user) {
-          resolve(user);
+          console.log("I got here 3");
+          await this.loadUserData();
+          resolve(true);
         } else {
-          resolve(null);
+          this.userData.email = '';
+          resolve(false);
         }
       });
     });
   }
 
-  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<void> {
-    // create user in firebase authentication, only if email not already in use
-    this.authentication.createUserWithEmailAndPassword(email, password)
-      // if no error in authentication, create ambassador object in db 
-      .then(() => {
-        this.amRef.add({
-          discountCode: discountCode
-        })
-          // after adding the ambassador object, create the user object
-          .then((ref: { id: any; }) => {
-            this.usersRef.add({
-              firstName: firstName,
-              lastName: lastName,
-              email: email,
-              ambassadorID: ref.id
-            })
-            .then((ref: { id: any; }) => {
-              // debug print statement
-              console.log('Added document with ID: ', ref.id);
-            });                             
-          });
-      })
-      // create user in the database 
-      .catch(function(error: any) {
-        // handle errors here
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log(errorMessage + " " + errorCode);
-      });
+  public isLoggedIn(): boolean {
+    if (this.userData.email && this.userData.email !== '') {
+      return true;
+    }
+
+    return false;
   }
 
-  public async loginUser(email: string, password: string): Promise<boolean> {
-    return new Promise((resolve) => {
-      // firebase authentication
+  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<string> {
+    return new Promise ((resolve, reject) => {
+      // create user in firebase authentication
+      this.authentication.createUserWithEmailAndPassword(email, password)
+        // create ambassador object in db
+        .then(() => { // A
+          this.amRef.add({ // B
+            discountCode: discountCode
+          })
+            // after adding the ambassador object, create the user object
+            .then((ref: { id: any; }) => { // B
+              this.usersRef.add({ // C
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                ambassadorID: ref.id
+              })
+                // after creating user object, send an email verification
+                .then(() => { // C
+                  this.sendEmailVerification();
+                  resolve("");
+                })
+                .catch((error: any) => { // C
+                  reject("An error has occurred!");
+                });                          
+            })
+            .catch((error: any) => { // B
+              reject("An error has occurred!");
+            });
+        })
+        // catch firebase authentication user creation errors
+        .catch(function(error: any) { // A
+          if (error.code === "auth/weak-password")
+            reject("The passsword is too weak.");
+          if (error.code === "auth/email-already-in-use")
+            reject("The email is already in use.");
+          if (error.code === "auth/invalid-email")
+            reject("The email is invalid.");
+          reject("An error has occurred!");
+        });
+    });
+  }
+
+  public async sendEmailVerification(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      var user = firebase.auth().currentUser;
+      user.sendEmailVerification().then(function() {
+        resolve();
+      }).catch(function(error: any) {
+        reject();
+      });
+    })
+  }
+
+  public async loginUser(email: string, password: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // firebase authentication login
       this.authentication.signInWithEmailAndPassword(email, password)
         .then(async (user: any) => {
-          console.log("logged in user: " + user);
-          await this.loadUser(email);
-          resolve(true);
+          resolve("");
         })
+        // handle login errors
         .catch(function(error: any) {
-            // handle errors here
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            // delete later - debug print
-            console.log(errorMessage + " " + errorCode);
-            resolve(false);
+          reject("Invalid email and/or password!")
         });
+    })
+  }
+
+  public async logout(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.authentication.signOut().then(function() {
+        resolve();
+      }).catch(function(error: any) {
+        // catch error with signing out
+        reject();
+      });
     })
   }
 
@@ -123,29 +152,90 @@ export default class Api {
     })
   }
   // query user in the database
-  public async loadUser(email: string): Promise<void> {
+  // public async loadUser(email: string): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     // load user from database by querying email
+  //     this.usersRef.where('email', '==', email).get()
+  //       .then((snapshot: any) => {
+  //         if (snapshot.empty) {
+  //             console.log('No matching documents.'); // debug print
+  //             resolve();
+  //         } else {
+  //           snapshot.forEach(async (doc: any) => {
+  //             console.log(doc.id, '=>', doc.data());
+  //             this.userData.firstName = doc.data().firstName;
+  //             this.userData.lastName = doc.data().lastName;
+  //             this.userData.email = doc.data().email;
+  //             const discountCode = await this.getAmbassador(doc.data().ambassadorID);
+  //             let array = await this.getOrders(discountCode);
+  //             this.codeData = this.getCodeData(array);
+  //             this.getUserOrders(orders);
+  //             resolve();
+  //           });
+  //         }
+  //       })
+  //       .catch((err: any) => {
+  //         console.log('Error getting documents', err); // debug print
+  //         reject();
+  //       });
+  //   })
+  // }
+
+  public async loadUserData(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // load user from database by querying email
-      this.usersRef.where('email', '==', email).get()
+      // get current logged in user, then query in db
+      var user = this.authentication.currentUser;
+      this.usersRef.where('email', '==', user.email).get()
         .then((snapshot: any) => {
           if (snapshot.empty) {
-              console.log('No matching documents.'); // debug print
-              resolve();
+            reject();
           } else {
-            snapshot.forEach(async (doc: any) => {
-              console.log(doc.id, '=>', doc.data());
+            snapshot.forEach((doc: any) => {
+              // load user related data
               this.userData.firstName = doc.data().firstName;
               this.userData.lastName = doc.data().lastName;
-              const discountCode = await this.getAmbassador(doc.data().ambassadorID);
-              let array = await this.getOrders(discountCode);
-              this.codeData = this.getCodeData(array);
-              this.getUserOrders(orders);
+              this.userData.email = doc.data().email;
               resolve();
-            });
+            })
           }
         })
-        .catch((err: any) => {
-          console.log('Error getting documents', err); // debug print
+    })
+  }
+
+  public async loadDashboardData(): Promise<object> {
+    return new Promise((resolve, reject) => {
+      // get current logged in user then query them in the database
+      var user = this.authentication.currentUser;
+      this.usersRef.where('email', '==', user.email).get()
+        .then((snapshot: any) => {
+          if (snapshot.empty) {
+            reject();
+          } else {
+            snapshot.forEach(async (doc: any) => {
+              // after successful query, get the discount code associated w/ logged in user
+              this.getAmbassador(doc.data().ambassadorID)
+                .then(async (discountCode: string) => {
+                  // get all orders that used this discount code
+                  this.getOrders(discountCode)
+                    // then, get the actual code data
+                    .then((orders: []) => {
+                      var dashboardData = this.getCodeData(orders);
+                      resolve (dashboardData);
+                    })
+                    // error with getting the associated orders
+                    .catch((error: any) => {
+                      reject(error);
+                    })
+                })
+                // error with getting ambassador object from db
+                .catch((error: any) => {
+                  reject();
+                })
+            })
+          }
+        })
+        // catch any errors with getting user document in firestore
+        .catch((error: any) => {
           reject();
         });
     })
@@ -155,22 +245,110 @@ export default class Api {
     return new Promise((resolve, reject) => {
       // query the ambassadors db for corresponding ambassador object
       let ambassador = this.amRef.doc(ambassadorID);
-
       ambassador.get()
         .then((doc: any) => {
           if (!doc.exists) {
-            console.log('No such document!');
-            reject();
+            reject("Doc doesn't exist");
           } else {
             resolve(doc.data().discountCode);
           }
         })
         .catch((err: any) => {
-          console.log('Error getting document', err);
-          reject();
+          reject(err);
         });
     });
   }
+
+  public async getOrders(discountCode: string): Promise<[]> {
+    return new Promise((resolve, reject) => {
+      // local array to store all the orders filtered by user discount code
+      var codeOrders: any = [];
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders')
+      .then((response: any) => {
+        response.data.forEach((order: any) => {
+          // print only discount codes associated w/order
+          if (order.discount_codes[0].code.toLowerCase() === discountCode.toLowerCase())
+            codeOrders.push(order);
+        })
+        resolve(codeOrders);
+      })
+      .catch((error: any) => {
+        reject(error);
+      });
+    });
+  }
+
+  public getCodeData(codeOrders: []): object {
+    var codeData = {} as any;
+    var monthlyCommissions: number[] = [];
+    var totalSales = 0;
+    var productMap = new Map();
+
+    codeOrders.forEach((order: any) => {
+      // accumulate the subtotal prices to see how much revenue was brought in
+      totalSales += parseFloat(order.subtotal_price);
+
+      // handle monthly commissions
+      var date = new Date(order.created_at);
+      var currDate = new Date();
+      if (date.getFullYear() === currDate.getFullYear()) {
+        // .getMonth will return actual month - 1, which fits our indexes 
+        if (typeof monthlyCommissions[date.getMonth()] === 'undefined') {
+          monthlyCommissions[date.getMonth()] = 0;
+        } 
+        monthlyCommissions[date.getMonth()] += (.20 * parseFloat(order.subtotal_price));
+      }
+      // handle product mapping
+      order.line_items.forEach((product: any) =>{
+        if (productMap.has(product.title)) {
+          productMap.set(product.title, productMap.get(product.title) + product.quantity);
+        } else {
+          productMap.set(product.title, product.quantity);
+        }
+      })
+    })
+
+    // clean up monthlyCommissions to replace undefined indexes w/0, and round defined elements 
+    for (let i = 0; i < monthlyCommissions.length; i++) {
+      if (typeof monthlyCommissions[i] === 'undefined') {
+        monthlyCommissions[i] = 0;
+      } else {
+        monthlyCommissions[i] = parseFloat(monthlyCommissions[i].toFixed(2));
+      }
+    }
+
+    // sort productMap by value -> so highest values (counts) go first 
+    const sortedProducts= new Map(
+      Array
+        .from(productMap)
+        .sort((a, b) => {
+          // a[1], b[1] is the value of the map
+          return b[1] - a[1];
+        })
+    )
+    // set codeData fields
+    codeData.totalSales = totalSales;
+    codeData.totalCheckouts = codeOrders.length;
+    codeData.totalCommissions = (.20 * totalSales);
+    codeData.monthlyCommissions = monthlyCommissions;
+    codeData.productMap = sortedProducts;
+    return codeData;
+  }
+
+  public getUserOrders(allOrders: any) {
+    console.log(this.authentication.currentUser.email);
+    console.log(allOrders);
+    var orders  = [] as object[];
+    allOrders.orders.forEach((order: any) => {
+      if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) 
+        orders.push({
+          id: order.id,
+          date: order.created_at,
+          number: order.name
+        })
+    })
+    this.userData.userOrders = orders;
+  } 
 
   public async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -308,100 +486,6 @@ export default class Api {
       }); 
     });
   }
-
-  public async getOrders(discountCode: string): Promise<[]> {
-    return new Promise((resolve, reject) => {
-      // local array to store all the orders filtered by user discount code
-      var codeOrders: any = [];
-
-      orders.orders.forEach((order: any) => {
-        // print only discount codes associated w/order
-        if (order.discount_codes.length > 0)
-          if (order.discount_codes[0].code.toLowerCase() === discountCode.toLowerCase())
-            codeOrders.push(order);
-      })
-      // debug - print every item in codeOrders
-      codeOrders.forEach((order: any) => {
-        console.log(order.discount_codes[0].code);
-      })
-      resolve(codeOrders);
-    });
-  }
-
-  public getCodeData(codeOrders: []): object {
-
-    var monthlyCommissions: number[] = [];
-    var codeData = {} as any;
-    var totalSales = 0;
-    let productMap = new Map();
-
-    codeOrders.forEach((order: any) => {
-      // DON'T FORGET TO CHECK FOR YEAR *see if the data should only be valid per year*
-      // if this app only cares for yearly data, our orders api call can be just starting from current year 
-      // accumulate the subtotal prices to see how much revenue was brought in
-      totalSales += parseFloat(order.subtotal_price);
-
-      // handle monthly commissions
-      var date = new Date(order.created_at);
-      // .getMonth will return actual month - 1, which fits our indexes 
-      if (typeof monthlyCommissions[date.getMonth()] === 'undefined') {
-        console.log("index is undefined!"); // debug
-        monthlyCommissions[date.getMonth()] = 0;
-      } 
-      console.log("index contains: " + monthlyCommissions[date.getMonth()]); // debug
-      monthlyCommissions[date.getMonth()] += (.20 * parseFloat(order.subtotal_price));
-
-      // handle product mapping
-      order.line_items.forEach((product: any) =>{
-        if (productMap.has(product.title)) {
-          productMap.set(product.title, productMap.get(product.title)+product.quantity);
-        } else {
-          productMap.set(product.title, product.quantity);
-        }
-      })
-    })
-
-    // clean up monthlyCommissions to replace undefined indexes w/0, and round defined elements 
-    for (let i = 0; i < monthlyCommissions.length; i++) {
-      if (typeof monthlyCommissions[i] === 'undefined') {
-        monthlyCommissions[i] = 0;
-      } else {
-        monthlyCommissions[i] = parseFloat(monthlyCommissions[i].toFixed(2));
-      }
-    }
-
-    // sort productMap by value -> so highest values (counts) go first 
-    const sortedProducts= new Map(
-      Array
-        .from(productMap)
-        .sort((a, b) => {
-          // a[1], b[1] is the value of the map
-          return b[1] - a[1];
-        })
-    )
-    // set codeData fields
-    codeData.totalSales = totalSales;
-    codeData.totalCheckouts = codeOrders.length;
-    codeData.totalCommissions = (.20 * totalSales);
-    codeData.monthlyCommissions = monthlyCommissions;
-    codeData.productMap = sortedProducts;
-    return codeData;
-  }
-
-  public getUserOrders(allOrders: any) {
-    console.log(this.authentication.currentUser.email);
-    console.log(allOrders);
-    var orders  = [] as object[];
-    allOrders.orders.forEach((order: any) => {
-      if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) 
-        orders.push({
-          id: order.id,
-          date: order.created_at,
-          number: order.name
-        })
-    })
-    this.userData.userOrders = orders;
-  } 
 
   public async getAllProducts(): Promise<object[]> {
     return new Promise((resolve, reject) => {

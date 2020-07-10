@@ -14,33 +14,37 @@ import TopProductsComponent from '../components/dashboard/TopProductsComponent'
 import OrdersComponent from '../components/dashboard/OrdersComponent'
 import { useHistory } from 'react-router-dom'
 import { DbContext } from '../util/api';
-import { UserContext } from '../util/user';
+import LoadComponent from '../components/layout/LoadComponent';
 
 const App: React.FC = () => {
   const classes = useStyles();
-
   const history = useHistory();
   const api = React.useContext(DbContext);
-  const user = React.useContext(UserContext);
   const [loaded, setLoaded] = React.useState(false);
+  const [dashboardData, setDashboardData] = React.useState({} as any);
 
   React.useEffect(() => {
-    if (!user.isSignedIn()) {
+    if (!api.isLoggedIn()) {
       history.push('/login');
     } else {
-      setLoaded(true);
+      if (!loaded) {
+        getDashboardData();
+      }
     }
-  }, [history, api, user]);
+  }, [history, api]);
 
-  // if (loaded) {
-  //   console.log(user.getEmail());
+  const getDashboardData = async () => {
+    var dashboardData = await api.loadDashboardData();
+    setDashboardData(dashboardData);
+    setLoaded(true);
+  }
 
-  //   return(<div>I'm logged in</div>);
-  // } else {
-  //   console.log(user.getEmail());
+  // debug
+  console.log(dashboardData);
 
-  //   return(<div>I'm not logged in</div>);
-  // }
+  if (!loaded) {
+    return(<LoadComponent />)
+  }
 
   return (
     <div className={clsx(classes.root)}>
