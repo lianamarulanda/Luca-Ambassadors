@@ -3,6 +3,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import clsx from 'clsx';
 import { TextField } from '@material-ui/core';
+import { Typography }from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,6 +29,9 @@ const useStyles = makeStyles({
     "& .MuiInputLabel-root.Mui-focused": {
       color: "#2E5941"
     }
+  },
+  message: {
+    textAlign: 'left',
   }
 });
 
@@ -42,6 +46,8 @@ export default function UpdatePassword() {
   const api = React.useContext(DbContext);
   // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
+  const [message, setMessage] = React.useState("");
+  const [error, setError] = React.useState("");
 
   const handleChange = (event: any) => {
     updateFormData({
@@ -54,15 +60,15 @@ export default function UpdatePassword() {
   // updatePass api will get called here
   const handleUpdate = async (event: any) => {
     event.preventDefault()
-    // debug print statement
-    console.log(formData);
+
     api.updatePassword(formData.oldPassword, formData.newPassword, formData.confirmPassword)
       .then((status: string) => {
-        if (status === "success") {
-          console.log("password updated!");
-        } else {
-          console.log(status);
-        }
+        setError("");
+        setMessage(status);
+      })
+      .catch((err: string) => {
+        setMessage("");
+        setError(err);
       });
   };
 
@@ -79,6 +85,20 @@ export default function UpdatePassword() {
               />
             </Grid>
             <CardContent>
+              { error !== "" && 
+                <div>
+                  <Typography variant="overline" className={classes.message} color="error" display="block" gutterBottom>
+                    { error }
+                  </Typography>
+                </div>
+              }
+              { message !== "" && 
+                <div>
+                  <Typography variant="overline" className={classes.message} style={{color: '#2E5941'}} display="block" gutterBottom>
+                    { message }
+                  </Typography>
+                </div>
+              }
               <TextField
                   fullWidth
                   label="Old password"

@@ -3,6 +3,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import clsx from 'clsx';
 import { TextField } from '@material-ui/core';
+import { Typography }from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -27,7 +28,10 @@ const useStyles = makeStyles({
     },
     "& .MuiInputLabel-root.Mui-focused": {
       color: "#2E5941"
-    }
+    },
+  },
+  message: {
+    textAlign: 'left',
   }
 });
 
@@ -43,6 +47,8 @@ export default function UpdatePersonalInfo() {
   const api = React.useContext(DbContext);
   // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
+  const [message, setMessage] = React.useState("");
+  const [error, setError] = React.useState("");
 
   const handleChange = (event: any) => {
     updateFormData({
@@ -56,21 +62,16 @@ export default function UpdatePersonalInfo() {
   // updatePersonalInfo api will get called here
   const handleUpdate = async (event: any) => {
     event.preventDefault()
-    // debug print statement
-    console.log(formData);
 
-    if (formData.firstName === "" && formData.lastName === "" && formData.amCode === "") {
-      console.log("Fill out at least one of the fields!");
-    } else {
-      api.updatePersonalInfo(formData.firstName, formData.lastName, formData.amCode, formData.password)
-        .then((status: string) => {
-          if (status === "success") {
-            console.log("information updated!");
-          } else {
-            console.log(status);
-          }
-        });
-    }
+    api.updatePersonalInfo(formData.firstName, formData.lastName, formData.amCode, formData.password)
+      .then((status: string) => {
+        setError("");
+        setMessage(status);
+      })
+      .catch((error: string) => {
+        setMessage("");
+        setError(error);
+      })
   };
 
   return (
@@ -86,6 +87,20 @@ export default function UpdatePersonalInfo() {
               />
             </Grid>
             <CardContent>
+              { error !== "" && 
+                <div>
+                  <Typography variant="overline" className={classes.message} color="error" display="block" gutterBottom>
+                    { error }
+                  </Typography>
+                </div>
+              }
+              { message !== "" && 
+                <div>
+                  <Typography variant="overline" className={classes.message} style={{color: '#2E5941'}} display="block" gutterBottom>
+                    { message }
+                  </Typography>
+                </div>
+              }
               <TextField
                   fullWidth
                   label="First name"

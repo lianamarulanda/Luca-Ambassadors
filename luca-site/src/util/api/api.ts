@@ -2,6 +2,7 @@ import axios from 'axios';
 import { promises } from 'fs';
 import { configure } from '@testing-library/react';
 import orders from '../../orders.json';
+import { rejects } from 'assert';
 
 const firebaseConfig = require('../../config.json');
 const shopifyConfig = require('../../shopifyConfig.json');
@@ -111,6 +112,7 @@ export default class Api {
       // firebase authentication login
       this.authentication.signInWithEmailAndPassword(email, password)
         .then(async (user: any) => {
+          await this.loadUserData();
           resolve("");
         })
         // handle login errors
@@ -206,6 +208,7 @@ export default class Api {
     return new Promise((resolve, reject) => {
       // get current logged in user then query them in the database
       var user = this.authentication.currentUser;
+      // can prob cut this down by having userData contain the ambassador code already!!!
       this.usersRef.where('email', '==', user.email).get()
         .then((snapshot: any) => {
           if (snapshot.empty) {
@@ -353,7 +356,7 @@ export default class Api {
   public async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (newPassword !== confirmPassword) {
-        resolve("passwords not equal");
+        reject("Passwords are not equal!");
         return;
       }
       var user = this.authentication.currentUser;
@@ -370,16 +373,19 @@ export default class Api {
     
         user.updatePassword(newPass).then(function() {
           // Update successful.
-          resolve("success");
+          resolve("Password updated successfully!");
         }).catch((err: any) => {
-          // error happened - perhaps new password isnt strong enough 
-          // https://firebase.google.com/docs/auth/web/manage-users
-          resolve(err.message);
+          // an error happened w/update password
+          if (err.code === "auth/weak-password")
+            reject("Password is not strong enough!")
+          reject("An error has occurred.");
         });
 
       }).catch(function(error: any) {
-        // An error happened- perhaps old password is wrong
-        resolve(error.message);
+        // An error happened w/reauthentication- perhaps old password is wrong
+        if (error.code === "auth/wrong-password")
+          reject("Invalid old password!");
+        reject("An error has occurred.")
       });
     });
   }
@@ -387,9 +393,11 @@ export default class Api {
   public async updateEmail(newEmail: string, confirmEmail: string, password: string) : Promise<string> {
     return new Promise((resolve, reject) => {
       if (confirmEmail !== newEmail) {
-        resolve("emails not equal");
+        reject("Emails not equal!");
         return;
       }
+
+      // include check to see if email already equals curr email? 
       
       var user = this.authentication.currentUser;
       var oldEmail = user.email;
@@ -407,35 +415,48 @@ export default class Api {
           this.usersRef.where('email', '==', oldEmail).get()
             .then((snapshot: any) => {
               if (snapshot.empty) {
-                resolve("No matching documents");
+                reject("An error has occurred.");
                 // do i need to return here?
               }
             
-              snapshot.forEach((doc : any) => {
-                this.usersRef.doc(doc.id).update({email: newEmail});
-                resolve("success");
+              snapshot.forEach(async (doc : any) => {
+                // do i need a .then() / .catch() here?
+                await this.usersRef.doc(doc.id).update({email: newEmail});
+                await this.loadUserData();
+                resolve(`Successfully updated email! Please check your inbox to verify ${newEmail}`);
+                this.sendEmailVerification();
               });
             })
             .catch((err: any) => {
               // Error happened w database update
-              // can also resolve error codes
-              resolve(err.message);
+              reject("An error has occurred.");
             });
 
         }).catch(function(error: any) {
           // An error happened w/updating email in authentication
-          resolve(error.message);
+          if (error.code === "auth/invalid-email")
+            reject("Invalid email!");
+          if (error.code === "auth/email-already-in-use")
+            reject("Email already in use!");
+          reject("An error has occurred.")
         });
 
       }).catch(function(error: any) {
         // An error happened w/reauthenticating - perhaps pass is wrong
-        resolve(error.message);
+          if (error.code === "auth/wrong-password")
+          reject("Invalid password!");
+        reject("An error has occurred.")
       });
     });
   }
 
   public async updatePersonalInfo(firstName: string, lastName: string, amCode: string, password: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
+
+      if (firstName === "" && lastName === "" && amCode === "") {
+        reject("Please fill out at least one of the fields!")
+      }
+
       var user = this.authentication.currentUser;
       var credential = firebase.auth.EmailAuthProvider.credential(
         user.email,
@@ -443,46 +464,40 @@ export default class Api {
       );
 
       // re-authenticate user using given password
-      await user.reauthenticateWithCredential(credential).then(async () => {
+      user.reauthenticateWithCredential(credential).then(async () => {
         // query user in database baed on the current logged in user email 
-        await this.usersRef.where('email', '==', user.email).get()
+        this.usersRef.where('email', '==', user.email).get()
           .then((snapshot: any) => {
             if (snapshot.empty) {
-              resolve("No matching email");
+              reject("An error has occurred.");
               return;
-            } snapshot.forEach((doc : any) => {
+            } snapshot.forEach(async (doc : any) => {
               // update database for filled in fields
               if (firstName !== "") {
-                // update firstName
-                console.log("updating first name...");
+                // update firstName - do i need to await?
                 this.usersRef.doc(doc.id).update({firstName: firstName});
-                // do i need to do a .catch after calling update function?
-                console.log("updated first name");
               }
-        
               if (lastName !== "") {
-                // update lastName
-                console.log("updating last name...");
+                // update lastName - await?
                 this.usersRef.doc(doc.id).update({lastName: lastName});
-                console.log("updated last name");
               }
               if (amCode !== "") {
-                // update ambassador code
-                console.log("updating ambassador code...");
+                // update ambassador code - await?
                 this.amRef.doc(doc.data().ambassadorID).update({discountCode: amCode});
-                console.log("updated ambassador code");
               }
-              resolve("success");
+              await this.loadUserData();
+              resolve("Update successful!");
             });
           }).catch((err: any) => {
             // Error happened w database query
-            resolve(err.message);
+            reject("An error has occurred.");
             return;
           });
       }).catch(function(error: any) {
         // error occured w/reauthentication
-        resolve(error.message);
-        return;
+        if (error.code === "auth/wrong-password")
+          reject("Invalid password!");
+        reject("An error has occurred.")
       }); 
     });
   }
@@ -501,8 +516,6 @@ export default class Api {
   
   public placeOrder(orderRequest: object): Promise<number> {
     return new Promise((resolve, reject) => {
-      console.log("i got here");
-      console.log(orderRequest);
 
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
       .then((response: any) => {
