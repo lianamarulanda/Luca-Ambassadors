@@ -8,7 +8,8 @@ import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import Grid from '@material-ui/core/Grid';
 import line from '../images/Logo-12-2.png';
-
+import Button from '@material-ui/core/Button';
+import { DbContext } from '../util/api';
 
 
 const tileData = [
@@ -48,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '100vh',
   },
   main: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
   },
   gridList: {
@@ -56,11 +57,39 @@ const useStyles = makeStyles((theme) => ({
     height: 'auto',
     overflowY: 'auto',
   },
+  button: {
+    textTransform: "none",
+    marginTop:'15px'
+  },
+  resend: {
+    marginTop:'15px',
+    color: '#17A697'
+  }
 }));
 
 export default function VerifyEmail() {
   const classes = useStyles();
+  const api = React.useContext(DbContext);
+  const [resend, setResend] = React.useState(false);
+  const [verified, setVerified] = React.useState(false);
 
+  React.useEffect(() => {
+    if (api.checkEmailVerification()) {
+      setVerified(true);
+    }
+  }, [api]);
+
+  if (verified){
+    return (
+      <Typography> Email has already been verified! </Typography>
+    );
+  }
+
+  const resendEmail = async () => {
+    await api.sendEmailVerification();
+    setResend(true);
+  };
+  
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -81,9 +110,17 @@ export default function VerifyEmail() {
           ))}
           </GridList>
         </Grid>
-        <Grid item style={{marginTop:'30px'}}>
+        <Grid item style={{marginTop:'30px', textAlign: 'center'}}>
           <Link href="/login" variant="body1">Once you have verified your email, click here to login.</Link>
         </Grid>
+        <Button onClick={resendEmail} variant="outlined" color="primary" className={classes.button}>
+          Resend email
+        </Button>
+        { resend && 
+          <Grid item className={classes.resend}> 
+            <Typography variant="overline"> Email has been resent! It may take a few minutes to arrive.</Typography>
+          </Grid>
+        }
       </Container>
     </div>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -13,6 +13,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../../util/api';
 import { useHistory } from 'react-router-dom';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import LoadComponent from '../layout/LoadComponent';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -93,6 +94,7 @@ export default function RegisterComponent() {
   const history = useHistory();
   const api = React.useContext(DbContext);
   const [error, setError] = React.useState("");
+  const [load, setLoad] = React.useState(false);
 
   // React.useState() initializes our state,
   // a state is a collection of private variables used by the current component
@@ -121,15 +123,21 @@ export default function RegisterComponent() {
     if (formData.firstName === "" || formData.lastName === "" || formData.discountCode === "")
       setError("Please fill out all required fields!"); 
     else {
+      setLoad(true);
       api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode)
         .then(() => {
           history.push('/verify');
         })
         .catch((error: string) => {
+          setLoad(false);
           setError(error); 
         });
     }
   };
+
+  if (load) {
+    return <LoadComponent />
+  }
 
   return (
     <Grid container component="main" className={classes.root}>

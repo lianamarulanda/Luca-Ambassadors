@@ -36,6 +36,7 @@ export default class Api {
         if (user) {
           console.log("I got here 3");
           await this.loadUserData();
+          console.log("I got here 5");
           resolve(true);
         } else {
           this.userData.email = '';
@@ -49,51 +50,98 @@ export default class Api {
     if (this.userData.email && this.userData.email !== '') {
       return true;
     }
-
     return false;
   }
 
   public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<string> {
+    console.log("I got here A");
     return new Promise ((resolve, reject) => {
-      // create user in firebase authentication
-      this.authentication.createUserWithEmailAndPassword(email, password)
-        // create ambassador object in db
-        .then(() => { // A
-          this.amRef.add({ // B
-            discountCode: discountCode
-          })
-            // after adding the ambassador object, create the user object
-            .then((ref: { id: any; }) => { // B
-              this.usersRef.add({ // C
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                ambassadorID: ref.id
-              })
-                // after creating user object, send an email verification
-                .then(() => { // C
-                  this.sendEmailVerification();
-                  resolve("");
+      // first, check if valid discount code 
+      this.checkDiscountCode(discountCode)
+        .then((isValid: boolean) => {
+          if (!isValid)
+            reject("The ambassador code provided does not exist!");
+          else {
+            // create user in firebase authentication
+            this.authentication.createUserWithEmailAndPassword(email, password)
+              // create ambassador object in db
+              .then(() => { // A
+                this.amRef.add({ // B
+                  discountCode: discountCode
                 })
-                .catch((error: any) => { // C
-                  reject("An error has occurred!");
-                });                          
-            })
-            .catch((error: any) => { // B
-              reject("An error has occurred!");
-            });
+                  // after adding the ambassador object, create the user object
+                  .then((ref: { id: any; }) => { // B
+                    this.usersRef.add({ // C
+                      firstName: firstName,
+                      lastName: lastName,
+                      email: email,
+                      ambassadorID: ref.id
+                    })
+                      // after creating user object, send an email verification - needs a then/catch?
+                      .then(() => { // C
+                        this.sendEmailVerification();
+                        resolve("");
+                      })
+                      .catch((error: any) => { // C
+                        reject("An error has occurred!");
+                      });                          
+                  })
+                  .catch((error: any) => { // B
+                    reject("An error has occurred!");
+                  });
+              })
+              // catch firebase authentication user creation errors
+              .catch(function(error: any) { // A
+                if (error.code === "auth/weak-password")
+                  reject("The passsword is too weak.");
+                if (error.code === "auth/email-already-in-use")
+                  reject("The email is already in use.");
+                if (error.code === "auth/invalid-email")
+                  reject("The email is invalid.");
+                reject("An error has occurred!");
+              });
+          }
         })
-        // catch firebase authentication user creation errors
-        .catch(function(error: any) { // A
-          if (error.code === "auth/weak-password")
-            reject("The passsword is too weak.");
-          if (error.code === "auth/email-already-in-use")
-            reject("The email is already in use.");
-          if (error.code === "auth/invalid-email")
-            reject("The email is invalid.");
+        .catch((error: any) => {
+          console.log("I had an error");
+          if (error === "already-in-use") {
+            console.log("error is already-in-use error");
+            reject("The ambassador code is already in use!")
+          }
           reject("An error has occurred!");
         });
     });
+  }
+
+  public async checkDiscountCode(discountCode: string) : Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      var request = {
+        "title": discountCode
+      }
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getDiscountCodes', request)
+      .then((response: any) => {
+        if (response.data) {
+          // check if already in use
+          this.amRef.get().then(function(snapshot: any) {
+            snapshot.forEach(function(doc: any) {
+              if (doc.data().discountCode.toLowerCase() === discountCode.toLowerCase()) {
+                console.log("Duplicate discount code");
+                reject("already-in-use");
+              }
+            })
+            resolve(true);
+          })
+          .catch((error: any) => {
+            reject(error);
+          })
+        }
+        else
+          resolve(false);
+      })
+      .catch((error: any) => {
+        reject(error);
+      });
+    })
   }
 
   public async sendEmailVerification(): Promise<void> {
@@ -149,47 +197,25 @@ export default class Api {
         })
         .catch((error: any) => {
           console.log(error);
-          reject(error);
+          reject("An error occurred!");
         });
     })
   }
-  // query user in the database
-  // public async loadUser(email: string): Promise<void> {
-  //   return new Promise((resolve, reject) => {
-  //     // load user from database by querying email
-  //     this.usersRef.where('email', '==', email).get()
-  //       .then((snapshot: any) => {
-  //         if (snapshot.empty) {
-  //             console.log('No matching documents.'); // debug print
-  //             resolve();
-  //         } else {
-  //           snapshot.forEach(async (doc: any) => {
-  //             console.log(doc.id, '=>', doc.data());
-  //             this.userData.firstName = doc.data().firstName;
-  //             this.userData.lastName = doc.data().lastName;
-  //             this.userData.email = doc.data().email;
-  //             const discountCode = await this.getAmbassador(doc.data().ambassadorID);
-  //             let array = await this.getOrders(discountCode);
-  //             this.codeData = this.getCodeData(array);
-  //             this.getUserOrders(orders);
-  //             resolve();
-  //           });
-  //         }
-  //       })
-  //       .catch((err: any) => {
-  //         console.log('Error getting documents', err); // debug print
-  //         reject();
-  //       });
-  //   })
-  // }
 
+  public checkEmailVerification(): boolean {
+      return this.authentication.currentUser.emailVerified;
+  }
+
+  // function to load everything we need about a user -> their name, email, and discount code
   public async loadUserData(): Promise<void> {
+    console.log("I got here 4");
     return new Promise((resolve, reject) => {
       // get current logged in user, then query in db
       var user = this.authentication.currentUser;
       this.usersRef.where('email', '==', user.email).get()
         .then((snapshot: any) => {
           if (snapshot.empty) {
+            console.log("user doesn't exist");
             reject();
           } else {
             snapshot.forEach((doc: any) => {
@@ -197,49 +223,43 @@ export default class Api {
               this.userData.firstName = doc.data().firstName;
               this.userData.lastName = doc.data().lastName;
               this.userData.email = doc.data().email;
-              resolve();
+              // query ambassador db to get discount code
+              this.amRef.doc(doc.data().ambassadorID).get()
+                .then((doc: any) => {
+                  if (!doc.exists) {
+                    console.log("ambassador doesn't exist");
+                    reject();
+                  } else {
+                    this.userData.discountCode = doc.data().discountCode;
+                    resolve();
+                  }
+                })
+                .catch((err: any) => {
+                  reject(err);
+                  console.log("error with querying ambassador db");
+                });
             })
           }
         })
+        .catch((error: any) => {
+          reject(error);
+          console.log("error with querying user db");
+        });
     })
   }
 
   public async loadDashboardData(): Promise<object> {
     return new Promise((resolve, reject) => {
-      // get current logged in user then query them in the database
-      var user = this.authentication.currentUser;
-      // can prob cut this down by having userData contain the ambassador code already!!!
-      this.usersRef.where('email', '==', user.email).get()
-        .then((snapshot: any) => {
-          if (snapshot.empty) {
-            reject();
-          } else {
-            snapshot.forEach(async (doc: any) => {
-              // after successful query, get the discount code associated w/ logged in user
-              this.getAmbassador(doc.data().ambassadorID)
-                .then(async (discountCode: string) => {
-                  // get all orders that used this discount code
-                  this.getOrders(discountCode)
-                    // then, get the actual code data
-                    .then((orders: []) => {
-                      var dashboardData = this.getCodeData(orders);
-                      resolve (dashboardData);
-                    })
-                    // error with getting the associated orders
-                    .catch((error: any) => {
-                      reject(error);
-                    })
-                })
-                // error with getting ambassador object from db
-                .catch((error: any) => {
-                  reject();
-                })
-            })
-          }
+      console.log(this.userData.discountCode);
+      this.getOrders(this.userData.discountCode)
+        // then, get the actual code data
+        .then((orders: []) => {
+          var dashboardData = this.getCodeData(orders);
+          resolve (dashboardData);
         })
-        // catch any errors with getting user document in firestore
+        // error with getting the associated orders
         .catch((error: any) => {
-          reject();
+          reject(error);
         });
     })
   }
@@ -264,7 +284,7 @@ export default class Api {
 
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {
-      // local array to store all the orders filtered by user discount code
+      // local array to store all the orders filtered by user discount code - should i do this in the cloud function instead?
       var codeOrders: any = [];
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders')
       .then((response: any) => {

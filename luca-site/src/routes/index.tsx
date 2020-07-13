@@ -25,8 +25,6 @@ const Routes = (): JSX.Element => {
     });
   });
 
-  console.log('state: ' + firebaseInitialized);
-
   if (!firebaseInitialized) {
     return(<LoadComponent />)
   }

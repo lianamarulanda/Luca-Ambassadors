@@ -114,6 +114,9 @@ function LoginComponent() {
               // go to admin home page
             }
           })
+          .catch((error: string) => {
+            setError(error);
+          })
       })
       .catch((error: string) =>{
         setError(error);

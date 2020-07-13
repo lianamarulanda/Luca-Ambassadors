@@ -126,23 +126,30 @@ export const getProducts = functions.https.onRequest((request, response) => {
 });
 
 export const getDiscountCodes = functions.https.onRequest((request, response) => {
-  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + `@luca-bracelets.myshopify.com/admin/api/2020-04/discount_codes/lookup.json?code=${request.body.title}`)
+  const origin = request.headers.origin as string;
+  if (whitelist.indexOf(origin) > -1) {
+    response.set('Access-Control-Allow-Origin', origin);
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.set('Access-Control-Allow-Methods', 'POST')
+      .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+      .status(200)
+      .send();
+  } else {
+    axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + `@luca-bracelets.myshopify.com/admin/api/2020-04/discount_codes/lookup.json?code=${request.body.title}`)
     .then((result: any) => {
-      if (result.status === 200)
-      {
-        console.log("result.status is 200");
-        response.set('Access-Control-Allow-Origin', '*').status(200).send(true);
+      if (result.status === 200) {
+        response.status(200).send(true);
       }
-      else
-      {
-        console.log("result status is not 200");
-        response.set('Access-Control-Allow-Origin', '*').status(200).send(false);
-      }
-        
     })
     .catch((err: any) => {
-      response.status(400).send(err);
+      if (err.response.statusText === 'Not Found')
+        response.status(200).send(false);
+      else
+        response.status(400).send(err);
     });
+  }
 });
 
 function helper(inputString: string): string {
