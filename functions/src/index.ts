@@ -42,10 +42,7 @@ export const getOrders = functions.https.onRequest((request, response) => {
       }
     })
 
-    console.log("before while loop - headers link is: " + result.headers.link);
     var url = helper(result.headers.link);
-    console.log("url before entering while loop: " + url);
-    var cnt = 0
     while (url !== "") {
       var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
       nextOrders.data.orders.forEach((order: any) => {
@@ -53,15 +50,12 @@ export const getOrders = functions.https.onRequest((request, response) => {
           allOrders.push(order);
           }
       })
-      console.log("nextOrders headers link is: " + nextOrders.headers.link);
       url = helper(nextOrders.headers.link);
-      console.log("url now in while loop: " + url);
-      console.log(cnt++);
     }  
-    response.status(200).send(allOrders);
+    response.set('Access-Control-Allow-Origin', '*').status(200).send(allOrders);
   })
   .catch((err: string) => {
-    response.status(400).send(err);
+    response.set('Access-Control-Allow-Origin', '*').status(200).send(err);
   });
 });
 
@@ -131,6 +125,26 @@ export const getProducts = functions.https.onRequest((request, response) => {
     }) 
 });
 
+export const getDiscountCodes = functions.https.onRequest((request, response) => {
+  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + `@luca-bracelets.myshopify.com/admin/api/2020-04/discount_codes/lookup.json?code=${request.body.title}`)
+    .then((result: any) => {
+      if (result.status === 200)
+      {
+        console.log("result.status is 200");
+        response.set('Access-Control-Allow-Origin', '*').status(200).send(true);
+      }
+      else
+      {
+        console.log("result status is not 200");
+        response.set('Access-Control-Allow-Origin', '*').status(200).send(false);
+      }
+        
+    })
+    .catch((err: any) => {
+      response.status(400).send(err);
+    });
+});
+
 function helper(inputString: string): string {
   
   if (inputString === undefined)
@@ -154,3 +168,5 @@ function helper(inputString: string): string {
       return "";
     }
 }
+
+
