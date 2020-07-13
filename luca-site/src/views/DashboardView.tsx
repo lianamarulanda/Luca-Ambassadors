@@ -25,6 +25,7 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
+      console.log("THIS USER IS NOT LOGGED IN?");
       history.push('/login');
     } else {
       if (!loaded) {

@@ -86,7 +86,7 @@ export default function Sidebar() {
   }
 
   function logout() {
-    dbContext.logout().then(() => {
+    dbContext.logout().then(async () => {
       history.push('/login');
     })
   }

@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
-import line from '../images/Logo-12-2.png';
+import line from '../../images/Logo-12-2.png';
 
 const { Heart } = require('react-spinners-css');
 

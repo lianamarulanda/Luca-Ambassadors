@@ -7,6 +7,7 @@ import Link from '@material-ui/core/Link';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import Grid from '@material-ui/core/Grid';
+import line from '../images/Logo-12-2.png';
 
 
 
@@ -57,17 +58,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function StickyFooter() {
+export default function VerifyEmail() {
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
       <CssBaseline />
       <Container component="main" className={classes.main}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography variant="h4" component="h1" style={{fontWeight:100}}>
           Welcome to the Luca Love Ambassadors familia :)
         </Typography>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <img src={line} style={{height: '75px', width : '175px'}} />
+        <Typography variant="h5" component="h2" style={{fontWeight:100}}>
           {"Check your email to verify your account"}
         </Typography>
         <Grid container style={{justifyContent:'center'}}>
