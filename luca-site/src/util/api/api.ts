@@ -53,6 +53,16 @@ export default class Api {
     return false;
   }
 
+  public async sendPassReset(email: string): Promise<void> {
+    return new Promise ((resolve, reject) => {
+      this.authentication.sendPasswordResetEmail(email).then(function() {
+        resolve();
+      }).catch(function(error: any) {
+        reject("An error occurred!");
+      });
+    });
+  }
+
   public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<string> {
     console.log("I got here A");
     return new Promise ((resolve, reject) => {
@@ -536,10 +546,12 @@ export default class Api {
   
   public placeOrder(orderRequest: object): Promise<number> {
     return new Promise((resolve, reject) => {
-
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
       .then((response: any) => {
         resolve(response.data.order.order_number);
+      })
+      .catch((error: any) => {
+        reject(error);
       })
     });
   }

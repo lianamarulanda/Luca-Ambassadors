@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core/';
 import ProductsComponent from './ProductsComponent';
+import { ordersContext } from '../../util/orders';
 
 const useStyles = makeStyles((theme: any) => ({
   card: {
@@ -35,31 +36,34 @@ const initialState= Object.freeze({
 
 export default function PackageComponent(props: any) {
   const classes = useStyles();
-
   const [selectionState, setCurrentSelection] = React.useState(initialState);
+  const orderApi = React.useContext(ordersContext);
 
   const handleSelect = (selection: string) => {
-
     if (selectionState.isDisplayed && selection === selectionState.packageSelection) {
       setCurrentSelection({
         ...selectionState,
         isDisplayed: !selectionState.isDisplayed,
         packageSelection: ""
       });
+      orderApi.packageSelection = "";
     } else if (selectionState.isDisplayed && selection !== "") {
       setCurrentSelection({
         ...selectionState,
         packageSelection: selection
       });
+      orderApi.packageSelection = selection;
      } else if (!selectionState.isDisplayed && selection !== "") {
       setCurrentSelection({
         ...selectionState,
         isDisplayed: !selectionState.isDisplayed,
         packageSelection: selection
-      });        
-     }
+      });
+      orderApi.packageSelection = selection;        
+    }
+    if (orderApi.packageSelection === "2 1 Bracelet + 1 Anklet")
+      orderApi.packageSelection = "1 Bracelet + 1 Anklet";
   };
-
 
   return (
     <React.Fragment>

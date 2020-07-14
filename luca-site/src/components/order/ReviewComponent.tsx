@@ -36,6 +36,8 @@ export default function ReviewComponent(orderData: any) {
   const addresses = [orderData.address1, orderData.city, orderData.province, orderData.zip, orderData.country];
   const orderApi = React.useContext(ordersContext);
   const [reload, setReload] = React.useState(false);
+  const [error, setError] = React.useState("");
+
   function addQuantity(): number {
     var total = 0;
     for (var i = 0; i < orderApi.orderRequest.order.line_items.length; i++) {
@@ -46,22 +48,27 @@ export default function ReviewComponent(orderData: any) {
   var totalQuantity: number = addQuantity();
 
   const increaseQuantity = (product: any) => {
+    setError("");
     for (var i = 0; i < orderApi.orderRequest.order.line_items.length; i++) {
       if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id && totalQuantity < orderApi.maxQuantity) {
-        orderApi.orderRequest.order.line_items[i].quantity++;
+        if (orderApi.inventoryProductMap.get(product.variant_id) >= orderApi.orderRequest.order.line_items[i].quantity + 1)
+          orderApi.orderRequest.order.line_items[i].quantity++;
+        else 
+          setError(`Cannot increase quantity for ${product.title}: not enough in stock`);
         break;
       }
     }
     setReload(!reload);
   }
   const decreaseQuantity = (product: any) => {
+    setError("");
     for (var i = 0; i < orderApi.orderRequest.order.line_items.length; i++) {
       if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id) {
         if (orderApi.orderRequest.order.line_items[i].quantity > 1)
           orderApi.orderRequest.order.line_items[i].quantity--;
         else if (orderApi.orderRequest.order.line_items[i].quantity === 1) {
           // remove if they set quantity to 0
-          orderApi.orderRequest.order.line_items.splice(i, 1);;
+          orderApi.orderRequest.order.line_items.splice(i, 1);
         }
         break;
       }
@@ -73,9 +80,23 @@ export default function ReviewComponent(orderData: any) {
       <Typography variant="h6" gutterBottom>
         Order summary
       </Typography>
-      <Typography variant="subtitle2" style={{textAlign: 'left', fontWeight:'bolder'}}>
-        All items in cart
-      </Typography>
+      { error !== "" && 
+          <div>
+            <Typography variant="overline" color="error" display="block" gutterBottom>
+            {error}
+            </Typography>
+          </div>
+      }
+      <Grid container direction="row" justify="space-between" alignItems="center">
+        <Typography variant="subtitle2" style={{textAlign: 'left', fontWeight:'bolder'}}>
+          All items in cart
+        </Typography>
+        <Grid item style={{justifySelf:'right'}}>
+          <Typography variant="subtitle2" style={{ textAlign:'right'}}>
+            Selection: {orderApi.packageSelection}
+          </Typography>
+        </Grid>
+      </Grid>
       <List disablePadding>
         {orderApi.orderRequest.order.line_items.map((product: any) => (
           <ListItem className={classes.listItem} key={product.variant_id}>

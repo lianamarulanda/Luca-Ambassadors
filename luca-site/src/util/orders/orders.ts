@@ -2,10 +2,10 @@
 export default class orders {
 
   public orderRequest: any;
-  public addressError: boolean;
-  public productError: boolean;
   public orderNumber: number;
   public maxQuantity: number;
+  public packageSelection: string;
+  public inventoryProductMap: any;
 
   constructor() {
     this.orderRequest = {
@@ -18,6 +18,7 @@ export default class orders {
         "test": true,
         "email": "", 
         "send_receipt": true,
+        "send_fullfillment_receipt": true,
         "shipping_address": {          
           "first_name": "",
           "last_name": "",
@@ -31,9 +32,9 @@ export default class orders {
         "line_items": [],
       }
     };
-    this.addressError = false;
-    this.productError = false;
     this.orderNumber = 0;
     this.maxQuantity = 0;
+    this.packageSelection = "";
+    this.inventoryProductMap = new Map();
   }
 }

@@ -43,7 +43,7 @@ function filterProducts(productType: string, allProducts: object[]): object[] {
       allProducts.forEach((product: any) => {
         if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
           filteredProducts.push(product);
-        } if (product.product_type === "anklet" && product.images.length > 0) {
+        } if (product.product_type === "anklet") {
           filteredProducts.push(product);
         }
       })
@@ -71,7 +71,6 @@ function filterProducts(productType: string, allProducts: object[]): object[] {
       break;
     }
   }
-
   return filteredProducts;
 }
 
@@ -124,8 +123,7 @@ export default function ProductsComponent(props: any) {
 
   // if we select a new package, clear out the products selected from component and the order request
   // load the new filtered products
-  if (props.packageSelection !== selectionState.currentPackage)
-  { 
+  if (props.packageSelection !== selectionState.currentPackage) { 
     const newProducts = [] as any;
     var max = parseInt(props.packageSelection.charAt(0));
     var filteredProducts = [] as any;
@@ -142,25 +140,44 @@ export default function ProductsComponent(props: any) {
     });
     // clear products from order request
     orderApi.orderRequest.order.line_items = newProducts;
+    orderApi.inventoryProductMap.clear();
 
     // set max quantity in order context
-    orderApi.maxQuantity = max;
+    if (orderApi.packageSelection === "1 Bracelet + 1 Anklet")
+      orderApi.maxQuantity = 1;
+    else 
+      orderApi.maxQuantity = max;
   }
 
   const handleSelect = (productTile: any) => {
+    var canAdd = true;
     var newProducts = selectionState.productsSelected.slice();
+    // if our products selected already includes the product, it is being deselcted, so delete it
     if (newProducts.includes(productTile.variants[0].id)) {
-      // delete the product bc deselected
       var index = newProducts.indexOf(productTile.variants[0].id);
       newProducts.splice(index, 1);
       orderApi.orderRequest.order.line_items.splice(index, 1);
+      orderApi.inventoryProductMap.delete(productTile.variants[0].id);
+    // it is possible to add the new product bc not yet reached max capacity
     } else if (newProducts.length < selectionState.maxQuantity) {
-      newProducts.push(productTile.variants[0].id);
-      orderApi.orderRequest.order.line_items.push({
-        title: productTile.title,
-        variant_id: productTile.variants[0].id,
-        quantity: 1
-      });
+      if (selectionState.currentPackage === "2 1 Bracelet + 1 Anklet" && newProducts.length === 1) {
+        if (orderApi.orderRequest.order.line_items[0].title.includes("Anklet") && productTile.title.includes("Anklet"))
+          canAdd = false;
+        else if (orderApi.orderRequest.order.line_items[0].title.includes("Bracelet") && productTile.title.includes("Bracelet"))
+          canAdd = false;
+      }
+
+      if (canAdd) {
+        newProducts.push(productTile.variants[0].id);
+        orderApi.orderRequest.order.line_items.push({
+          title: productTile.title,
+          variant_id: productTile.variants[0].id,
+          quantity: 1
+        });
+        orderApi.inventoryProductMap.set(productTile.variants[0].id, productTile.variants[0].inventory_quantity);
+      }
+
+    // we reached max capacity, so if the max capacity is one, replace the item
     } else if (newProducts.length === selectionState.maxQuantity && selectionState.maxQuantity === 1) {
       // replace current product w/new one
       newProducts[0] = productTile.variants[0].id;
@@ -169,6 +186,8 @@ export default function ProductsComponent(props: any) {
         variant_id: productTile.variants[0].id,
         quantity: 1
       }
+      orderApi.inventoryProductMap.clear();
+      orderApi.inventoryProductMap.set(productTile.variants[0].id, productTile.variants[0].inventory_quantity);
     }
 
     setProductSelection({
