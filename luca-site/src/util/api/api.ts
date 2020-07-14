@@ -56,8 +56,13 @@ export default class Api {
   public async sendPassReset(email: string): Promise<void> {
     return new Promise ((resolve, reject) => {
       this.authentication.sendPasswordResetEmail(email).then(function() {
+        console.log("i got inside the .then of sendpassreset");
         resolve();
       }).catch(function(error: any) {
+        if (error.code === "auth/user-not-found")
+          reject("There is no account tied to this email!");
+        if (error.code === "auth/invalid-email")
+          reject("Invalid email address!")
         reject("An error occurred!");
       });
     });

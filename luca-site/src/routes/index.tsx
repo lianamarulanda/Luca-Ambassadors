@@ -12,6 +12,7 @@ import OrderView from '../views/OrderView';
 import { DbContext } from '../util/api';
 import VerifyEmailView from '../views/VerifyEmailView';
 import LoadComponent from '../components/layout/LoadComponent';
+import ResetPassView from '../views/ResetPassView';
 
 const Routes = (): JSX.Element => {
   const [firebaseInitialized, setFirebaseInitialized] = React.useState(false);
@@ -38,6 +39,7 @@ const Routes = (): JSX.Element => {
         <Route exact={true} path="/settings" component={SettingsView} />
         <Route exact={true} path="/order" component={OrderView} />
         <Route exact={true} path="/verify" component={VerifyEmailView} />
+        <Route exact={true} path="/resetpassword" component={ResetPassView} />
       </Switch>
     </BrowserRouter>
   );

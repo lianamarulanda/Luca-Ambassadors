@@ -2,24 +2,23 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import { DbContext } from '../../util/api';
+import { DbContext } from '../util/api/';
 import { useHistory } from 'react-router-dom';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import FlowerBg from '../images/flowers.jpg';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
   },
   image: {
-    backgroundImage: 'url(https://scontent-iad3-1.cdninstagram.com/v/t51.2885-15/104958300_299363731109248_9195902582336997418_n.jpg?_nc_cat=109&_nc_sid=8ae9d6&_nc_ohc=iBhOpKOghQQAX_8IcDZ&_nc_ht=scontent-iad3-1.cdninstagram.com&oh=44d8c81dcadb0155220565cc7fae0bdf&oe=5F2B8539)',
+    backgroundImage: `url(${FlowerBg})`,
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
@@ -49,7 +48,10 @@ const useStyles = makeStyles((theme) => ({
   },
   signUp: {
     textAlign: 'right',
-    alignItems: 'right',
+    padding: theme.spacing(4)
+  },
+  signIn: {
+    textAlign: 'left',
     padding: theme.spacing(4)
   },
   submit: {
@@ -63,6 +65,10 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       backgroundColor: '#bfa298',
     }
+  },
+  sentEmail: {
+    marginTop:'15px',
+    color: '#17A697'
   }
 }));
 
@@ -81,16 +87,16 @@ function Copyright() {
 
 const initialFormData = Object.freeze({
   email: "",
-  password: "",
 });
 
-function LoginComponent() {
+function ResetPassView() {
   const classes = useStyles();
   const history = useHistory();
   const api = React.useContext(DbContext);
   // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
   const [error, setError] = React.useState("");
+  const [sentEmail, setSent] = React.useState(false);
 
   const handleChange = (event: any) => {
     updateFormData({
@@ -101,51 +107,43 @@ function LoginComponent() {
     });
   };
 
-  // loginUser api will get called here
-  const handleLogin = async (event: any) => {
-    event.preventDefault()
-    api.loginUser(formData.email, formData.password)
+  const handlePassReset = async () => {
+    api.sendPassReset(formData.email)
       .then(() => {
-        api.checkAdminStatus()
-          .then((isAdmin: boolean) => {
-            if (!isAdmin) {
-              history.push("/dashboard");
-            } else {
-              // go to admin home page
-            }
-          })
-          .catch((error: string) => {
-            setError(error);
-          })
+        setError("");
+        setSent(true);
       })
-      .catch((error: string) =>{
+      .catch((error: string) => {
+        setSent(false);
         setError(error);
       });
   };
 
-
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
+      <Grid item xs={false} sm={4} md={6} className={classes.image} />
       <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
-        <Grid item className={classes.signUp}>
+        <Grid container direction="row" justify="space-between" alignItems="center">
+          <Link href="/login" className={classes.signIn} variant="body2">
+            {"Sign in"}
+          </Link>
           <Link href="/register" className={classes.signUp} variant="body2">
-            {"Don't have an account? Sign up"}
+            {"Sign up"}
           </Link>
         </Grid>
         <div className={classes.paper}>
-          <Grid style={{alignItems: 'center'}}>
+          <Grid style={{alignItems: 'center', justifyContent:'center'}}>
             <Grid item className={classes.gridTitle}>
-              <Typography className={classes.title} component="h1" variant="h3">
-                Sign in
+              <Typography className={classes.title} gutterBottom={true} component="h1" variant="h3">
+                Forgot Password?
               </Typography>
-              { error !== "" && 
-              <div>
-                <Typography variant="overline" color="error" display="block" gutterBottom>
-                  { error }
-                </Typography>
-              </div>
-              }
+              <Typography gutterBottom={true} component="h1" variant="subtitle2">
+                Please enter the email you used to create an account
+              </Typography>
+              <Typography gutterBottom={true} component="h1" variant="subtitle2">
+                and we'll send you a link to reset your password.
+              </Typography>
             </Grid>
             <form className={classes.form} noValidate>
               <TextField
@@ -160,48 +158,39 @@ function LoginComponent() {
                 autoFocus
                 onChange={handleChange}
               />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                onChange={handleChange}
-              />
               <Grid item>
                 <Button
-                  type="submit"
                   fullWidth
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  onClick={handleLogin}
+                  onClick={handlePassReset}
                 >
-                  Sign In
+                  Submit
                 </Button>
               </Grid>
-              <Grid container style={{alignSelf:'center'}}>
-                <Grid item xs style={{alignSelf:'center'}}>
-                  <Link href="/resetpassword" variant="body2">
-                    Forgot password?
-                  </Link>
+              { error !== "" && 
+              <div>
+                <Typography variant="overline" color="error" display="block" gutterBottom>
+                  { error }
+                </Typography>
+              </div>
+              }
+              { sentEmail && 
+                <Grid item className={classes.sentEmail}> 
+                  <Typography variant="overline"> Email has been resent! It may take a few minutes to arrive.</Typography>
                 </Grid>
-              </Grid>
-              <Box mt={25} style={{alignSelf:'center'}}>
+              }
+              <Box mt={33} style={{alignSelf:'center'}}>
                 <Copyright />
               </Box>
             </form>
           </Grid>
         </div>
       </Grid>
-      <Grid item xs={false} sm={4} md={6} className={classes.image} />
     </Grid>
   );
 }
 
 
-export default LoginComponent;
+export default ResetPassView;
