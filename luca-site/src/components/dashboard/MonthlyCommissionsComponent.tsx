@@ -5,7 +5,10 @@ import { DbContext } from '../../util/api';
 
 const MonthlyCommissionsComponent = () => {
   const api = React.useContext(DbContext);
-  var data = api.codeData as any;
+  var monthCreated = api.getMonthCreated();
+  var data = api.dashboardData.monthlyCommissions as any;
+  var currDate = new Date();
+  
   const monthLookup = {
     0: "Jan",
     1: "Feb",
@@ -23,22 +26,16 @@ const MonthlyCommissionsComponent = () => {
 
   var monthLabels: string[] = [];
 
-  monthLabels.push("Jan");
-  monthLabels.push("Feb");
-  monthLabels.push("Mar");
+  for (var i = monthCreated; i < data.length; i++) {
+    monthLabels.push(monthLookup[i]);
+  }
 
-
-  // for (var i = 0; i < data.monthlyCommissions.length; i++) {
-  //   monthLabels.push(monthLookup[i]);
-  // }
-
-  console.log(monthLabels);
+  data = data.slice(monthCreated);
 
   const state = {
     series: [{
         name: "Commissions Amount ($)",
-        // data: data.monthlyCommissions,
-        data: [5, 15, 20], 
+        data: data,
         colors:['#F44336']
     }],
     options: {
@@ -63,7 +60,7 @@ const MonthlyCommissionsComponent = () => {
         colors: ['#83A672'],
       },
       title: {
-        text: 'Commissions Earned by Month ($) 2020',
+        text: `Commissions Earned by Month ($) ${currDate.getFullYear()}`,
         align: 'left'
       },
       grid: {

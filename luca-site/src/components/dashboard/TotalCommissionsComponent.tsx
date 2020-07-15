@@ -36,8 +36,7 @@ const useStyles = makeStyles((theme: any) => ({
 
 const TotalCommission = () => {
   const api = React.useContext(DbContext);
-  const data = api.codeData as any;
-  //var totalCommissions = data.totalCommissons.toFixed(2);
+  const data = api.dashboardData.totalCommissions as any;
   const classes = useStyles();
 
   return (
@@ -71,8 +70,7 @@ const TotalCommission = () => {
               variant="h3"
               style={{fontWeight:520, textAlign:'left'}}
             >
-            {/* ${data.totalCommissions.toFixed(2)} */}
-            $20
+            ${data.toFixed(2)}
             </Typography>
           </Grid>
           <Grid item>

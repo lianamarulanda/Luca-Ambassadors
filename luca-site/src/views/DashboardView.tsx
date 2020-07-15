@@ -21,27 +21,21 @@ const App: React.FC = () => {
   const history = useHistory();
   const api = React.useContext(DbContext);
   const [loaded, setLoaded] = React.useState(false);
-  const [dashboardData, setDashboardData] = React.useState({} as any);
 
   React.useEffect(() => {
-    if (!api.isLoggedIn()) {
-      console.log("THIS USER IS NOT LOGGED IN?");
+    if (!api.isLoggedIn()) {;
       history.push('/login');
     } else {
       if (!loaded) {
         getDashboardData();
-      }
+      };
     }
   }, [history, api]);
 
   const getDashboardData = async () => {
-    var dashboardData = await api.loadDashboardData();
-    setDashboardData(dashboardData);
+    await api.loadDashboardData();
     setLoaded(true);
   }
-
-  // debug
-  console.log(dashboardData);
 
   if (!loaded) {
     return(<LoadComponent />)

@@ -30,11 +30,15 @@ const useStyles = makeStyles((theme: any) => ({
     height: 32,
     width: 32
   },
+  data: {
+    fontWeight: 520,
+    textAlign:'left'
+  }
 }));
 
 const TotalCheckouts = () => {
   const api = React.useContext(DbContext);
-  const data = api.codeData as any;
+  const data = api.dashboardData.totalCheckouts as any;
   const classes = useStyles();
 
   return (
@@ -62,8 +66,7 @@ const TotalCheckouts = () => {
                 </IconButton>
               </Tooltip>
             </Grid>
-            {/* <Typography variant="h3">{data.totalCheckouts}</Typography> */}
-            <Typography variant="h3" style={{fontWeight:520, textAlign:'left'}}>5</Typography>
+            <Typography variant="h3" className={classes.data}>{data}</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>

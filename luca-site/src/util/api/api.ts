@@ -1,11 +1,6 @@
 import axios from 'axios';
-import { promises } from 'fs';
-import { configure } from '@testing-library/react';
-import orders from '../../orders.json';
-import { rejects } from 'assert';
 
 const firebaseConfig = require('../../config.json');
-const shopifyConfig = require('../../shopifyConfig.json');
 
 // Might need to make this more efficient later
 var firebase = require("firebase");
@@ -16,7 +11,7 @@ export default class Api {
   private usersRef: any;
   private amRef: any;
   public userData: any;
-  private orders: object[];
+  public dashboardData: any;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -26,7 +21,7 @@ export default class Api {
     this.usersRef = this.myDatabase.collection('users');
     this.amRef = this.myDatabase.collection('ambassadors');
     this.userData = {};
-    this.orders = [] as object[];
+    this.dashboardData = {};
   }
 
   // True if user is logged in, false if user is not logged in
@@ -34,9 +29,7 @@ export default class Api {
     return new Promise((resolve) => {
       this.authentication.onAuthStateChanged(async (user: any) => {
         if (user) {
-          console.log("I got here 3");
           await this.loadUserData();
-          console.log("I got here 5");
           resolve(true);
         } else {
           this.userData.email = '';
@@ -56,7 +49,6 @@ export default class Api {
   public async sendPassReset(email: string): Promise<void> {
     return new Promise ((resolve, reject) => {
       this.authentication.sendPasswordResetEmail(email).then(function() {
-        console.log("i got inside the .then of sendpassreset");
         resolve();
       }).catch(function(error: any) {
         if (error.code === "auth/user-not-found")
@@ -69,7 +61,6 @@ export default class Api {
   }
 
   public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<string> {
-    console.log("I got here A");
     return new Promise ((resolve, reject) => {
       // first, check if valid discount code 
       this.checkDiscountCode(discountCode)
@@ -118,9 +109,7 @@ export default class Api {
           }
         })
         .catch((error: any) => {
-          console.log("I had an error");
           if (error === "already-in-use") {
-            console.log("error is already-in-use error");
             reject("The ambassador code is already in use!")
           }
           reject("An error has occurred!");
@@ -140,7 +129,6 @@ export default class Api {
           this.amRef.get().then(function(snapshot: any) {
             snapshot.forEach(function(doc: any) {
               if (doc.data().discountCode.toLowerCase() === discountCode.toLowerCase()) {
-                console.log("Duplicate discount code");
                 reject("already-in-use");
               }
             })
@@ -203,34 +191,35 @@ export default class Api {
         .then((idTokenResult: any) => {
           // Confirm the user is an Admin.
           if (!!idTokenResult.claims.admin) {
-            console.log("is admin");
             resolve(true);
           } else {
-            console.log("is not admin");
             resolve(false);
           }
         })
         .catch((error: any) => {
-          console.log(error);
           reject("An error occurred!");
         });
     })
   }
 
+  public getMonthCreated(): any {
+    var dateString = this.authentication.currentUser.metadata.creationTime;
+    var date = new Date(dateString);
+    return date.getMonth();
+  }
+
   public checkEmailVerification(): boolean {
-      return this.authentication.currentUser.emailVerified;
+    return this.authentication.currentUser.emailVerified;
   }
 
   // function to load everything we need about a user -> their name, email, and discount code
   public async loadUserData(): Promise<void> {
-    console.log("I got here 4");
     return new Promise((resolve, reject) => {
       // get current logged in user, then query in db
       var user = this.authentication.currentUser;
       this.usersRef.where('email', '==', user.email).get()
         .then((snapshot: any) => {
           if (snapshot.empty) {
-            console.log("user doesn't exist");
             reject();
           } else {
             snapshot.forEach((doc: any) => {
@@ -242,7 +231,6 @@ export default class Api {
               this.amRef.doc(doc.data().ambassadorID).get()
                 .then((doc: any) => {
                   if (!doc.exists) {
-                    console.log("ambassador doesn't exist");
                     reject();
                   } else {
                     this.userData.discountCode = doc.data().discountCode;
@@ -251,63 +239,57 @@ export default class Api {
                 })
                 .catch((err: any) => {
                   reject(err);
-                  console.log("error with querying ambassador db");
                 });
             })
           }
         })
         .catch((error: any) => {
           reject(error);
-          console.log("error with querying user db");
         });
     })
   }
 
-  public async loadDashboardData(): Promise<object> {
+  public async loadDashboardData(): Promise<void> {
     return new Promise((resolve, reject) => {
-      console.log(this.userData.discountCode);
-      this.getOrders(this.userData.discountCode)
-        // then, get the actual code data
-        .then((orders: []) => {
-          var dashboardData = this.getCodeData(orders);
-          resolve (dashboardData);
-        })
-        // error with getting the associated orders
-        .catch((error: any) => {
-          reject(error);
-        });
+      // if the class dashboard data object is empty, then load it
+      if (Object.keys(this.dashboardData).length === 0) {
+        this.getOrders(this.userData.discountCode)
+          // then, get the actual code data
+          .then((orders: []) => {
+            this.getCodeData(orders);
+            resolve();
+          })
+          // error with getting the associated orders
+          .catch((error: any) => {
+            reject(error);
+          });
+      } else {
+        resolve();
+      }
     })
-  }
-
-  public async getAmbassador(ambassadorID: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      // query the ambassadors db for corresponding ambassador object
-      let ambassador = this.amRef.doc(ambassadorID);
-      ambassador.get()
-        .then((doc: any) => {
-          if (!doc.exists) {
-            reject("Doc doesn't exist");
-          } else {
-            resolve(doc.data().discountCode);
-          }
-        })
-        .catch((err: any) => {
-          reject(err);
-        });
-    });
   }
 
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {
       // local array to store all the orders filtered by user discount code - should i do this in the cloud function instead?
       var codeOrders: any = [];
+      // array to store the orders that the user has made
+      var userOrders = [] as object[];
+
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders')
       .then((response: any) => {
         response.data.forEach((order: any) => {
-          // print only discount codes associated w/order
           if (order.discount_codes[0].code.toLowerCase() === discountCode.toLowerCase())
             codeOrders.push(order);
+          if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) {
+            userOrders.push({
+              id: order.id,
+              date: order.created_at,
+              number: order.name
+            })
+          }
         })
+        this.dashboardData.userOrders = userOrders;
         resolve(codeOrders);
       })
       .catch((error: any) => {
@@ -316,8 +298,7 @@ export default class Api {
     });
   }
 
-  public getCodeData(codeOrders: []): object {
-    var codeData = {} as any;
+  public getCodeData(codeOrders: []): void {
     var monthlyCommissions: number[] = [];
     var totalSales = 0;
     var productMap = new Map();
@@ -364,29 +345,13 @@ export default class Api {
           return b[1] - a[1];
         })
     )
-    // set codeData fields
-    codeData.totalSales = totalSales;
-    codeData.totalCheckouts = codeOrders.length;
-    codeData.totalCommissions = (.20 * totalSales);
-    codeData.monthlyCommissions = monthlyCommissions;
-    codeData.productMap = sortedProducts;
-    return codeData;
+    // set dashboardData fields
+    this.dashboardData.totalSales = totalSales;
+    this.dashboardData.totalCheckouts = codeOrders.length;
+    this.dashboardData.totalCommissions = (.20 * totalSales);
+    this.dashboardData.monthlyCommissions = monthlyCommissions;
+    this.dashboardData.productMap = sortedProducts;
   }
-
-  public getUserOrders(allOrders: any) {
-    console.log(this.authentication.currentUser.email);
-    console.log(allOrders);
-    var orders  = [] as object[];
-    allOrders.orders.forEach((order: any) => {
-      if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) 
-        orders.push({
-          id: order.id,
-          date: order.created_at,
-          number: order.name
-        })
-    })
-    this.userData.userOrders = orders;
-  } 
 
   public async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<string> {
     return new Promise((resolve, reject) => {

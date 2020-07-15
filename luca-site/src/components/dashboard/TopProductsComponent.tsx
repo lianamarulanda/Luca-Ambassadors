@@ -5,35 +5,19 @@ import { DbContext } from '../../util/api';
 
 const TopProductsComponent = () => {
   const api = React.useContext(DbContext);
-  var data = api.codeData as any;
+  var data = api.dashboardData as any;
   var productLabels: string[] = [];
   var productQuantities: number[] = [];
 
-  productLabels.push("hello");
-  productQuantities.push(5);
-  productLabels.push("hi");
-  productQuantities.push(4);
-  productLabels.push("woohoo");
-  productQuantities.push(7);
-  productLabels.push("yea");
-  productQuantities.push(12);
-  productLabels.push("lol");
-  productQuantities.push(200);
-
-
-  // // populate the arrays of product labels and corresponding quantities for the graph
-  // var count = 0;
-  // for (let [key, value] of data.productMap) {
-  //   productLabels.push(key);
-  //   productQuantities.push(value);
-  //   count++;
-  //   if (count === 5)
-  //     break;
-  // }
-
-  console.log(data.productMap);
-  console.log(productLabels);
-  console.log(productQuantities);
+  // populate the arrays of product labels and corresponding quantities for the graph
+  var count = 0;
+  for (let [key, value] of data.productMap) {
+    productLabels.push(key);
+    productQuantities.push(value);
+    count++;
+    if (count === 5)
+      break;
+  }
 
   const state = {
   series: [{
