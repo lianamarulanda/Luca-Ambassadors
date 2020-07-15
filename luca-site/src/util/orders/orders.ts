@@ -6,6 +6,7 @@ export default class orders {
   public maxQuantity: number;
   public packageSelection: string;
   public inventoryProductMap: any;
+  public subtotal: number;
 
   constructor() {
     this.orderRequest = {
@@ -29,9 +30,18 @@ export default class orders {
           "country": "",
           "zip": ""
         },
+        "total_discounts": "",
+        "discount_codes": [
+          {
+            "code": "influencer%",
+            "amount": "",
+            "type": "percentage"
+          }
+        ],
         "line_items": [],
       }
     };
+    this.subtotal = 0;
     this.orderNumber = 0;
     this.maxQuantity = 0;
     this.packageSelection = "";

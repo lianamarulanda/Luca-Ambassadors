@@ -137,6 +137,8 @@ export default function OrderComponent() {
       orderApi.orderRequest.order.customer.last_name = dbApi.userData.lastName;
       orderApi.orderRequest.order.customer.email = dbApi.userData.email;
       orderApi.orderRequest.order.email = dbApi.userData.email;
+      orderApi.orderRequest.order.discount_codes.amount = orderApi.subtotal;
+      orderApi.orderRequest.order.total_discounts = orderApi.subtotal;
       setError("");
       return true;
     } 
