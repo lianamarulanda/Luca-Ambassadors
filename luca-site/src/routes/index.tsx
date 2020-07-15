@@ -19,9 +19,7 @@ const Routes = (): JSX.Element => {
   const api = React.useContext(DbContext);
 
   React.useEffect(() => {
-    console.log("I got here");
     api.isInitialized().then(() => {
-      console.log("I got here 2");
       setFirebaseInitialized(true);
     });
   });
@@ -33,6 +31,7 @@ const Routes = (): JSX.Element => {
   return(
     <BrowserRouter>
       <Switch>
+        <Route exact={true} path="/" component={Dashboard} />
         <Route exact={true} path="/login" component={LoginView} />
         <Route exact={true} path="/register" component={RegisterView} />
         <Route exact={true} path="/dashboard" component={Dashboard} />
