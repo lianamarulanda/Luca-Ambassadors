@@ -13,66 +13,66 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { Grid } from '@material-ui/core';
 
-// sort the products to load based on package component
-function filterProducts(productType: string, allProducts: object[]): object[] {
-  // will need to take variants into account!!
-  var filteredProducts = [] as object[];
-  switch(productType) {
-    case "1 Bracelet Set": {
-      allProducts.forEach((product: any) => {
-        if (product.tags.includes("Sets")) {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    } case "2 Single Bracelets": {
-      allProducts.forEach((product: any) => {
-        if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    } case "2 Anklets": {
-      allProducts.forEach((product: any) => {
-        if (product.product_type === "anklet") {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    } case "2 1 Bracelet + 1 Anklet": {
-      allProducts.forEach((product: any) => {
-        if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
-          filteredProducts.push(product);
-        } if (product.product_type === "anklet") {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    } case "1 Necklace": {
-      allProducts.forEach((product: any) => {
-        if (product.product_type === "Necklace") {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    } case "1 Pair of Earrings": {
-      allProducts.forEach((product: any) => {
-        if (product.product_type === "Earrings") {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    } case "1 Baseball Cap": {
-      allProducts.forEach((product: any) => {
-        if (product.product_type === "Hats") {
-          filteredProducts.push(product);
-        }
-      })
-      break;
-    }
-  }
-  return filteredProducts;
-}
+// // sort the products to load based on package component
+// function filterProducts(productType: string, allProducts: object[]): object[] {
+//   // will need to take variants into account!!
+//   var filteredProducts = [] as object[];
+//   switch(productType) {
+//     case "1 Bracelet Set": {
+//       allProducts.forEach((product: any) => {
+//         if (product.tags.includes("Sets")) {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     } case "2 Single Bracelets": {
+//       allProducts.forEach((product: any) => {
+//         if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     } case "2 Anklets": {
+//       allProducts.forEach((product: any) => {
+//         if (product.product_type === "anklet") {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     } case "2 1 Bracelet + 1 Anklet": {
+//       allProducts.forEach((product: any) => {
+//         if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
+//           filteredProducts.push(product);
+//         } if (product.product_type === "anklet") {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     } case "1 Necklace": {
+//       allProducts.forEach((product: any) => {
+//         if (product.product_type === "Necklace") {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     } case "1 Pair of Earrings": {
+//       allProducts.forEach((product: any) => {
+//         if (product.product_type === "Earrings") {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     } case "1 Baseball Cap": {
+//       allProducts.forEach((product: any) => {
+//         if (product.product_type === "Hats") {
+//           filteredProducts.push(product);
+//         }
+//       })
+//       break;
+//     }
+//   }
+//   return filteredProducts;
+// }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -126,11 +126,8 @@ export default function ProductsComponent(props: any) {
   if (props.packageSelection !== selectionState.currentPackage) { 
     const newProducts = [] as any;
     var max = parseInt(props.packageSelection.charAt(0));
-    var filteredProducts = [] as any;
+    var filteredProducts = props[props.packageSelection];
 
-    // filter the products to load based on package selected 
-    filteredProducts = filterProducts(props.packageSelection, props.data);
-    
     setProductSelection({
       ...selectionState,
       productsSelected: newProducts,
@@ -233,7 +230,7 @@ export default function ProductsComponent(props: any) {
         ))}
       </GridList>
       <br />
-      <Grid>
+      <Grid style={{marginTop: '25px'}}>
         <Typography variant="overline">Number of items selected: {orderApi.orderRequest.order.line_items.length} </Typography>
       </Grid>
     </div>

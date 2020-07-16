@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core/';
 import ProductsComponent from './ProductsComponent';
 import { ordersContext } from '../../util/orders';
+import LoadComponent from '../layout/LoadComponent';
 
 const useStyles = makeStyles((theme: any) => ({
   card: {
@@ -34,10 +35,74 @@ const initialState= Object.freeze({
 
 });
 
+const productFilters = Object.freeze({
+  "1 Bracelet Set": [] as object[],
+  "2 Single Bracelets": [] as object[],
+  "2 Anklets": [] as object[],
+  "2 1 Bracelet + 1 Anklet": [] as object[],
+  "1 Necklace": [] as object[],
+  "1 Pair of Earrings": [] as object[],
+  "1 Baseball Cap": [] as object[]
+})
+
 export default function PackageComponent(props: any) {
   const classes = useStyles();
   const [selectionState, setCurrentSelection] = React.useState(initialState);
   const orderApi = React.useContext(ordersContext);
+  const [filteredProducts, updateFilters] = React.useState(productFilters);
+  const [loaded, setLoad] = React.useState(false);
+
+  React.useEffect(() => {
+    if (filteredProducts["1 Bracelet Set"].length === 0) {
+      console.log("I got here");
+      filterProducts(props.data);
+      setLoad(true);
+    } else if (!loaded) {
+      console.log("I got here 2");
+      console.log(Object.keys(filteredProducts).length);
+      setLoad(true);
+    }
+  }, []);
+
+  const filterProducts = (allProducts: any) => {
+
+    var braceletSets = [] as object[];
+    var singleBracelets = [] as object[];
+    var anklets = [] as object[];
+    var braceletAnklet = [] as object[];
+    var necklaces = [] as object[];
+    var earrings = [] as object[];
+    var baseballCaps = [] as object[];
+
+    allProducts.forEach((product: any) => {
+      if (product.tags.includes("Sets")) {
+        braceletSets.push(product);
+      } else if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
+        singleBracelets.push(product);
+        braceletAnklet.push(product);
+      } else if (product.product_type === "anklet") {
+        anklets.push(product);
+        braceletAnklet.push(product);
+      } else if (product.product_type === "Necklace") {
+        necklaces.push(product);
+      } else if (product.product_type === "Earrings") {
+        earrings.push(product);
+      } else if (product.product_type === "Hats") {
+        baseballCaps.push(product);
+      }
+    })
+
+    updateFilters({
+      ...filteredProducts,
+      "1 Bracelet Set": braceletSets,
+      "2 Single Bracelets": singleBracelets,
+      "2 Anklets": anklets,
+      "2 1 Bracelet + 1 Anklet": braceletAnklet,
+      "1 Necklace": necklaces,
+      "1 Pair of Earrings": earrings,
+      "1 Baseball Cap": baseballCaps
+    });
+  }
 
   const handleSelect = (selection: string) => {
     if (selectionState.isDisplayed && selection === selectionState.packageSelection) {
@@ -64,6 +129,10 @@ export default function PackageComponent(props: any) {
     if (orderApi.packageSelection === "2 1 Bracelet + 1 Anklet")
       orderApi.packageSelection = "1 Bracelet + 1 Anklet";
   };
+
+  if (!loaded) {
+    return (<LoadComponent />);
+  }
 
   return (
     <React.Fragment>
@@ -139,7 +208,7 @@ export default function PackageComponent(props: any) {
       { selectionState.isDisplayed && 
       <div>
         <br />
-          <ProductsComponent packageSelection={selectionState.packageSelection} {...props} />
+          <ProductsComponent packageSelection={selectionState.packageSelection} {...filteredProducts} />
       </div>
       }
     </React.Fragment>

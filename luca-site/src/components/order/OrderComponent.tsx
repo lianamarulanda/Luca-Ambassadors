@@ -84,7 +84,7 @@ export default function OrderComponent() {
   const [orderData, updateState] = React.useState(orderState);
   const [allProducts, updateAllProducts] = React.useState([] as object[]);
   const [error, setError] = React.useState("");
-  const [productsLoaded, setLoaded] = React.useState(false);
+  const [loaded, setLoaded] = React.useState(false);
   
   React.useEffect(() => {
     if (allProducts.length === 0) {
@@ -200,7 +200,7 @@ export default function OrderComponent() {
     }
   }
 
-  if (!productsLoaded) {
+  if (!loaded) {
     return (<LoadComponent />);
   }
 
