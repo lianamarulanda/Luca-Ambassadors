@@ -15,12 +15,15 @@ import OrdersComponent from '../components/dashboard/OrdersComponent'
 import { useHistory } from 'react-router-dom'
 import { DbContext } from '../util/api';
 import LoadComponent from '../components/layout/LoadComponent';
+import Snackbar, { SnackbarOrigin } from '@material-ui/core/Snackbar';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 
 const App: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const api = React.useContext(DbContext);
   const [loaded, setLoaded] = React.useState(false);
+  const [announcement, setOpen] = React.useState(true);
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {;
@@ -37,9 +40,18 @@ const App: React.FC = () => {
     setLoaded(true);
   }
 
+  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
   if (!loaded) {
     return(<LoadComponent />)
   }
+
+  // character limit of alert message is 80 for staying on one line
 
   return (
     <div className={clsx(classes.root)}>
@@ -47,6 +59,17 @@ const App: React.FC = () => {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
+          <Snackbar 
+            open={announcement} 
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'top', horizontal:'center'}}
+            >
+              <Alert onClose={handleClose} severity="info">
+                <Typography variant="subtitle1" style={{fontWeight: "bolder"}}> 
+                  Next week there is a sale! Some text :) Helloooooo announcement here announcing!
+                </Typography>
+              </Alert>
+          </Snackbar>
           <Typography variant="h4" gutterBottom style={{textAlign: 'left', fontWeight: 700, marginBottom:'30px'}}>
           Overview
           </Typography>
@@ -126,6 +149,10 @@ const App: React.FC = () => {
       </main>
     </div>
   )
+}
+
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 const useStyles = makeStyles(theme => ({
