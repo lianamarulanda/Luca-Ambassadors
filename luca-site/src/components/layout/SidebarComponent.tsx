@@ -16,6 +16,7 @@ import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../../util/api';
 import Toolbar from '@material-ui/core/Toolbar';
 import { useHistory } from 'react-router-dom';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import logo from '../../images/logo2.png'
 
 const drawerWidth = 240;
@@ -64,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) =>
       fontWeight: 'lighter'
     },
     logoutButton: {
-      marginTop: "350px",
+      marginTop: "300px",
       color: 'white',
       '&:hover': {
         color: '#cfd3d3',
@@ -103,7 +104,6 @@ export default function Sidebar() {
         anchor="left"
       >
         <Toolbar />
-        {/* <Avatar alt="pic" src='https://cdn.shopify.com/s/files/1/0689/5177/t/11/assets/logo.png?231' className={classes.large} style={{alignSelf: 'center'}} /> */}
         <img src={logo} className={classes.logo} alt="logo" />
         <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
@@ -115,6 +115,10 @@ export default function Sidebar() {
           <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
             <ListItemIcon className={classes.icon}> <ShoppingCartIcon/> </ListItemIcon>
             <ListItemText primary={"Order Accessories"} />
+          </ListItem>
+          <ListItem button className={classes.buttonText} onClick={() => redirect("download")}>
+            <ListItemIcon className={classes.icon}> <CloudDownloadIcon/> </ListItemIcon>
+            <ListItemText primary={"Download Media"} />
           </ListItem>
           <ListItem button className={classes.buttonText} onClick={() => redirect("settings")}>
             <ListItemIcon className={classes.icon}> <SettingsIcon/> </ListItemIcon>

@@ -106,17 +106,7 @@ function LoginComponent() {
     event.preventDefault()
     api.loginUser(formData.email, formData.password)
       .then(() => {
-        api.checkAdminStatus()
-          .then((isAdmin: boolean) => {
-            if (!isAdmin) {
-              history.push("/dashboard");
-            } else {
-              // go to admin home page
-            }
-          })
-          .catch((error: string) => {
-            setError(error);
-          })
+        history.push("/dashboard");
       })
       .catch((error: string) =>{
         setError(error);

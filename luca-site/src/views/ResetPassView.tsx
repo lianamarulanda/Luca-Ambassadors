@@ -178,7 +178,7 @@ function ResetPassView() {
               }
               { sentEmail && 
                 <Grid item className={classes.sentEmail}> 
-                  <Typography variant="overline"> Email has been resent! It may take a few minutes to arrive.</Typography>
+                  <Typography variant="overline"> Email has been sent! It may take a few minutes to arrive.</Typography>
                 </Grid>
               }
               <Box mt={33} style={{alignSelf:'center'}}>

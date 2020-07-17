@@ -10,16 +10,24 @@ export default class Api {
   private authentication: any;
   private usersRef: any;
   private amRef: any;
+  private mediaRef: any;
+  private storage: any;
+  private annRef: any;
   public userData: any;
   public dashboardData: any;
+  
+
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
     // database instance - specifies firestore service
     this.myDatabase = firebase.firestore();
     this.authentication = firebase.auth();
+    this.storage = firebase.storage();
     this.usersRef = this.myDatabase.collection('users');
     this.amRef = this.myDatabase.collection('ambassadors');
+    this.mediaRef = this.myDatabase.collection('media');
+    this.annRef = this.myDatabase.collection('announcements');
     this.userData = {};
     this.dashboardData = {};
   }
@@ -282,9 +290,10 @@ export default class Api {
           if (order.discount_codes[0].code.toLowerCase() === discountCode.toLowerCase())
             codeOrders.push(order);
           if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) {
+            var date = new Date(order.created_at);
             userOrders.push({
               id: order.id,
-              date: order.created_at,
+              date: date.toUTCString(),
               number: order.name
             })
           }
@@ -524,6 +533,83 @@ export default class Api {
         reject(error);
       })
     });
+  }
+
+  public async uploadPhoto(picture: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+
+      console.log(picture);
+
+      if (picture.title === ""){
+        reject("Please give the image a title!");
+      }
+
+      if (picture.pictureName === "") {
+        console.log("I got to empty picture");
+        reject("Please upload an image!");
+      }
+
+      var imageRef = this.storage.ref().child(picture.pictureName);
+      imageRef.put(picture.picture)
+        .then(async (snapshot: any) => {
+          console.log(snapshot);
+          snapshot.ref.getDownloadURL()
+            .then((url: string) => {
+              this.mediaRef.doc(picture.pictureName).set({
+                url: url,
+                title: picture.title
+              })
+                .then(() => {
+                  resolve("Image successfully uploaded!");
+                })
+                .catch((error: any) => {
+                  reject("An error occurred!");
+                })
+            })
+            .catch((error: any) => {
+              reject("An error occurred!");
+            })
+        })
+        .catch((err: any) => {
+          reject("An error occurred!");
+        })
+    })
+  }
+
+  public deletePhoto(picture: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.storage.ref().child(picture.pictureName).delete().then(() => {
+        // File deleted successfully in storage, now delete in database
+        this.mediaRef.doc(picture.pictureName).delete().then(function() {
+          resolve();
+        }).catch(function(error: any) {
+            reject("An error occurred!");
+        });
+      }).catch(function(error: any) {
+        reject("An error occurred!");
+      });
+    })
+  }
+
+  public async loadAllPhotos(): Promise<object[]> {
+    return new Promise((resolve, reject) => {
+      var images = [] as object[];
+
+      this.mediaRef.get().then(function(querySnapshot: any) {
+        querySnapshot.forEach(function(image: any) {
+          images.push({
+            title: image.data().title,
+            url: image.data().url,
+            name: image.id,
+          })
+        });
+        console.log(images);
+        resolve(images);
+      })
+        .catch((error: any) => {
+          reject("An error occurred!");
+        })
+    })
   }
 }
 
