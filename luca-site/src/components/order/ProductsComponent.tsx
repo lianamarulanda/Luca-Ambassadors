@@ -232,6 +232,12 @@ export default function ProductsComponent(props: any) {
       <br />
       <Grid style={{marginTop: '25px'}}>
         <Typography variant="overline">Number of items selected: {orderApi.orderRequest.order.line_items.length} </Typography>
+        <br />
+        <Typography variant="overline">
+          {selectionState.currentPackage === '2 1 Bracelet + 1 Anklet' ? 
+            "Max Quantity: 1 Bracelet and 1 Anklet" : 
+            `Max Quantity: ${selectionState.maxQuantity}`}
+        </Typography>
       </Grid>
     </div>
   );

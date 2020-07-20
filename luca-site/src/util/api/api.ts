@@ -12,7 +12,8 @@ export default class Api {
   private amRef: any;
   private mediaRef: any;
   private storage: any;
-  private annRef: any;
+  private announcements: any;
+  private bannerRef: any;
   public userData: any;
   public dashboardData: any;
   
@@ -27,7 +28,8 @@ export default class Api {
     this.usersRef = this.myDatabase.collection('users');
     this.amRef = this.myDatabase.collection('ambassadors');
     this.mediaRef = this.myDatabase.collection('media');
-    this.annRef = this.myDatabase.collection('announcements');
+    this.announcements = this.myDatabase.collection('announcements');
+    this.bannerRef = this.myDatabase.collection('banner');
     this.userData = {};
     this.dashboardData = {};
   }
@@ -262,10 +264,15 @@ export default class Api {
       // if the class dashboard data object is empty, then load it
       if (Object.keys(this.dashboardData).length === 0) {
         this.getOrders(this.userData.discountCode)
-          // then, get the actual code data
-          .then((orders: []) => {
+          // then, get the actual code data and announcements
+          .then(async (orders: []) => {
             this.getCodeData(orders);
-            resolve();
+            this.loadAnnouncements().then(() => {
+              resolve();
+            })
+              .catch((error: any) => {
+                reject(error);
+              })
           })
           // error with getting the associated orders
           .catch((error: any) => {
@@ -538,16 +545,15 @@ export default class Api {
   public async uploadPhoto(picture: any): Promise<string> {
     return new Promise((resolve, reject) => {
 
-      console.log(picture);
-
       if (picture.title === ""){
         reject("Please give the image a title!");
       }
-
       if (picture.pictureName === "") {
         console.log("I got to empty picture");
         reject("Please upload an image!");
       }
+
+      var currDate = new Date();
 
       var imageRef = this.storage.ref().child(picture.pictureName);
       imageRef.put(picture.picture)
@@ -557,7 +563,8 @@ export default class Api {
             .then((url: string) => {
               this.mediaRef.doc(picture.pictureName).set({
                 url: url,
-                title: picture.title
+                title: picture.title,
+                date: currDate
               })
                 .then(() => {
                   resolve("Image successfully uploaded!");
@@ -594,8 +601,7 @@ export default class Api {
   public async loadAllPhotos(): Promise<object[]> {
     return new Promise((resolve, reject) => {
       var images = [] as object[];
-
-      this.mediaRef.get().then(function(querySnapshot: any) {
+      this.mediaRef.orderBy("date", "desc").get().then(function(querySnapshot: any) {
         querySnapshot.forEach(function(image: any) {
           images.push({
             title: image.data().title,
@@ -611,5 +617,104 @@ export default class Api {
         })
     })
   }
+
+  public async createAnnouncement(announcement: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (announcement.message === "") {
+        reject("Please type in an announcement message!");
+      } else {
+        var currDate = new Date();
+        this.announcements.add({
+          description: announcement.message,
+          date: currDate.toUTCString()
+        })
+          .then(() => {
+            resolve("Announcement successfully created!");
+          })
+          .catch((error: any) => {
+            reject("An error occurred!");
+          }) 
+      }
+    })
+  }
+
+  public async loadAnnouncements(): Promise<void> { 
+    return new Promise((resolve, reject) => {
+      var announcements = [] as object[];
+        this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
+          querySnapshot.forEach(function(announcement: any) {
+            announcements.push({
+              description: announcement.data().description,
+              date: announcement.data().date,
+            })
+          });
+          this.dashboardData.announcements = announcements;
+          resolve();
+        })
+          .catch((error: any) => {
+            reject("An error occurred!");
+          })
+      })
+  }
+
+  public async getBanner(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.bannerRef.doc("currentBanner").get()
+        .then((banner: any) => {
+          resolve(banner.data().description);
+        })
+        .catch((error: any) => {
+          reject();
+        })
+    })
+  }
+
+  public async createBanner(banner: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.bannerRef.doc("currentBanner").set({ 
+        description: banner
+      })
+        .then(() => {
+          resolve("Banner successfully updated!");
+        })
+        .catch((error: any) => {
+          reject("An error occurred with updating the announcement.");
+        })
+    })
+  }
+
+  public async deleteAnnouncement(announcement: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.announcements.where('date', '==', announcement.date).get()
+      .then((querySnapshot: any) => {
+        querySnapshot.forEach((announcement: any) =>{
+          this.announcements.doc(announcement.id).delete()
+            .then(() => {
+              resolve("Announcement successfully deleted!");
+            })
+            .catch((error: any) => {
+              reject("An error occurred with deleting the announcement.");
+            })
+        })
+      })
+      .catch((error: any) => {
+        console.log(error.message);
+        reject("An error occurred with deleting the announcement.");
+      }) 
+    });
+  }
+
+  public async deleteBanner(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.bannerRef.doc("currentBanner").delete()
+        .then(() => {
+          resolve("Banner successfully deleted!");
+        })
+        .catch((error: any) => {
+          reject("An error occurred with deleting the announcement.");
+        })
+    })
+  } 
+
 }
 

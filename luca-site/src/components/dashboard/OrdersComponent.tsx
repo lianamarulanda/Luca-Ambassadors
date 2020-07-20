@@ -14,13 +14,14 @@ interface Column {
   id: 'number' | 'date';
   label: string;
   minWidth?: number;
+  maxWidth?: number;
   align?: 'right';
   format?: (value: number) => string;
 }
 
 const columns: Column[] = [
-  { id: 'number', label: 'Order Number', minWidth: 170 },
-  { id: 'date', label: 'Date', minWidth: 100 },
+  { id: 'number', label: 'Order Number', minWidth: 100, maxWidth: 100},
+  { id: 'date', label: 'Date', minWidth: 100, maxWidth: 100},
 ];
 
 interface Data {
@@ -66,7 +67,7 @@ export default function StickyHeadTable() {
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  style={{ minWidth: column.minWidth }}
+                  style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
                   className={classes.title}
                 >
                   {column.label}

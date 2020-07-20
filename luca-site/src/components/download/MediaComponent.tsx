@@ -276,7 +276,7 @@ export default function ViewMediaComponent(props: any) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Grid container style={{backgroundColor:'#FAFAFA', justifyContent: 'center', justifyItems:'space-in-between', marginBottom:'20px'}}>
+      <Grid container style={{marginTop:'20px', justifyContent: 'center', justifyItems:'space-in-between', marginBottom:'20px'}}>
         { props.adminStatus &&
           <Button variant="contained" onClick={() => openDialogForm()}>Upload Media</Button>
         }

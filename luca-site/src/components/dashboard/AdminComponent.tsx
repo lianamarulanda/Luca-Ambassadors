@@ -14,17 +14,20 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import BannerComponent from './BannerComponent';
 
 const initialFormData = Object.freeze({
   message: "",
-  banner: false,
 });
 
-const App: React.FC = () => {
+const AdminComponent = (props: any) => {
   const classes = useStyles();
   const api = React.useContext(DbContext);
   const [openPopup, setOpen] = React.useState(false);
   const [announcement, updateAnnouncement] = React.useState(initialFormData);
+  const [message, setMessage] = React.useState("");
+  const [error, setError] = React.useState("");
+  
 
   const openDialog = () => {
     setOpen(true);
@@ -33,10 +36,11 @@ const App: React.FC = () => {
   const handleClose = () => {
     updateAnnouncement({
       ...announcement,
-      banner: false,
       message: ""
     })
     setOpen(false);
+    setMessage("");
+    setError("");
   };
 
   const handleMessage = (event: any) => {
@@ -46,17 +50,17 @@ const App: React.FC = () => {
     });
   };
 
-  const handleBanner = (event: React.ChangeEvent<HTMLInputElement>) => {
-    var newMessage = announcement.message;
+  const createAnnouncement = async () => {
+    setError("");
+    setMessage("");
 
-    if (announcement.message.length > 80)
-      newMessage.slice(0,81);
-
-    updateAnnouncement({
-      ...announcement,
-      message: newMessage,
-      banner: !announcement.banner,
-    })
+    api.createAnnouncement(announcement)
+      .then((status: string) => {
+        setMessage(status);
+      })
+      .catch((error: string) => {
+        setError(error);
+      })
   }
 
   return (
@@ -70,11 +74,12 @@ const App: React.FC = () => {
       >
         <Grid
           item
-          lg={4}
+          lg={12}
           sm={6}
-          xl={3}
+          xl={12}
           xs={12}
         >
+          <Typography variant="body1"> Feature coming soon! </Typography>
         </Grid>
         <Grid
           item
@@ -114,16 +119,15 @@ const App: React.FC = () => {
             <Typography variant="h4" style={{fontWeight: 700, padding:'22px'}}>
               Announcements
             </Typography>
-
+            <Button variant="contained" className={classes.button} onClick={() => openDialog()} autoFocus>
+              Create new announcement
+            </Button>
             <Dialog open={openPopup} onClose={handleClose} aria-labelledby="form-dialog-title">
               <DialogTitle id="form-dialog-title">Create New Announcement</DialogTitle>
                 <DialogContent>
                   <DialogContentText>
                     Type in the announcement below.
                     <br />
-                    Banner announcements won't appear in the Announcements table - it will only appear as a banner.
-                    If there is already an existing banner, it will get replaced.
-                    The maximum character limit for a banner announcement is 80. 
                   </DialogContentText>
                   <TextField
                     autoFocus
@@ -139,23 +143,24 @@ const App: React.FC = () => {
                     helperText = {announcement.message.length}
 
                   />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={announcement.banner}
-                        onChange={handleBanner}
-                        name="checkedB"
-                        color="primary"
-                      />
+                  <Grid item >
+                    { message !== "" &&
+                      <Typography variant="overline" className={classes.uploadSuccess} gutterBottom>
+                        { message }
+                      </Typography>
                     }
-                      label="Make me a Banner Announcement"
-                  />
+                    { error !== "" &&
+                      <Typography variant="overline" color="error" display="block" gutterBottom>
+                        { error }
+                      </Typography>
+                    }
+                  </Grid>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleClose} color="primary">
                     Cancel
                   </Button>
-                  <Button onClick={handleClose} color="primary">
+                  <Button onClick={createAnnouncement} color="primary">
                     Publish
                   </Button>
                 </DialogActions>
@@ -166,18 +171,16 @@ const App: React.FC = () => {
           item
           xs={12}
         >
-          <AnnouncementsComponent />
+          <AnnouncementsComponent adminStatus={props.adminStatus}  />
         </Grid>
         <Grid
           item
-          lg={8}
-          md={12}
-          xl={9}
-          xs={12}
+          lg={7}
+          md={4}
+          xl={6}
+          xs={4}
         >
-          <Button variant="contained" className={classes.button} onClick={() => openDialog()} autoFocus>
-            Create new announcement
-          </Button>
+          <BannerComponent />
         </Grid>
       </Grid>
     </Container>
@@ -194,8 +197,12 @@ const useStyles = makeStyles(theme => ({
     color: 'white',
     '&:hover': {
       backgroundColor: '#2E5941',
-    }
+    },
+    marginRight: '25px'
+  },
+  uploadSuccess: {
+    color: '#2E5941'
   }
 }))
 
-export default App
+export default AdminComponent;

@@ -9,9 +9,18 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import { DbContext } from '../../util/api';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography'
+import { Grid } from '@material-ui/core';
+
 
 interface Column {
-  id: 'date' | 'description' | 'urgency';
+  id: 'date' | 'description';
   label: string;
   minWidth?: number;
   maxWidth?: number;
@@ -20,15 +29,13 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { id: 'date', label: 'Date', minWidth: 170 },
-  { id: 'description', label: 'Description', minWidth: 200, maxWidth: 500},
-  { id: 'urgency', label: 'Urgency', minWidth: 100 }
+  { id: 'date', label: 'Date Posted', minWidth: 100, maxWidth: 100 },
+  { id: 'description', label: 'Description', minWidth: 100, maxWidth: 100},
 ];
 
 interface Data {
   date: string;
   description: string;
-  urgency: string;
 }
 
 const useStyles = makeStyles({
@@ -40,15 +47,32 @@ const useStyles = makeStyles({
   },
   title: {
     fontWeight: 'bolder'
+  },
+  button: {
+    color: '#2E5941'
+  },
+  dialogPaper: {
+    height:'50%',
+    // width:'100%'
+  },
+  uploadSuccess: {
+    color: '#2E5941'
   }
 });
 
-export default function AnnouncementsComponent() {
+export default function AnnouncementsComponent(props: any) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [openDialog, setDialog] = React.useState(false);
   const api = React.useContext(DbContext);
-  const data = api.dashboardData.userOrders as object[];
+  const data = api.dashboardData.announcements as object[];
+  const [announcement, setAnnouncement] = React.useState({
+    description: "",
+    date: ""
+  });
+  const [message, setMessage] = React.useState("");
+  const [error, setError] = React.useState("");
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -59,8 +83,80 @@ export default function AnnouncementsComponent() {
     setPage(0);
   };
 
+  const openPopup = (announcement: any) => {
+    setAnnouncement({
+      ...announcement,
+      description: announcement.description,
+      date: announcement.date
+    });
+    setDialog(true);
+  }
+
+  const closePopup = () => {
+    setAnnouncement({
+      ...announcement,
+      description: "",
+      date: "",
+    });
+    setDialog(false);
+    setMessage("");
+    setError("");
+  }
+
+  const deleteAnnouncement = (announcement: any) => {
+    api.deleteAnnouncement(announcement)
+      .then((result: string) => {
+        setError("");
+        setMessage(result);
+      })
+      .catch((error: string) => {
+        setMessage("");
+        setError(error);
+      })
+  }
+
   return (
     <Paper className={classes.root}>
+      <Dialog
+        open={openDialog}
+        onClose={closePopup}
+        fullWidth={true}
+        maxWidth = {'md'}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        classes={{ paper: classes.dialogPaper }}
+      >
+        <DialogTitle id="alert-dialog-title">
+          Announcement
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {announcement.description}
+          </DialogContentText>
+          <Grid item>
+            { message !== "" &&
+              <Typography variant="overline" className={classes.uploadSuccess} gutterBottom>
+                { message }
+              </Typography>
+            }
+            { error !== "" &&
+              <Typography variant="overline" color="error" display="block" gutterBottom>
+                { error }
+              </Typography>
+            }
+        </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closePopup} className={classes.button}>
+            Close
+          </Button>
+          { props.adminStatus &&
+            <Button className={classes.button} onClick={() => deleteAnnouncement(announcement)} autoFocus>
+              Delete
+            </Button>
+          }
+        </DialogActions>
+      </Dialog>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -69,7 +165,7 @@ export default function AnnouncementsComponent() {
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  style={{ minWidth: column.minWidth }}
+                  style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
                   className={classes.title}
                 >
                   {column.label}
@@ -77,14 +173,21 @@ export default function AnnouncementsComponent() {
               ))}
             </TableRow>
           </TableHead>
-          {/* <TableBody>
+          <TableBody>
             {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
+              console.log(row);
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                   {columns.map((column) => {
-                    const value = row[column.id];
+                    const original = row[column.id];
+                    var value = original;
+
+                    if (value.length > 255) {
+                      value = value.substring(0, 253);
+                      value += '...';
+                    }
                     return (
-                      <TableCell key={column.id} align={column.align}>
+                      <TableCell key={column.id} align={column.align} onClick={() => openPopup(row)}>
                         {column.format && typeof value === 'number' ? column.format(value) : value}
                       </TableCell>
                     );
@@ -92,18 +195,18 @@ export default function AnnouncementsComponent() {
                 </TableRow>
               );
             })}
-          </TableBody> */}
+          </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
+      <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        // count={data.length}
+        count={data.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onChangePage={handleChangePage}
         onChangeRowsPerPage={handleChangeRowsPerPage}
-      /> */}
+      />
     </Paper>
   );
 }

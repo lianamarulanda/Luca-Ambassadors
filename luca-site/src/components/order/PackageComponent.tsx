@@ -130,10 +130,6 @@ export default function PackageComponent(props: any) {
       orderApi.packageSelection = "1 Bracelet + 1 Anklet";
   };
 
-  if (!loaded) {
-    return (<LoadComponent />);
-  }
-
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom className={classes.title}>
@@ -210,6 +206,11 @@ export default function PackageComponent(props: any) {
         <br />
           <ProductsComponent packageSelection={selectionState.packageSelection} {...filteredProducts} />
       </div>
+      }
+      { !selectionState.isDisplayed &&
+        <Typography variant="overline" style={{marginTop:'30px'}}>
+          Number of items selected: {orderApi.orderRequest.order.line_items.length} 
+        </Typography>
       }
     </React.Fragment>
 )};
