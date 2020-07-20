@@ -218,9 +218,9 @@ export default function OrderComponent() {
             </Typography>
           </div>
           }
-          <Typography component="h1" variant="h4" align="center" style={{fontFamily: 'helvetica'}}>
+          {/* <Typography component="h1" variant="h4" align="center" style={{fontFamily: 'helvetica'}}>
             Order Monthly Package 
-          </Typography>
+          </Typography> */}
           <Stepper activeStep={orderData.activeStep} className={classes.stepper}>
             {steps.map((label) => (
               <Step key={label}>

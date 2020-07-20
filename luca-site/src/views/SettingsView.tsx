@@ -8,7 +8,8 @@ import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography';
 import { DbContext } from '../util/api';
 import { useHistory } from 'react-router-dom';
-
+import HeaderComponent from '../components/layout/HeaderComponent';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -50,14 +51,8 @@ function SettingsView() {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <Typography
-            className={classes.title}
-            color="inherit"
-            gutterBottom
-            variant="h4"
-          >
-            Settings
-          </Typography>
+          <HeaderComponent title="Settings" component="settings"/>
+          <Divider light style={{marginBottom:'40px'}}/>
           <SettingsComponent />
         </Container>
       </main>

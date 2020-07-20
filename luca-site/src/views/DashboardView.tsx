@@ -25,7 +25,7 @@ const App: React.FC = () => {
         .then((status: boolean) => {
           if (status) {
             setAdmin(true);
-            setLoaded(true);
+            getDashboardData();
           }
           else {
             if (!loaded) {
@@ -51,10 +51,10 @@ const App: React.FC = () => {
       <Sidebar />
       <main className={classes.content}>
         { admin &&
-          <AdminComponent />
+          <AdminComponent adminStatus={admin} />
         }
         { !admin &&
-          <DashboardComponent />
+          <DashboardComponent adminStatus={admin} />
         }
       </main>
     </div>

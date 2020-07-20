@@ -9,6 +9,8 @@ import Typography from '@material-ui/core/Typography';
 import { DbContext } from '../util/api';
 import { useHistory } from 'react-router-dom';
 import LoadComponent from '../components/layout/LoadComponent';
+import HeaderComponent from '../components/layout/HeaderComponent';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -69,13 +71,10 @@ function MediaView() {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <Typography
-            className={classes.title}
-            color="inherit"
-            variant="h6"
-          >
-            {admin ? "Upload and Delete Content" : "Download Social Media Content"}
-          </Typography>
+          <HeaderComponent adminStatus={admin} title={admin ? "Upload and Delete Content" : "Download Social Media Content"}
+            component="download"
+          />
+          <Divider light/>
           <MediaComponent adminStatus={admin} content={content} />
         </Container>
       </main>

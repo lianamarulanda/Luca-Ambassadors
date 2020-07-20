@@ -10,7 +10,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Avatar from '@material-ui/core/Avatar';
-import drawerImage from '../../images/sidebar2.jpg';
+import drawerImage from '../../images/sidebar.jpg';
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
 import { DbContext } from '../../util/api';

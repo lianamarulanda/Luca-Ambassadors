@@ -7,6 +7,8 @@ import Container from '@material-ui/core/Container'
 import clsx from 'clsx'
 import { DbContext } from '../util/api';
 import { useHistory } from 'react-router-dom';
+import HeaderComponent from '../components/layout/HeaderComponent';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -40,6 +42,8 @@ function OrderView() {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
+          <HeaderComponent title="Order Accessories" component="order"/>
+          <Divider light/>
           <OrderComponent />
         </Container>
       </main>
