@@ -2,8 +2,6 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
@@ -12,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../../util/api';
 import { useHistory } from 'react-router-dom';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,17 +31,16 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     marginTop: '50px',
-    // marginRight: '350px',
     marginBottom: '50px',
     fontWeight: 100,
     color: '#4f4f4f',
     fontFamily: 'serif',
   },
-  gridTitle : {
+  gridTitle: {
     textAlign: 'left',
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: '100%',
     marginTop: theme.spacing(1),
   },
   signUp: {
@@ -94,25 +90,23 @@ function LoginComponent() {
 
   const handleChange = (event: any) => {
     updateFormData({
-        ...formData, // gets current state values, prevents from resetting key-val pair
+      ...formData, // gets current state values, prevents from resetting key-val pair
 
-        // if we change email field, [email] = testEmail@email
-        [event.target.name]: event.target.value.trim()
+      // if we change email field, [email] = testEmail@email
+      [event.target.name]: event.target.value.trim()
     });
   };
 
-  // loginUser api will get called here
   const handleLogin = async (event: any) => {
     event.preventDefault()
     api.loginUser(formData.email, formData.password)
       .then(() => {
         history.push("/dashboard");
       })
-      .catch((error: string) =>{
+      .catch((error: string) => {
         setError(error);
       });
   };
-
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -124,17 +118,17 @@ function LoginComponent() {
           </Link>
         </Grid>
         <div className={classes.paper}>
-          <Grid style={{alignItems: 'center'}}>
+          <Grid style={{ alignItems: 'center' }}>
             <Grid item className={classes.gridTitle}>
               <Typography className={classes.title} component="h1" variant="h3">
                 Sign in
               </Typography>
-              { error !== "" && 
-              <div>
-                <Typography variant="overline" color="error" display="block" gutterBottom>
-                  { error }
-                </Typography>
-              </div>
+              {error !== "" &&
+                <div>
+                  <Typography variant="overline" color="error" display="block" gutterBottom>
+                    {error}
+                  </Typography>
+                </div>
               }
             </Grid>
             <form className={classes.form} noValidate>
@@ -174,14 +168,14 @@ function LoginComponent() {
                   Sign In
                 </Button>
               </Grid>
-              <Grid container style={{alignSelf:'center'}}>
-                <Grid item xs style={{alignSelf:'center'}}>
+              <Grid container style={{ alignSelf: 'center' }}>
+                <Grid item xs style={{ alignSelf: 'center' }}>
                   <Link href="/resetpassword" variant="body2">
                     Forgot password?
                   </Link>
                 </Grid>
               </Grid>
-              <Box mt={25} style={{alignSelf:'center'}}>
+              <Box mt={25} style={{ alignSelf: 'center' }}>
                 <Copyright />
               </Box>
             </form>

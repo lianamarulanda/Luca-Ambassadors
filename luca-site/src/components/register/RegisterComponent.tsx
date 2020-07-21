@@ -1,9 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
@@ -12,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../../util/api';
 import { useHistory } from 'react-router-dom';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import LoadComponent from '../layout/LoadComponent';
 
 const useStyles = makeStyles((theme) => ({
@@ -41,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'serif',
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: '100%',
     marginTop: theme.spacing(1),
   },
   signIn: {
@@ -82,11 +79,11 @@ function Copyright() {
 // Object.freeze() locks the current properties, so that the only
 // available states are email and password, and cant be removed / added later on
 const initialFormData = Object.freeze({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    discountCode: ""
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  discountCode: ""
 });
 
 export default function RegisterComponent() {
@@ -98,7 +95,7 @@ export default function RegisterComponent() {
 
   // React.useState() initializes our state,
   // a state is a collection of private variables used by the current component
-  
+
   // const [stateName, functionToUpdateState]
   // stateName: the name of the internal state
   // functionToUpdateState: the name of the function that will be called whenever we want to update
@@ -107,21 +104,19 @@ export default function RegisterComponent() {
 
   // updateFormData requires us to specify all the values we want in the updated state
   // Omitting a single key-value pair erases it (makes it empty i.e. "") even if initialized to something not empty
-
   const handleChange = (event: any) => {
     updateFormData({
-        ...formData, // gets current state values, prevents from resetting key-val pair
+      ...formData, // gets current state values, prevents from resetting key-val pair
 
-        // if we change email field, [email] = testEmail@email
-        [event.target.name]: event.target.value.trim()
+      // if we change email field, [email] = testEmail@email
+      [event.target.name]: event.target.value.trim()
     });
   };
 
-  // createUser api will get called here
   const handleRegistration = (event: any) => {
     event.preventDefault()
     if (formData.firstName === "" || formData.lastName === "" || formData.discountCode === "")
-      setError("Please fill out all required fields!"); 
+      setError("Please fill out all required fields!");
     else {
       setLoad(true);
       api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode)
@@ -130,7 +125,7 @@ export default function RegisterComponent() {
         })
         .catch((error: string) => {
           setLoad(false);
-          setError(error); 
+          setError(error);
         });
     }
   };
@@ -149,17 +144,17 @@ export default function RegisterComponent() {
           </Link>
         </Grid>
         <div className={classes.paper}>
-          <Grid style={{alignItems: 'center'}}>
+          <Grid style={{ alignItems: 'center' }}>
             <Grid item className={classes.gridTitle}>
               <Typography className={classes.title} component="h1" variant="h3">
                 Sign up
               </Typography>
-              { error !== "" && 
-              <div>
-                <Typography variant="overline" color="error" display="block" gutterBottom>
-                  { error }
-                </Typography>
-              </div>
+              {error !== "" &&
+                <div>
+                  <Typography variant="overline" color="error" display="block" gutterBottom>
+                    {error}
+                  </Typography>
+                </div>
               }
             </Grid>
             <form className={classes.form} noValidate>
@@ -242,7 +237,7 @@ export default function RegisterComponent() {
                   Sign Up
                 </Button>
               </Grid>
-              <Box mt={14} style={{alignSelf:'center'}}>
+              <Box mt={14} style={{ alignSelf: 'center' }}>
                 <Copyright />
               </Box>
             </form>
