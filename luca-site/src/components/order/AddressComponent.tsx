@@ -65,14 +65,14 @@ export default function AddressComponent(props: any) {
         <Grid item xs={12} sm={6}>
           <TextField
             required
-            id="province" 
-            name="province" 
+            id="province"
+            name="province"
             label="State/Province/Region"
-            fullWidth 
+            fullWidth
             defaultValue={props.province}
-            onChange={props.handleChange} 
+            onChange={props.handleChange}
             className={classes.fieldOutline}
-            />
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
           <TextField

@@ -6,11 +6,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Grid from '@material-ui/core/Grid';
 import PropTypes from 'prop-types';
-import { ordersContext } from '../../util/orders'; 
+import { ordersContext } from '../../util/orders';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import IconButton from '@material-ui/core/IconButton'
 import RemoveIcon from '@material-ui/icons/Remove';
-import { ReactComponent } from '*.svg';
 
 const useStyles = makeStyles((theme) => ({
   listItem: {
@@ -53,7 +52,7 @@ export default function ReviewComponent(orderData: any) {
       if (orderApi.orderRequest.order.line_items[i].variant_id === product.variant_id && totalQuantity < orderApi.maxQuantity) {
         if (orderApi.inventoryProductMap.get(product.variant_id) >= orderApi.orderRequest.order.line_items[i].quantity + 1)
           orderApi.orderRequest.order.line_items[i].quantity++;
-        else 
+        else
           setError(`Cannot increase quantity for ${product.title}: not enough in stock`);
         break;
       }
@@ -80,19 +79,19 @@ export default function ReviewComponent(orderData: any) {
       <Typography variant="h6" gutterBottom>
         Order summary
       </Typography>
-      { error !== "" && 
-          <div>
-            <Typography variant="overline" color="error" display="block" gutterBottom>
+      {error !== "" &&
+        <div>
+          <Typography variant="overline" color="error" display="block" gutterBottom>
             {error}
-            </Typography>
-          </div>
+          </Typography>
+        </div>
       }
       <Grid container direction="row" justify="space-between" alignItems="center">
-        <Typography variant="subtitle2" style={{textAlign: 'left', fontWeight:'bolder'}}>
+        <Typography variant="subtitle2" style={{ textAlign: 'left', fontWeight: 'bolder' }}>
           All items in cart
         </Typography>
-        <Grid item style={{justifySelf:'right'}}>
-          <Typography variant="subtitle2" style={{ textAlign:'right'}}>
+        <Grid item style={{ justifySelf: 'right' }}>
+          <Typography variant="subtitle2" style={{ textAlign: 'right' }}>
             Selection: {orderApi.packageSelection}
           </Typography>
         </Grid>
@@ -102,7 +101,7 @@ export default function ReviewComponent(orderData: any) {
           <ListItem className={classes.listItem} key={product.variant_id}>
             <ListItemText primary={product.title} />
             <Typography variant="body2">Qty: {product.quantity}</Typography>
-            <IconButton className={classes.icon} aria-label="add quantity" onClick={() => increaseQuantity(product)}> 
+            <IconButton className={classes.icon} aria-label="add quantity" onClick={() => increaseQuantity(product)}>
               <AddBoxIcon />
             </IconButton>
             <IconButton className={classes.icon} aria-label="subtract quantity" onClick={() => decreaseQuantity(product)}>
@@ -117,13 +116,13 @@ export default function ReviewComponent(orderData: any) {
           </Typography>
         </ListItem>
       </List>
-      <Grid container spacing={2} style={{alignItems: 'left', justifyContent:'left'}}/*style={{alignItems: 'center', justifyContent: 'center'}}*/>
+      <Grid container spacing={2} style={{ alignItems: 'left', justifyContent: 'left' }}/*style={{alignItems: 'center', justifyContent: 'center'}}*/>
         <Grid item xs={12} sm={6}>
           <Typography variant="subtitle2" gutterBottom className={classes.title}>
             Shipping
           </Typography>
-          <Typography gutterBottom style={{textAlign: 'left'}}>{orderApi.orderRequest.order.customer.first_name + " " + orderApi.orderRequest.order.customer.last_name}</Typography>
-          <Typography gutterBottom style={{textAlign: 'left'}}>{addresses.join(', ')}</Typography>
+          <Typography gutterBottom style={{ textAlign: 'left' }}>{orderApi.orderRequest.order.customer.first_name + " " + orderApi.orderRequest.order.customer.last_name}</Typography>
+          <Typography gutterBottom style={{ textAlign: 'left' }}>{addresses.join(', ')}</Typography>
         </Grid>
       </Grid>
     </React.Fragment>

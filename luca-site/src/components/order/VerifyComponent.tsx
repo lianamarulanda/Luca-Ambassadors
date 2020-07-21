@@ -19,10 +19,10 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     textTransform: "none",
-    marginTop:'15px'
+    marginTop: '15px'
   },
   resend: {
-    marginTop:'15px',
+    marginTop: '15px',
     color: '#17A697'
   },
 }));
@@ -31,28 +31,41 @@ export default function VerifyEmail() {
   const classes = useStyles();
   const api = React.useContext(DbContext);
   const [resend, setResend] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   const resendEmail = async () => {
-    await api.sendEmailVerification();
-    setResend(true);
+    api.sendEmailVerification()
+      .then(() => {
+        setError("");
+        setResend(true);
+      })
+      .catch((error: any) => {
+        setResend(false);
+        setError("An error has occurred with resending the email.");
+      })
   };
-  
+
   return (
     <div className={classes.root}>
       <Container component="main" className={classes.main}>
-        <Typography variant="h5" component="h2" style={{fontWeight:100}}>
+        <Typography variant="h5" component="h2" style={{ fontWeight: 100 }}>
           Please verify your email in order to use this service
         </Typography>
-        <img src={line} style={{height: '75px', width : '175px', marginTop:'50px'}} />
-        <Grid item style={{marginTop:'30px', textAlign: 'center'}}>
+        <img src={line} style={{ height: '75px', width: '175px', marginTop: '50px' }} />
+        <Grid item style={{ marginTop: '30px', textAlign: 'center' }}>
         </Grid>
         <Button onClick={resendEmail} variant="outlined" color="primary" className={classes.button}>
           Resend email
         </Button>
-        { resend && 
-          <Grid item className={classes.resend}> 
+        {resend &&
+          <Grid item className={classes.resend}>
             <Typography variant="overline"> Email has been resent! It may take a few minutes to arrive.</Typography>
           </Grid>
+        }
+        {error !== "" &&
+          <Typography variant="overline" color="error" display="block" gutterBottom>
+            {error}
+          </Typography>
         }
       </Container>
     </div>

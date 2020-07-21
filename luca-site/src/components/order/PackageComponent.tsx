@@ -5,7 +5,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core/';
 import ProductsComponent from './ProductsComponent';
 import { ordersContext } from '../../util/orders';
-import LoadComponent from '../layout/LoadComponent';
 
 const useStyles = makeStyles((theme: any) => ({
   card: {
@@ -29,7 +28,7 @@ const useStyles = makeStyles((theme: any) => ({
   },
 }));
 
-const initialState= Object.freeze({
+const initialState = Object.freeze({
   isDisplayed: false,
   packageSelection: "",
 
@@ -50,22 +49,14 @@ export default function PackageComponent(props: any) {
   const [selectionState, setCurrentSelection] = React.useState(initialState);
   const orderApi = React.useContext(ordersContext);
   const [filteredProducts, updateFilters] = React.useState(productFilters);
-  const [loaded, setLoad] = React.useState(false);
 
   React.useEffect(() => {
     if (filteredProducts["1 Bracelet Set"].length === 0) {
-      console.log("I got here");
       filterProducts(props.data);
-      setLoad(true);
-    } else if (!loaded) {
-      console.log("I got here 2");
-      console.log(Object.keys(filteredProducts).length);
-      setLoad(true);
     }
   }, []);
 
   const filterProducts = (allProducts: any) => {
-
     var braceletSets = [] as object[];
     var singleBracelets = [] as object[];
     var anklets = [] as object[];
@@ -118,13 +109,13 @@ export default function PackageComponent(props: any) {
         packageSelection: selection
       });
       orderApi.packageSelection = selection;
-     } else if (!selectionState.isDisplayed && selection !== "") {
+    } else if (!selectionState.isDisplayed && selection !== "") {
       setCurrentSelection({
         ...selectionState,
         isDisplayed: !selectionState.isDisplayed,
         packageSelection: selection
       });
-      orderApi.packageSelection = selection;        
+      orderApi.packageSelection = selection;
     }
     if (orderApi.packageSelection === "2 1 Bracelet + 1 Anklet")
       orderApi.packageSelection = "1 Bracelet + 1 Anklet";
@@ -135,82 +126,83 @@ export default function PackageComponent(props: any) {
       <Typography variant="h6" gutterBottom className={classes.title}>
         Select package
       </Typography>
-      <Grid container spacing={3}>        
+      <Grid container spacing={3}>
         <Grid item xs={4} >
-          <Button 
-          variant="outlined" 
-          className={selectionState.packageSelection === "1 Bracelet Set" ? classes.selectedCard : classes.card } 
-          onClick={() => handleSelect("1 Bracelet Set")}
+          <Button
+            variant="outlined"
+            className={selectionState.packageSelection === "1 Bracelet Set" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("1 Bracelet Set")}
           >
             1 Bracelet Set
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button 
-          variant="outlined" 
-          className={selectionState.packageSelection === "2 Single Bracelets" ? classes.selectedCard : classes.card }  
-          onClick={() => handleSelect("2 Single Bracelets")}
+          <Button
+            variant="outlined"
+            className={selectionState.packageSelection === "2 Single Bracelets" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("2 Single Bracelets")}
           >
             2 Single Bracelets
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button 
-          variant="outlined" 
-          className={selectionState.packageSelection === "2 Anklets" ? classes.selectedCard : classes.card }  
-          onClick={() => handleSelect("2 Anklets")}
+          <Button
+            variant="outlined"
+            className={selectionState.packageSelection === "2 Anklets" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("2 Anklets")}
           >
             2 Anklets
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button 
-          variant="outlined" 
-          style={{ fontSize: '13px', padding: '18px'}} 
-          className={selectionState.packageSelection === "2 1 Bracelet + 1 Anklet" ? classes.selectedCard : classes.card } 
-          onClick={() => handleSelect("2 1 Bracelet + 1 Anklet")}>
+          <Button
+            variant="outlined"
+            style={{ fontSize: '13px', padding: '18px' }}
+            className={selectionState.packageSelection === "2 1 Bracelet + 1 Anklet" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("2 1 Bracelet + 1 Anklet")}>
             1 Bracelet + 1 Anklet
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button 
-          variant="outlined" 
-          className={selectionState.packageSelection === "1 Necklace" ? classes.selectedCard : classes.card }  
-          onClick={() => handleSelect("1 Necklace")}
+          <Button
+            variant="outlined"
+            className={selectionState.packageSelection === "1 Necklace" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("1 Necklace")}
           >
             1 Necklace
           </Button>
         </Grid>
         <Grid item xs={4}>
-          <Button 
-          variant="outlined" 
-          className={selectionState.packageSelection === "1 Pair of Earrings" ? classes.selectedCard : classes.card } 
-          onClick={() => handleSelect("1 Pair of Earrings")}
+          <Button
+            variant="outlined"
+            className={selectionState.packageSelection === "1 Pair of Earrings" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("1 Pair of Earrings")}
           >
             1 Pair of Earrings
           </Button>
         </Grid>
         <Grid item xs={12}>
-          <Button 
-          variant="outlined" 
-          className={selectionState.packageSelection === "1 Baseball Cap" ? classes.selectedCard : classes.card } 
-          onClick={() => handleSelect("1 Baseball Cap")}
+          <Button
+            variant="outlined"
+            className={selectionState.packageSelection === "1 Baseball Cap" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("1 Baseball Cap")}
           >
             1 Baseball Cap
           </Button>
         </Grid>
       </Grid>
 
-      { selectionState.isDisplayed && 
-      <div>
-        <br />
+      {selectionState.isDisplayed &&
+        <div>
+          <br />
           <ProductsComponent packageSelection={selectionState.packageSelection} {...filteredProducts} />
-      </div>
+        </div>
       }
-      { !selectionState.isDisplayed &&
-        <Typography variant="overline" style={{marginTop:'30px'}}>
-          Number of items selected: {orderApi.orderRequest.order.line_items.length} 
+      {!selectionState.isDisplayed &&
+        <Typography variant="overline" style={{ marginTop: '30px' }}>
+          Number of items selected: {orderApi.orderRequest.order.line_items.length}
         </Typography>
       }
     </React.Fragment>
-)};
+  )
+};

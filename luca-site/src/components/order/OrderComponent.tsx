@@ -70,7 +70,7 @@ const steps = ['Shipping address', 'Select items', 'Review your order'];
 const orderState = Object.freeze({
   activeStep: 0,
   address1: "",
-  address2 : "",
+  address2: "",
   city: "",
   province: "",
   zip: "",
@@ -85,28 +85,31 @@ export default function OrderComponent() {
   const [allProducts, updateAllProducts] = React.useState([] as object[]);
   const [error, setError] = React.useState("");
   const [loaded, setLoaded] = React.useState(false);
-  
+
   React.useEffect(() => {
     if (allProducts.length === 0) {
       dbApi.getAllProducts()
         .then((products) => {
           updateAllProducts(products);
           setLoaded(true);
+        })
+        .catch((error: any) => {
+
         });
     }
   }, []);
 
-  const setActiveStep = (step: number) => { 
+  const setActiveStep = (step: number) => {
     updateState({
-      ...orderData, // gets current state values, prevents from resetting key-val pair
+      ...orderData,
       activeStep: step
-    });   
+    });
   };
 
   const handleAddress = (event: any) => {
     updateState({
-        ...orderData,
-        [event.target.name]: event.target.value.trim()
+      ...orderData,
+      [event.target.name]: event.target.value.trim()
     });
   };
 
@@ -141,31 +144,31 @@ export default function OrderComponent() {
       orderApi.orderRequest.order.total_discounts = orderApi.subtotal;
       setError("");
       return true;
-    } 
+    }
   }
 
-  const placeOrder = async(): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
+  const placeOrder = async (): Promise<boolean> => {
+    return new Promise((resolve) => {
       if (orderApi.orderRequest.order.line_items.length === 0) {
-        setError("Please select at least one product!"); 
+        setError("Please select at least one product!");
         resolve(false);
       } else {
         setError("");
-        setLoaded(false); 
+        setLoaded(false);
         dbApi.placeOrder(orderApi.orderRequest).then((orderNum: any) => {
           orderApi.orderNumber = orderNum;
           setLoaded(true);
           resolve(true);
         })
-        .catch((error: any) => {
-          setError("An error occurred with placing the order!");
-          setLoaded(true);
-          resolve(false);
-        })    
+          .catch((error: any) => {
+            setError("An error occurred with placing the order!");
+            setLoaded(true);
+            resolve(false);
+          })
       }
     });
   }
-  
+
   const handleNext = async () => {
     if (orderData.activeStep === 0) {
       if (submitAddress())
@@ -185,12 +188,12 @@ export default function OrderComponent() {
     setActiveStep(orderData.activeStep - 1);
   };
 
-  const getStepContent= (step: any) => {
+  const getStepContent = (step: any) => {
     switch (step) {
       case 0:
         return <AddressComponent handleChange={handleAddress} {...orderData} />;
       case 1: {
-        return <PackageComponent {...allProducts}  />;
+        return <PackageComponent {...allProducts} />;
       }
       case 2: {
         return <ReviewComponent {...orderData} />;
@@ -211,26 +214,23 @@ export default function OrderComponent() {
     <React.Fragment>
       <main className={classes.layout}>
         <Paper className={classes.paper}>
-          { error !== "" && 
-          <div>
-            <Typography variant="overline" color="error" display="block" gutterBottom>
-            {error}
-            </Typography>
-          </div>
+          {error !== "" &&
+            <div>
+              <Typography variant="overline" color="error" display="block" gutterBottom>
+                {error}
+              </Typography>
+            </div>
           }
-          {/* <Typography component="h1" variant="h4" align="center" style={{fontFamily: 'helvetica'}}>
-            Order Monthly Package 
-          </Typography> */}
           <Stepper activeStep={orderData.activeStep} className={classes.stepper}>
             {steps.map((label) => (
               <Step key={label}>
-                <StepLabel 
-                  StepIconProps={{ 
-                    classes:{ 
+                <StepLabel
+                  StepIconProps={{
+                    classes: {
                       root: classes.stepperIcon,
                       active: classes.activeIcon,
                       completed: classes.completedIcon
-                    } 
+                    }
                   }}
                 >
                   {label}
@@ -250,24 +250,24 @@ export default function OrderComponent() {
                 </Typography>
               </React.Fragment>
             ) : (
-              <React.Fragment>
-                {getStepContent(orderData.activeStep)}
-                <div className={classes.buttons}>
-                  {orderData.activeStep !== 0 && (
-                    <Button onClick={handleBack} className={classes.button}>
-                      Back
+                <React.Fragment>
+                  {getStepContent(orderData.activeStep)}
+                  <div className={classes.buttons}>
+                    {orderData.activeStep !== 0 && (
+                      <Button onClick={handleBack} className={classes.button}>
+                        Back
+                      </Button>
+                    )}
+                    <Button
+                      variant="contained"
+                      onClick={handleNext}
+                      className={classes.button}
+                    >
+                      {orderData.activeStep === steps.length - 1 ? 'Place order' : 'Next'}
                     </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    onClick={handleNext}
-                    className={classes.button}
-                  >
-                    {orderData.activeStep === steps.length - 1 ? 'Place order' : 'Next'}
-                  </Button>
-                </div>
-              </React.Fragment>
-            )}
+                  </div>
+                </React.Fragment>
+              )}
           </React.Fragment>
         </Paper>
       </main>

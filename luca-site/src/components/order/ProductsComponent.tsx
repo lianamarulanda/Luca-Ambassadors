@@ -13,67 +13,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { Grid } from '@material-ui/core';
 
-// // sort the products to load based on package component
-// function filterProducts(productType: string, allProducts: object[]): object[] {
-//   // will need to take variants into account!!
-//   var filteredProducts = [] as object[];
-//   switch(productType) {
-//     case "1 Bracelet Set": {
-//       allProducts.forEach((product: any) => {
-//         if (product.tags.includes("Sets")) {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     } case "2 Single Bracelets": {
-//       allProducts.forEach((product: any) => {
-//         if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     } case "2 Anklets": {
-//       allProducts.forEach((product: any) => {
-//         if (product.product_type === "anklet") {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     } case "2 1 Bracelet + 1 Anklet": {
-//       allProducts.forEach((product: any) => {
-//         if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
-//           filteredProducts.push(product);
-//         } if (product.product_type === "anklet") {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     } case "1 Necklace": {
-//       allProducts.forEach((product: any) => {
-//         if (product.product_type === "Necklace") {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     } case "1 Pair of Earrings": {
-//       allProducts.forEach((product: any) => {
-//         if (product.product_type === "Earrings") {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     } case "1 Baseball Cap": {
-//       allProducts.forEach((product: any) => {
-//         if (product.product_type === "Hats") {
-//           filteredProducts.push(product);
-//         }
-//       })
-//       break;
-//     }
-//   }
-//   return filteredProducts;
-// }
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -109,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const initialState= Object.freeze({
+const initialState = Object.freeze({
   productsSelected: [] as string[],
   currentPackage: "",
   maxQuantity: 0,
@@ -123,7 +62,7 @@ export default function ProductsComponent(props: any) {
 
   // if we select a new package, clear out the products selected from component and the order request
   // load the new filtered products
-  if (props.packageSelection !== selectionState.currentPackage) { 
+  if (props.packageSelection !== selectionState.currentPackage) {
     const newProducts = [] as any;
     var max = parseInt(props.packageSelection.charAt(0));
     var filteredProducts = props[props.packageSelection];
@@ -143,7 +82,7 @@ export default function ProductsComponent(props: any) {
     // set max quantity in order context
     if (orderApi.packageSelection === "1 Bracelet + 1 Anklet")
       orderApi.maxQuantity = 1;
-    else 
+    else
       orderApi.maxQuantity = max;
   }
 
@@ -157,7 +96,7 @@ export default function ProductsComponent(props: any) {
       orderApi.orderRequest.order.line_items.splice(index, 1);
       orderApi.inventoryProductMap.delete(productTile.variants[0].id);
       orderApi.subtotal -= productTile.variants[0].price;
-    // it is possible to add the new product bc not yet reached max capacity
+      // it is possible to add the new product bc not yet reached max capacity
     } else if (newProducts.length < selectionState.maxQuantity) {
       if (selectionState.currentPackage === "2 1 Bracelet + 1 Anklet" && newProducts.length === 1) {
         if (orderApi.orderRequest.order.line_items[0].title.includes("Anklet") && productTile.title.includes("Anklet"))
@@ -177,7 +116,7 @@ export default function ProductsComponent(props: any) {
         orderApi.subtotal += productTile.variants[0].price;
       }
 
-    // we reached max capacity, so if the max capacity is one, replace the item
+      // we reached max capacity, so if the max capacity is one, replace the item
     } else if (newProducts.length === selectionState.maxQuantity && selectionState.maxQuantity === 1) {
       // replace current product w/new one
       newProducts[0] = productTile.variants[0].id;
@@ -202,19 +141,19 @@ export default function ProductsComponent(props: any) {
     <div className={classes.root}>
       <GridList cellHeight={180} className={classes.gridList}>
         <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
-          <Grid container style={{justifyContent: 'center'}}>
+          <Grid container style={{ justifyContent: 'center' }}>
             <ListSubheader component="div">Select items</ListSubheader>
             <Tooltip title={<div><Typography variant="subtitle1">Click on a product's info button to view more details.</Typography><br /> <Typography variant="subtitle1">The quantities will be selected in the next step.</Typography></div>} >
               <IconButton aria-label="info">
-                <InfoIcon fontSize="small"/>
+                <InfoIcon fontSize="small" />
               </IconButton>
-            </Tooltip> 
+            </Tooltip>
           </Grid>
         </GridListTile>
         {selectionState.loadedProducts.map((tile: any) => (
-          <GridListTile 
-          key={tile.id}  
-          className={selectionState.productsSelected.includes(tile.variants[0].id) ? classes.selectedTile : classes.tile}
+          <GridListTile
+            key={tile.id}
+            className={selectionState.productsSelected.includes(tile.variants[0].id) ? classes.selectedTile : classes.tile}
           >
             <img src={tile.image !== null ? tile.image.src : square} alt={tile.title} onClick={() => handleSelect(tile)} />
             <GridListTileBar
@@ -230,12 +169,12 @@ export default function ProductsComponent(props: any) {
         ))}
       </GridList>
       <br />
-      <Grid style={{marginTop: '25px'}}>
+      <Grid style={{ marginTop: '25px' }}>
         <Typography variant="overline">Number of items selected: {orderApi.orderRequest.order.line_items.length} </Typography>
         <br />
         <Typography variant="overline">
-          {selectionState.currentPackage === '2 1 Bracelet + 1 Anklet' ? 
-            "Max Quantity: 1 Bracelet and 1 Anklet" : 
+          {selectionState.currentPackage === '2 1 Bracelet + 1 Anklet' ?
+            "Max Quantity: 1 Bracelet and 1 Anklet" :
             `Max Quantity: ${selectionState.maxQuantity}`}
         </Typography>
       </Grid>
