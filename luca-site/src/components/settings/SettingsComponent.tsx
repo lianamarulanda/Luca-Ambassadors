@@ -11,7 +11,6 @@ import UpdateEmail from './UpdateEmailComponent';
 import UpdatePersonalInfo from './UpdatePersonalComponent';
 import { Card } from '@material-ui/core';
 
-
 interface TabPanelProps {
   children?: React.ReactNode;
   index: any;
@@ -77,13 +76,13 @@ export default function SimpleTabs() {
     <div className={classes.root}>
       <Card className={classes.card} variant="outlined">
         <Paper className={classes.root} elevation={0}>
-          <Tabs value={value} 
-          onChange={handleChange} 
-          aria-label="simple tabs example"
-          classes={{
-            indicator: classes.indicator
-          }}
-          centered
+          <Tabs value={value}
+            onChange={handleChange}
+            aria-label="simple tabs example"
+            classes={{
+              indicator: classes.indicator
+            }}
+            centered
           >
             <Tab className={value === 0 ? classes.selectedTab : classes.labels} label="Personal info" {...a11yProps(0)} />
             <Tab className={value === 1 ? classes.selectedTab : classes.labels} label="Email" {...a11yProps(1)} />

@@ -3,12 +3,13 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import clsx from 'clsx';
 import { TextField } from '@material-ui/core';
-import { Typography }from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { CardHeader } from '@material-ui/core';
 import { Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import { DbContext } from '../../util/api';
+import LoadComponent from '../layout/LoadComponent';
 
 const useStyles = makeStyles({
   root: {
@@ -45,80 +46,83 @@ const initialFormData = Object.freeze({
 export default function UpdatePersonalInfo() {
   const classes = useStyles();
   const api = React.useContext(DbContext);
-  // state handling
   const [formData, updateFormData] = React.useState(initialFormData);
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loaded, setLoad] = React.useState(true);
 
   const handleChange = (event: any) => {
     updateFormData({
-        ...formData, // gets current state values, prevents from resetting key-val pair
-
-        // if we change email field, [email] = testEmail@email
-        [event.target.name]: event.target.value.trim()
+      ...formData,
+      [event.target.name]: event.target.value.trim()
     });
   };
 
-  // updatePersonalInfo api will get called here
   const handleUpdate = async (event: any) => {
     event.preventDefault()
-
+    setLoad(false);
     api.updatePersonalInfo(formData.firstName, formData.lastName, formData.amCode, formData.password)
       .then((status: string) => {
         setError("");
         setMessage(status);
+        setLoad(true);
       })
       .catch((error: string) => {
         setMessage("");
         setError(error);
+        setLoad(true);
       })
   };
 
+  if (!loaded) {
+    return (<LoadComponent />);
+  }
+
   return (
     <Paper
-      className={clsx(classes.root)} elevation={0} 
+      className={clsx(classes.root)} elevation={0}
     >
       <div className={classes.paper}>
         <Grid>
           <form>
-          <Grid item className={classes.align}>
+            <Grid item className={classes.align}>
               <CardHeader
                 subheader="Update personal info"
               />
             </Grid>
             <CardContent>
-              { error !== "" && 
+              {error !== "" &&
                 <div>
                   <Typography variant="overline" className={classes.message} color="error" display="block" gutterBottom>
-                    { error }
+                    {error}
                   </Typography>
                 </div>
               }
-              { message !== "" && 
+              {message !== "" &&
                 <div>
-                  <Typography variant="overline" className={classes.message} style={{color: '#2E5941'}} display="block" gutterBottom>
-                    { message }
+                  <Typography variant="overline" className={classes.message} style={{ color: '#2E5941' }} display="block" gutterBottom>
+                    {message}
                   </Typography>
                 </div>
               }
               <TextField
-                  fullWidth
-                  label="First name"
-                  name="firstName"
-                  variant="outlined"
-                  autoFocus
-                  onChange={handleChange}
-                  className={classes.fieldOutline}
-                />
-                <TextField
-                  fullWidth
-                  label="Last name"
-                  name="lastName"
-                  style={{ marginTop: '1rem' }}
-                  variant="outlined"
-                  onChange={handleChange}
-                  className={classes.fieldOutline}
-                />
+                fullWidth
+                label="First name"
+                name="firstName"
+                variant="outlined"
+                autoFocus
+                onChange={handleChange}
+                className={classes.fieldOutline}
+              />
+              <TextField
+                fullWidth
+                label="Last name"
+                name="lastName"
+                style={{ marginTop: '1rem' }}
+                variant="outlined"
+                onChange={handleChange}
+                className={classes.fieldOutline}
+              />
               <TextField
                 fullWidth
                 label="Ambassador code"
@@ -142,15 +146,15 @@ export default function UpdatePersonalInfo() {
               <Grid item className={classes.align}>
                 <Button
                   style={
-                  { 
-                    marginTop: '1rem',
-                    border: 'solid 1px #2E5941',
-                    color: '#2E5941'
-                  }}
+                    {
+                      marginTop: '1rem',
+                      border: 'solid 1px #2E5941',
+                      color: '#2E5941'
+                    }}
                   variant="outlined"
                   onClick={handleUpdate}
                 >
-                Save
+                  Save
                 </Button>
               </Grid>
             </CardContent>
