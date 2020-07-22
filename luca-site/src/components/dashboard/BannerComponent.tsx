@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -11,7 +10,6 @@ import { DbContext } from '../../util/api';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton'
 import InfoIcon from '@material-ui/icons/Info';
-
 
 const useStyles = makeStyles({
   root: {
@@ -35,7 +33,7 @@ export default function BannerComponent() {
   const [banner, setBanner] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
-  
+
   React.useEffect(() => {
     api.getBanner()
       .then((banner: string) => {
@@ -52,7 +50,7 @@ export default function BannerComponent() {
   };
 
   const submitBanner = () => {
-    
+
     if (banner === "") {
       setMessage("");
       setError("Banner is empty!");
@@ -89,32 +87,29 @@ export default function BannerComponent() {
   return (
     <Card className={classes.root}>
       <CardContent>
-        <Grid item style={{justifyItems: 'left'}}>
+        <Grid item style={{ justifyItems: 'left' }}>
           <Grid container direction="row">
             <Typography className={classes.title} gutterBottom variant="subtitle2">
-                {"Current Banner"}
+              {"Current Banner"}
             </Typography>
-            <Tooltip 
-            title={<Typography variant="body1">
-               Banners appear at the top of an ambassador's homepage. The character limit for a banner is 90.
+            <Tooltip
+              title={<Typography variant="body1">
+                Banners appear at the top of an ambassador's homepage. The character limit for a banner is 90.
                </Typography>}
             >
-              <IconButton aria-label="delete" style={{padding:'0px', marginLeft:'10px', marginBottom:'5px'}}>
-                <InfoIcon fontSize="small"/>
+              <IconButton aria-label="delete" style={{ padding: '0px', marginLeft: '10px', marginBottom: '5px' }}>
+                <InfoIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           </Grid>
-            {/* <Typography style={{textAlign:'left'}} variant="subtitle2">
-              {banner}
-            </Typography> */}
-          { message !== "" &&
+          {message !== "" &&
             <Typography variant="overline" className={classes.uploadSuccess} gutterBottom>
-              { message }
+              {message}
             </Typography>
           }
-          { error !== "" &&
+          {error !== "" &&
             <Typography variant="overline" color="error" display="block" gutterBottom>
-              { error }
+              {error}
             </Typography>
           }
           <TextField
@@ -125,15 +120,15 @@ export default function BannerComponent() {
             fullWidth
             rowsMax={3}
             value={banner}
-            style={{marginBottom:'30px', marginTop:'20px', justifySelf:'left'}}
+            style={{ marginBottom: '30px', marginTop: '20px', justifySelf: 'left' }}
             onChange={handleChange}
-            helperText = {banner.length}
+            helperText={banner.length}
           />
           <Grid container direction="row" alignItems="center">
-            <Grid item style={{justifySelf: 'left'}}>
+            <Grid item style={{ justifySelf: 'left' }}>
               <Button onClick={submitBanner} variant="outlined" size="small">Save</Button>
             </Grid>
-            <Grid item style={{padding:'10px'}}>
+            <Grid item style={{ padding: '10px' }}>
               <Button onClick={deleteBanner} variant="outlined" size="small">Delete Current Banner</Button>
             </Grid>
           </Grid>

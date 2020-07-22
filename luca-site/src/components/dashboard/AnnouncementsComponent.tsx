@@ -18,7 +18,6 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography'
 import { Grid } from '@material-ui/core';
 
-
 interface Column {
   id: 'date' | 'description';
   label: string;
@@ -30,7 +29,7 @@ interface Column {
 
 const columns: Column[] = [
   { id: 'date', label: 'Date Posted', minWidth: 100, maxWidth: 100 },
-  { id: 'description', label: 'Description', minWidth: 100, maxWidth: 100},
+  { id: 'description', label: 'Description', minWidth: 100, maxWidth: 100 },
 ];
 
 interface Data {
@@ -52,8 +51,7 @@ const useStyles = makeStyles({
     color: '#2E5941'
   },
   dialogPaper: {
-    height:'50%',
-    // width:'100%'
+    height: '50%',
   },
   uploadSuccess: {
     color: '#2E5941'
@@ -121,7 +119,7 @@ export default function AnnouncementsComponent(props: any) {
         open={openDialog}
         onClose={closePopup}
         fullWidth={true}
-        maxWidth = {'md'}
+        maxWidth={'md'}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.dialogPaper }}
@@ -134,23 +132,23 @@ export default function AnnouncementsComponent(props: any) {
             {announcement.description}
           </DialogContentText>
           <Grid item>
-            { message !== "" &&
+            {message !== "" &&
               <Typography variant="overline" className={classes.uploadSuccess} gutterBottom>
-                { message }
+                {message}
               </Typography>
             }
-            { error !== "" &&
+            {error !== "" &&
               <Typography variant="overline" color="error" display="block" gutterBottom>
-                { error }
+                {error}
               </Typography>
             }
-        </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={closePopup} className={classes.button}>
             Close
           </Button>
-          { props.adminStatus &&
+          {props.adminStatus &&
             <Button className={classes.button} onClick={() => deleteAnnouncement(announcement)} autoFocus>
               Delete
             </Button>

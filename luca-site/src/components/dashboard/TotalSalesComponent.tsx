@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import MoneyIcon from '@material-ui/icons/Money';
@@ -32,7 +31,7 @@ const useStyles = makeStyles((theme: any) => ({
   },
   data: {
     fontWeight: 520,
-    textAlign:'left'
+    textAlign: 'left'
   }
 }));
 
@@ -43,7 +42,7 @@ const TotalSales = () => {
 
   return (
     <Card
-    raised={true}
+      raised={true}
     >
       <CardContent>
         <Grid
@@ -61,8 +60,8 @@ const TotalSales = () => {
                 TOTAL SALES
               </Typography>
               <Tooltip TransitionComponent={Zoom} title={<Typography variant="subtitle1">This is the sum of the subtotals for each sale after applying your discount code.</Typography>}>
-                <IconButton aria-label="delete" style={{padding:'0px', marginLeft:'10px', paddingBottom: '10px'}}>
-                  <InfoIcon fontSize="small"/>
+                <IconButton aria-label="delete" style={{ padding: '0px', marginLeft: '10px', paddingBottom: '10px' }}>
+                  <InfoIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             </Grid>
@@ -77,10 +76,6 @@ const TotalSales = () => {
       </CardContent>
     </Card>
   );
-};
-
-TotalSales.propTypes = {
-  className: PropTypes.string
 };
 
 export default TotalSales;

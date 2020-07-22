@@ -8,7 +8,7 @@ const MonthlyCommissionsComponent = () => {
   var monthCreated = api.getMonthCreated();
   var data = api.dashboardData.monthlyCommissions as any;
   var currDate = new Date();
-  
+
   const monthLookup = {
     0: "Jan",
     1: "Feb",
@@ -34,9 +34,9 @@ const MonthlyCommissionsComponent = () => {
 
   const state = {
     series: [{
-        name: "Commissions Amount ($)",
-        data: data,
-        colors:['#F44336']
+      name: "Commissions Amount ($)",
+      data: data,
+      colors: ['#F44336']
     }],
     options: {
       chart: {
@@ -48,7 +48,7 @@ const MonthlyCommissionsComponent = () => {
         },
         toolbar: {
           tools: {
-            download:false
+            download: false
           }
         }
       },
@@ -73,15 +73,15 @@ const MonthlyCommissionsComponent = () => {
         categories: monthLabels
       }
     },
-    
-    
+
+
   } as any;
 
   return (
     <Card>
       <CardContent>
         <div id="chart">
-          <Chart options={state.options} series={state.series} type="line" height={350}/>
+          <Chart options={state.options} series={state.series} type="line" height={350} />
         </div>
       </CardContent>
     </Card>

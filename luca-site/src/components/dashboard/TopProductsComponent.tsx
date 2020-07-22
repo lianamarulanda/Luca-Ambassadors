@@ -20,39 +20,39 @@ const TopProductsComponent = () => {
   }
 
   const state = {
-  series: [{
-    name: "Quantities Sold",
-    data: productQuantities,
-  }],
-  options: {
-    chart: {
-      type: 'bar',
-      height: 350,
-      toolbar: {
-        tools: {
-          download:false
+    series: [{
+      name: "Quantities Sold",
+      data: productQuantities,
+    }],
+    options: {
+      chart: {
+        type: 'bar',
+        height: 350,
+        toolbar: {
+          tools: {
+            download: false
+          }
+        },
+      },
+      fill: {
+        colors: ['#83A672'],
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
         }
       },
+      dataLabels: {
+        enabled: false
+      },
+      xaxis: {
+        categories: productLabels,
+      },
+      title: {
+        text: 'Top 5 Products Sold',
+        align: 'left'
+      },
     },
-    fill: {
-      colors: ['#83A672'],
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    xaxis: {
-      categories: productLabels,
-    },
-    title: {
-      text: 'Top 5 Products Sold',
-      align: 'left'
-    },
-  },
 
   } as any;
 
@@ -60,12 +60,12 @@ const TopProductsComponent = () => {
     <Card>
       <CardContent>
         <div id="chart">
-          <Chart options={state.options} series={state.series} type="bar" height={350}/>
+          <Chart options={state.options} series={state.series} type="bar" height={350} />
         </div>
       </CardContent>
-  </Card>
+    </Card>
   );
 }
 export default TopProductsComponent;
 
-      
+

@@ -12,8 +12,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import BannerComponent from './BannerComponent';
 
 const initialFormData = Object.freeze({
@@ -27,7 +25,6 @@ const AdminComponent = (props: any) => {
   const [announcement, updateAnnouncement] = React.useState(initialFormData);
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
-  
 
   const openDialog = () => {
     setOpen(true);
@@ -45,7 +42,7 @@ const AdminComponent = (props: any) => {
 
   const handleMessage = (event: any) => {
     updateAnnouncement({
-      ...announcement, 
+      ...announcement,
       [event.target.name]: event.target.value.trim()
     });
   };
@@ -65,8 +62,8 @@ const AdminComponent = (props: any) => {
 
   return (
     <Container maxWidth="lg" className={classes.container}>
-      <Typography variant="h4" gutterBottom style={{textAlign: 'left', fontWeight: 700, marginBottom:'30px'}}>
-      Overview
+      <Typography variant="h4" gutterBottom style={{ textAlign: 'left', fontWeight: 700, marginBottom: '30px' }}>
+        Overview
       </Typography>
       <Grid
         container
@@ -95,7 +92,7 @@ const AdminComponent = (props: any) => {
           sm={6}
           xl={3}
           xs={12}
-        > 
+        >
         </Grid>
         <Grid
           item
@@ -111,12 +108,12 @@ const AdminComponent = (props: any) => {
           md={6}
           xl={3}
           xs={12}
-          
+
         >
         </Grid>
         <Grid container>
           <Grid item>
-            <Typography variant="h4" style={{fontWeight: 700, padding:'22px'}}>
+            <Typography variant="h4" style={{ fontWeight: 700, padding: '22px' }}>
               Announcements
             </Typography>
             <Button variant="contained" className={classes.button} onClick={() => openDialog()} autoFocus>
@@ -124,46 +121,46 @@ const AdminComponent = (props: any) => {
             </Button>
             <Dialog open={openPopup} onClose={handleClose} aria-labelledby="form-dialog-title">
               <DialogTitle id="form-dialog-title">Create New Announcement</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Type in the announcement below.
+              <DialogContent>
+                <DialogContentText>
+                  Type in the announcement below.
                     <br />
-                  </DialogContentText>
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="message"
-                    name="message"
-                    label="Announcement"
-                    fullWidth
-                    multiline
-                    rows={8}
-                    rowsMax={10}
-                    onChange={handleMessage}
-                    helperText = {announcement.message.length}
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="message"
+                  name="message"
+                  label="Announcement"
+                  fullWidth
+                  multiline
+                  rows={8}
+                  rowsMax={10}
+                  onChange={handleMessage}
+                  helperText={announcement.message.length}
 
-                  />
-                  <Grid item >
-                    { message !== "" &&
-                      <Typography variant="overline" className={classes.uploadSuccess} gutterBottom>
-                        { message }
-                      </Typography>
-                    }
-                    { error !== "" &&
-                      <Typography variant="overline" color="error" display="block" gutterBottom>
-                        { error }
-                      </Typography>
-                    }
-                  </Grid>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose} color="primary">
-                    Cancel
+                />
+                <Grid item >
+                  {message !== "" &&
+                    <Typography variant="overline" className={classes.uploadSuccess} gutterBottom>
+                      {message}
+                    </Typography>
+                  }
+                  {error !== "" &&
+                    <Typography variant="overline" color="error" display="block" gutterBottom>
+                      {error}
+                    </Typography>
+                  }
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  Cancel
                   </Button>
-                  <Button onClick={createAnnouncement} color="primary">
-                    Publish
+                <Button onClick={createAnnouncement} color="primary">
+                  Publish
                   </Button>
-                </DialogActions>
+              </DialogActions>
             </Dialog>
           </Grid>
         </Grid>
@@ -171,7 +168,7 @@ const AdminComponent = (props: any) => {
           item
           xs={12}
         >
-          <AnnouncementsComponent adminStatus={props.adminStatus}  />
+          <AnnouncementsComponent adminStatus={props.adminStatus} />
         </Grid>
         <Grid
           item
@@ -193,7 +190,7 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(4),
   },
   button: {
-    backgroundColor : '#83A672',
+    backgroundColor: '#83A672',
     color: 'white',
     '&:hover': {
       backgroundColor: '#2E5941',

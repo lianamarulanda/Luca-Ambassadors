@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
@@ -60,17 +59,17 @@ const TotalCommission = () => {
                 TOTAL COMMISSIONS
               </Typography>
               <Tooltip TransitionComponent={Zoom} title={<div><Typography variant="subtitle1">This is 20% of the total sales.</Typography><br /> <Typography variant="subtitle1">The calculation is (total sales) * .20</Typography></div>} >
-                <IconButton aria-label="delete" style={{color: "white", padding:'0px', marginLeft:'10px', paddingBottom: '10px'}}>
-                  <InfoIcon fontSize="small"/>
+                <IconButton aria-label="delete" style={{ color: "white", padding: '0px', marginLeft: '10px', paddingBottom: '10px' }}>
+                  <InfoIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             </Grid>
             <Typography
               color="inherit"
               variant="h3"
-              style={{fontWeight:520, textAlign:'left'}}
+              style={{ fontWeight: 520, textAlign: 'left' }}
             >
-            ${data.toFixed(2)}
+              ${data.toFixed(2)}
             </Typography>
           </Grid>
           <Grid item>
@@ -82,10 +81,6 @@ const TotalCommission = () => {
       </CardContent>
     </Card>
   );
-};
-
-TotalCommission.propTypes = {
-  className: PropTypes.string
 };
 
 export default TotalCommission;

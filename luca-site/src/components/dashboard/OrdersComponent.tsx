@@ -20,8 +20,8 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { id: 'number', label: 'Order Number', minWidth: 100, maxWidth: 100},
-  { id: 'date', label: 'Date', minWidth: 100, maxWidth: 100},
+  { id: 'number', label: 'Order Number', minWidth: 100, maxWidth: 100 },
+  { id: 'date', label: 'Date', minWidth: 100, maxWidth: 100 },
 ];
 
 interface Data {

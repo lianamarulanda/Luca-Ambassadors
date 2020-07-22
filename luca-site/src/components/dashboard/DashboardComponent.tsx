@@ -42,26 +42,25 @@ const DashboardComponent = (props: any) => {
     setOpen(false);
   };
 
-  // character limit of alert message is 80 for staying on one line
   return (
     <Container maxWidth="lg" className={classes.container}>
-      { banner !== "" &&
-        <Snackbar 
-          open={announcement} 
+      {banner !== "" &&
+        <Snackbar
+          open={announcement}
           onClose={handleClose}
-          anchorOrigin={{ vertical: 'top', horizontal:'center'}}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           className={classes.snackbar}
-          >
-            <Alert onClose={handleClose} severity="info">
-              <Typography variant="subtitle1" style={{fontWeight: "bolder"}}> 
-                {banner}
-              </Typography>
-            </Alert>
+        >
+          <Alert onClose={handleClose} severity="info">
+            <Typography variant="subtitle1" style={{ fontWeight: "bolder" }}>
+              {banner}
+            </Typography>
+          </Alert>
         </Snackbar>
       }
-      <HeaderComponent title="Dashboard" component="dashboard" style={{marginBottom:'30px'}}/>
-      <Divider light style={{marginBottom:'15px'}}/>
-      <Typography variant="h4" gutterBottom style={{textAlign: 'left', fontWeight: 700, marginBottom:'30px'}}>
+      <HeaderComponent title="Dashboard" component="dashboard" style={{ marginBottom: '30px' }} />
+      <Divider light style={{ marginBottom: '15px' }} />
+      <Typography variant="h4" gutterBottom style={{ textAlign: 'left', fontWeight: 700, marginBottom: '30px' }}>
         Overview
       </Typography>
       <Grid
@@ -70,54 +69,39 @@ const DashboardComponent = (props: any) => {
       >
         <Grid
           item
-          // lg={4}
-          // sm={6}
-          // xl={3}
           xs={4}
         >
           <TotalCheckouts />
         </Grid>
         <Grid
           item
-          // lg={4}
-          // sm={6}
-          // xl={3}
           xs={4}
         >
-          <TotalSales />  
+          <TotalSales />
         </Grid>
         <Grid
           item
-          // lg={4}
-          // sm={6}
-          // xl={3}
           xs={4}
-        > 
+        >
           <TotalCommission />
         </Grid>
         <Grid
           item
-          // lg={6}
-          // md={12}
-          // xl={9}
           xs={6}
         >
           <MonthlyCommissionsComponent />
         </Grid>
         <Grid
           item
-          // lg={6}
-          // md={6}
-          // xl={3}
           xs={6}
-        
+
         >
           <TopProductsComponent />
         </Grid>
         <Grid container>
           <Grid item>
-            <Typography variant="h4" style={{fontWeight: 700, padding:'22px'}}>
-            Your orders
+            <Typography variant="h4" style={{ fontWeight: 700, padding: '22px' }}>
+              Your orders
             </Typography>
           </Grid>
         </Grid>
@@ -128,29 +112,25 @@ const DashboardComponent = (props: any) => {
           <OrdersComponent />
         </Grid>
         <Grid container>
-          <Typography variant="h4" style={{fontWeight: 700, padding:'22px'}}>
+          <Typography variant="h4" style={{ fontWeight: 700, padding: '22px' }}>
             Announcements
           </Typography>
           <Tooltip title={<Typography variant="subtitle1">Click on any announcement to learn more.</Typography>}>
-            <IconButton style={{padding:'0px', marginLeft:'3px', marginTop:'8px'}}>
-              <InfoIcon fontSize="small"/>
+            <IconButton style={{ padding: '0px', marginLeft: '3px', marginTop: '8px' }}>
+              <InfoIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </Grid>
         <Grid
           item
-          // lg={8}
-          // md={12}
-          // xl={9}
           xs={12}
         >
-          <AnnouncementsComponent adminStatus={props.adminStatus}/>
+          <AnnouncementsComponent adminStatus={props.adminStatus} />
         </Grid>
       </Grid>
     </Container>
   )
 }
-
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;

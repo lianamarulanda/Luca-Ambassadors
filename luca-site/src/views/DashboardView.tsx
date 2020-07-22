@@ -9,7 +9,6 @@ import LoadComponent from '../components/layout/LoadComponent';
 import AdminComponent from '../components/dashboard/AdminComponent';
 import DashboardComponent from '../components/dashboard/DashboardComponent';
 
-
 const App: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
@@ -18,14 +17,16 @@ const App: React.FC = () => {
   const [admin, setAdmin] = React.useState(false);
 
   React.useEffect(() => {
-    if (!api.isLoggedIn()) {;
+    if (!api.isLoggedIn()) {
       history.push('/login');
     } else {
       api.checkAdminStatus()
         .then((status: boolean) => {
           if (status) {
             setAdmin(true);
-            getDashboardData();
+            if (!loaded) {
+              getAnnouncements();
+            }
           }
           else {
             if (!loaded) {
@@ -33,16 +34,31 @@ const App: React.FC = () => {
             }
           }
         })
+        .catch((error: any) => {
+        })
     }
   }, [history, api]);
 
   const getDashboardData = async () => {
-    await api.loadDashboardData();
-    setLoaded(true);
+    api.loadDashboardData()
+      .then(() => {
+        setLoaded(true);
+      })
+      .catch((error: any) => {
+      })
+  }
+
+  const getAnnouncements = async () => {
+    api.loadAnnouncements()
+      .then(() => {
+        setLoaded(true);
+      })
+      .catch((error: any) => {
+      })
   }
 
   if (!loaded) {
-    return(<LoadComponent />)
+    return (<LoadComponent />)
   }
 
   return (
@@ -50,10 +66,10 @@ const App: React.FC = () => {
       <CssBaseline />
       <Sidebar />
       <main className={classes.content}>
-        { admin &&
+        {admin &&
           <AdminComponent adminStatus={admin} />
         }
-        { !admin &&
+        {!admin &&
           <DashboardComponent adminStatus={admin} />
         }
       </main>
