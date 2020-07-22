@@ -11,13 +11,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../../util/api';
 import { useHistory } from 'react-router-dom';
 import LoadComponent from '../layout/LoadComponent';
+import register from '../../images/register.jpg';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
   },
   image: {
-    backgroundImage: 'url(https://scontent-iad3-1.cdninstagram.com/v/t51.2885-15/96798243_2968320346580445_1874245982508710636_n.jpg?_nc_cat=111&_nc_sid=8ae9d6&_nc_ohc=-5pf8yMRGPAAX_zfwRR&_nc_ht=scontent-iad3-1.cdninstagram.com&oh=d7506448b41f50c4e2328acd3cd21dc3&oe=5F05BB12)',
+    backgroundImage: `url(${register})`,
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],

@@ -8,5 +8,5 @@ function RegisterView() {
     </div>
   );
 }
-  
+
 export default RegisterView;
