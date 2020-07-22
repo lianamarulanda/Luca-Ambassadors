@@ -41,7 +41,7 @@ function SettingsView() {
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
       history.push('/login');
-    } 
+    }
   }, [history, api]);
 
 
@@ -51,8 +51,8 @@ function SettingsView() {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <HeaderComponent title="Settings" component="settings"/>
-          <Divider light style={{marginBottom:'40px'}}/>
+          <HeaderComponent title="Settings" component="settings" />
+          <Divider light style={{ marginBottom: '40px' }} />
           <SettingsComponent />
         </Container>
       </main>

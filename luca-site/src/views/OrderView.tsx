@@ -33,7 +33,7 @@ function OrderView() {
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
       history.push('/login');
-    } 
+    }
   }, [history, api]);
 
   return (
@@ -42,8 +42,8 @@ function OrderView() {
       <Sidebar />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <HeaderComponent title="Order Accessories" component="order"/>
-          <Divider light/>
+          <HeaderComponent title="Order Accessories" component="order" />
+          <Divider light />
           <OrderComponent />
         </Container>
       </main>
