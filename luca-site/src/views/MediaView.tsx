@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Sidebar from '../components/layout/SidebarComponent';
 import Container from '@material-ui/core/Container'
-import Typography from '@material-ui/core/Typography';
 import { DbContext } from '../util/api';
 import { useHistory } from 'react-router-dom';
 import LoadComponent from '../components/layout/LoadComponent';
@@ -34,7 +33,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function MediaView() {
-  // notes - could probably make title a lighter gray
   const classes = useStyles();
   const api = React.useContext(DbContext);
   const history = useHistory();
@@ -55,14 +53,18 @@ function MediaView() {
                 loadContent(images);
                 setLoaded(true);
               })
+              .catch((error: any) => {
+              })
           })
-      } 
+          .catch((error: any) => {
+          })
+      }
     }
   }, [history, api]);
 
 
   if (!loaded) {
-    return(<LoadComponent />)
+    return (<LoadComponent />)
   }
 
   return (
@@ -74,7 +76,7 @@ function MediaView() {
           <HeaderComponent adminStatus={admin} title={admin ? "Upload and Delete Content" : "Download Social Media Content"}
             component="download"
           />
-          <Divider light/>
+          <Divider light />
           <MediaComponent adminStatus={admin} content={content} />
         </Container>
       </main>
