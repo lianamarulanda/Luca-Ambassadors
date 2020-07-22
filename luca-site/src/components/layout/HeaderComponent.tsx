@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import flowerbg from '../../images/flowerbg.jpg';
 import dashboard from '../../images/dashboard2.jpg';
 import settings from '../../images/settings.jpg';
+import order from '../../images/settings.jpg';
 
 export default function HeaderComponent(props: any) {
 
@@ -16,7 +17,7 @@ export default function HeaderComponent(props: any) {
       break;
     }
     case "order": {
-      imageUrl = "https://scontent.ftpa1-2.fna.fbcdn.net/v/t1.0-9/85138546_2662676020526737_1613867041310113792_o.jpg?_nc_cat=102&_nc_sid=9267fe&_nc_ohc=oDlo3yYcw0oAX8xCF6A&_nc_ht=scontent.ftpa1-2.fna&oh=884ab7b139521dd5767666fa32abe393&oe=5F3AD87A";
+      imageUrl = order;
       break;
     }
     case "settings": {

@@ -242,7 +242,7 @@ export default function OrderComponent() {
             {orderData.activeStep === steps.length ? (
               <React.Fragment>
                 <Typography variant="h5" gutterBottom>
-                  Thank you for your order.
+                  Thank you for your order, {dbApi.userData.firstName}!
                 </Typography>
                 <Typography variant="subtitle1">
                   Your order number is #{orderApi.orderNumber}. We have emailed your order confirmation, and will

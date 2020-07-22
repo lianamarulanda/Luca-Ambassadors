@@ -10,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../util/api/';
 import { useHistory } from 'react-router-dom';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import FlowerBg from '../images/flowers.jpg';
 
 const useStyles = makeStyles((theme) => ({
@@ -39,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#4f4f4f',
     fontFamily: 'serif',
   },
-  gridTitle : {
+  gridTitle: {
     textAlign: 'left',
   },
   form: {
@@ -67,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   sentEmail: {
-    marginTop:'15px',
+    marginTop: '15px',
     color: '#17A697'
   }
 }));
@@ -100,10 +99,10 @@ function ResetPassView() {
 
   const handleChange = (event: any) => {
     updateFormData({
-        ...formData, // gets current state values, prevents from resetting key-val pair
+      ...formData, // gets current state values, prevents from resetting key-val pair
 
-        // if we change email field, [email] = testEmail@email
-        [event.target.name]: event.target.value.trim()
+      // if we change email field, [email] = testEmail@email
+      [event.target.name]: event.target.value.trim()
     });
   };
 
@@ -133,7 +132,7 @@ function ResetPassView() {
           </Link>
         </Grid>
         <div className={classes.paper}>
-          <Grid style={{alignItems: 'center', justifyContent:'center'}}>
+          <Grid style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Grid item className={classes.gridTitle}>
               <Typography className={classes.title} gutterBottom={true} component="h1" variant="h3">
                 Forgot Password?
@@ -169,19 +168,19 @@ function ResetPassView() {
                   Submit
                 </Button>
               </Grid>
-              { error !== "" && 
-              <div>
-                <Typography variant="overline" color="error" display="block" gutterBottom>
-                  { error }
-                </Typography>
-              </div>
+              {error !== "" &&
+                <div>
+                  <Typography variant="overline" color="error" display="block" gutterBottom>
+                    {error}
+                  </Typography>
+                </div>
               }
-              { sentEmail && 
-                <Grid item className={classes.sentEmail}> 
+              {sentEmail &&
+                <Grid item className={classes.sentEmail}>
                   <Typography variant="overline"> Email has been sent! It may take a few minutes to arrive.</Typography>
                 </Grid>
               }
-              <Box mt={33} style={{alignSelf:'center'}}>
+              <Box mt={33} style={{ alignSelf: 'center' }}>
                 <Copyright />
               </Box>
             </form>

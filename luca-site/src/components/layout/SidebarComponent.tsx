@@ -4,12 +4,11 @@ import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
-import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
+import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Avatar from '@material-ui/core/Avatar';
 import drawerImage from '../../images/sidebar.jpg';
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import LogoutIcon from '@material-ui/icons/ExitToApp'
@@ -32,7 +31,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawerPaper: {
       width: drawerWidth,
-      //background: 'linear-gradient(45deg, #F2E4D8 30%, #168C80 90%)',
       backgroundImage: 'url(' + drawerImage + ')',
     },
     // necessary for content to be below app bar
@@ -109,23 +107,23 @@ export default function Sidebar() {
         <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
         <List>
           <ListItem button className={classes.buttonText} onClick={() => redirect("dashboard")}>
-            <ListItemIcon className={classes.icon}> <DashboardIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <DashboardIcon /> </ListItemIcon>
             <ListItemText primary={"Dashboard"} />
           </ListItem>
           <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
-            <ListItemIcon className={classes.icon}> <ShoppingCartIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <ShoppingCartIcon /> </ListItemIcon>
             <ListItemText primary={"Order Accessories"} />
           </ListItem>
           <ListItem button className={classes.buttonText} onClick={() => redirect("download")}>
-            <ListItemIcon className={classes.icon}> <CloudDownloadIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <CloudDownloadIcon /> </ListItemIcon>
             <ListItemText primary={"Download Media"} />
           </ListItem>
           <ListItem button className={classes.buttonText} onClick={() => redirect("settings")}>
-            <ListItemIcon className={classes.icon}> <SettingsIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <SettingsIcon /> </ListItemIcon>
             <ListItemText primary={"Settings"} />
           </ListItem>
           <ListItem button className={classes.logoutButton} onClick={() => logout()}>
-            <ListItemIcon className={classes.icon}> <LogoutIcon/> </ListItemIcon>
+            <ListItemIcon className={classes.icon}> <LogoutIcon /> </ListItemIcon>
             <ListItemText primary={"Logout"} />
           </ListItem>
         </List>
