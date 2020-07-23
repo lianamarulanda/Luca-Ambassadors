@@ -87,18 +87,25 @@ export default function OrderComponent() {
   const [error, setError] = React.useState("");
   const [loaded, setLoaded] = React.useState(false);
   const [loadMessage, setMessage] = React.useState("Fetching products...");
+  const [verified, setVerified] = React.useState(true);
   const history = useHistory();
 
   React.useEffect(() => {
-    if (allProducts.length === 0) {
-      dbApi.getAllProducts()
-        .then((products) => {
-          updateAllProducts(products);
-          setLoaded(true);
-        })
-        .catch((error: any) => {
-          history.push('/error');
-        });
+
+    if (!dbApi.checkEmailVerification()) {
+      setVerified(false);
+      setLoaded(true);
+    } else {
+      if (allProducts.length === 0) {
+        dbApi.getAllProducts()
+          .then((products) => {
+            updateAllProducts(products);
+            setLoaded(true);
+          })
+          .catch((error: any) => {
+            history.push('/error');
+          });
+      }
     }
   }, []);
 
@@ -211,7 +218,7 @@ export default function OrderComponent() {
     return (<LoadComponent message={loadMessage} />);
   }
 
-  if (!dbApi.checkEmailVerification())
+  if (!verified)
     return (<VerifyComponent />);
 
   return (
