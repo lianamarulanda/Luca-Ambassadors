@@ -15,6 +15,7 @@ admin.initializeApp({
 
 const whitelist = [
   'http://localhost:3000',
+  'https://luca-ambassadors.web.app',
 ];
 
 // request parameter is a json object
