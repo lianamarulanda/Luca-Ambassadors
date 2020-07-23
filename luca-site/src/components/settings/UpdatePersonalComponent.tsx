@@ -10,6 +10,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import { DbContext } from '../../util/api';
 import LoadComponent from '../layout/LoadComponent';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton'
+import InfoIcon from '@material-ui/icons/Info';
 
 const useStyles = makeStyles({
   root: {
@@ -85,11 +88,15 @@ export default function UpdatePersonalInfo() {
       <div className={classes.paper}>
         <Grid>
           <form>
-            <Grid item className={classes.align}>
+            <Grid container className={classes.align}>
               <CardHeader
                 subheader="Update personal info"
               />
-              <Typography variant="caption"> You do not have to fill out all fields. </Typography>
+              <Tooltip title={<Typography variant="subtitle1">You need to fill out at least one field.</Typography>}>
+                <IconButton aria-label="delete" style={{  }}>
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Grid>
             <CardContent>
               {error !== "" &&

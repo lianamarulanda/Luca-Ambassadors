@@ -42,8 +42,8 @@ export default function LoadComponent(prop: any) {
               change.
             </Typography>
           </Grid>
-          <Grid item style={{ marginTop: '100px' }}>
-            <Typography variant="subtitle1" style={{ fontWeight: 100, color: '#515c5c', fontFamily: 'helvetica' }}>
+          <Grid item style={{ marginTop: '100px', marginLeft:'10px' }}>
+            <Typography variant="subtitle1" style={{ fontWeight: 100, color: '#959d9d', fontFamily: 'helvetica' }}>
               {prop.message}
             </Typography>
           </Grid>

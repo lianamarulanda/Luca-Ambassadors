@@ -116,7 +116,7 @@ const DashboardComponent = (props: any) => {
             Announcements
           </Typography>
           <Tooltip title={<Typography variant="subtitle1">Click on any announcement to learn more.</Typography>}>
-            <IconButton style={{ padding: '0px', marginLeft: '3px', marginTop: '8px' }}>
+            <IconButton style={{ marginLeft: '3px', marginTop: '8px' }}>
               <InfoIcon fontSize="small" />
             </IconButton>
           </Tooltip>
