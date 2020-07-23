@@ -173,7 +173,6 @@ export default function AnnouncementsComponent(props: any) {
           </TableHead>
           <TableBody>
             {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
-              console.log(row);
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                   {columns.map((column) => {

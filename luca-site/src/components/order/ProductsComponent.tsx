@@ -95,7 +95,7 @@ export default function ProductsComponent(props: any) {
       newProducts.splice(index, 1);
       orderApi.orderRequest.order.line_items.splice(index, 1);
       orderApi.inventoryProductMap.delete(productTile.variants[0].id);
-      orderApi.subtotal -= productTile.variants[0].price;
+      orderApi.subtotal -= parseFloat(productTile.variants[0].price);
       // it is possible to add the new product bc not yet reached max capacity
     } else if (newProducts.length < selectionState.maxQuantity) {
       if (selectionState.currentPackage === "2 1 Bracelet + 1 Anklet" && newProducts.length === 1) {
@@ -113,7 +113,7 @@ export default function ProductsComponent(props: any) {
           quantity: 1
         });
         orderApi.inventoryProductMap.set(productTile.variants[0].id, productTile.variants[0].inventory_quantity);
-        orderApi.subtotal += productTile.variants[0].price;
+        orderApi.subtotal += parseFloat(productTile.variants[0].price);
       }
 
       // we reached max capacity, so if the max capacity is one, replace the item
@@ -128,7 +128,7 @@ export default function ProductsComponent(props: any) {
       orderApi.inventoryProductMap.clear();
       orderApi.inventoryProductMap.set(productTile.variants[0].id, productTile.variants[0].inventory_quantity);
       orderApi.subtotal = 0;
-      orderApi.subtotal += productTile.variants[0].price;
+      orderApi.subtotal += parseFloat(productTile.variants[0].price);
     }
 
     setProductSelection({

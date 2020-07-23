@@ -35,6 +35,7 @@ const App: React.FC = () => {
           }
         })
         .catch((error: any) => {
+          history.push('/error');
         })
     }
   }, [history, api]);
@@ -58,7 +59,7 @@ const App: React.FC = () => {
   }
 
   if (!loaded) {
-    return (<LoadComponent />)
+    return (<LoadComponent message={"If not redirected in a few seconds, please refresh the page."} />)
   }
 
   return (

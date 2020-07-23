@@ -32,31 +32,65 @@ export const addAdminRole = functions.https.onRequest((request, response) => {
 });
 
 export const getOrders = functions.https.onRequest((request, response) => {
-  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json?limit=250')
-  .then(async result => {
-    var allOrders = [] as object[];
-    // get all results that have a discount code applied
-    result.data.orders.forEach((order: any) => {
-      if (order.discount_codes.length !== 0 && order.discount_applications[0].type !== "automatic") {
-        allOrders.push(order);
-      }
-    })
+  const origin = request.headers.origin as string;
+  if (whitelist.indexOf(origin) > -1) {
+    response.set('Access-Control-Allow-Origin', origin);
+  }
 
-    var url = helper(result.headers.link);
-    while (url !== "") {
-      var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
-      nextOrders.data.orders.forEach((order: any) => {
-        if (order.discount_codes.length !== 0 && order.discount_applications[0].type !== "automatic") {
-          allOrders.push(order);
+  if (request.method === 'OPTIONS') {
+    response.set('Access-Control-Allow-Methods', 'POST')
+      .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+      .status(200)
+      .send();
+  } else {
+
+    var orders = {
+      codeOrders: [] as object[],
+      userOrders: [] as object[],
+    }
+
+    console.log("discount code passed in - " + request.body.discountCode);
+    axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json?limit=250')
+      .then(async result => {
+        // get all results that have a discount code applied
+        result.data.orders.forEach((order: any) => {
+          if (order.discount_codes.length !== 0 && order.discount_codes[0].code.toLowerCase() === request.body.discountCode.toLowerCase())
+            orders.codeOrders.push(order);
+          if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email) {
+            var date = new Date(order.created_at);
+            orders.userOrders.push({
+              id: order.id,
+              date: date.toUTCString(),
+              number: order.name,
+            });
           }
+        })
+
+        console.log("first next: " + result.headers.link);
+        var url = helper(result.headers.link);
+        console.log("first url: " + url);
+        var count = 0;
+        while (url !== "") {
+          var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
+          nextOrders.data.orders.forEach((order: any) => {
+            if (order.discount_codes.length !== 0 && order.discount_codes[0].code.toLowerCase() === request.body.discountCode.toLowerCase())
+              orders.codeOrders.push(order);
+            if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email)
+              orders.userOrders.push(order);
+          })
+          console.log("while next: " + nextOrders.headers.link);
+          url = helper(nextOrders.headers.link);
+          console.log("while loop url: " + url);
+          count++;
+          console.log("count is: " + count);
+        }
+        console.log(orders.codeOrders.length);
+        response.set('Access-Control-Allow-Origin', '*').status(200).send(orders);
       })
-      url = helper(nextOrders.headers.link);
-    }  
-    response.set('Access-Control-Allow-Origin', '*').status(200).send(allOrders);
-  })
-  .catch((err: string) => {
-    response.set('Access-Control-Allow-Origin', '*').status(200).send(err);
-  });
+      .catch((err: string) => {
+        response.set('Access-Control-Allow-Origin', '*').status(200).send(err);
+      });
+  }
 });
 
 export const createOrder = functions.https.onRequest((request, response) => {
@@ -120,9 +154,9 @@ export const getProducts = functions.https.onRequest((request, response) => {
         })
 
         url = helper(nextProducts.headers.link);
-      }  
+      }
       response.set('Access-Control-Allow-Origin', '*').status(200).send(allProducts);
-    }) 
+    })
 });
 
 export const getDiscountCodes = functions.https.onRequest((request, response) => {
@@ -138,42 +172,43 @@ export const getDiscountCodes = functions.https.onRequest((request, response) =>
       .send();
   } else {
     axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + `@luca-bracelets.myshopify.com/admin/api/2020-04/discount_codes/lookup.json?code=${request.body.title}`)
-    .then((result: any) => {
-      if (result.status === 200) {
-        response.status(200).send(true);
-      }
-    })
-    .catch((err: any) => {
-      if (err.response.statusText === 'Not Found')
-        response.status(200).send(false);
-      else
-        response.status(400).send(err);
-    });
+      .then((result: any) => {
+        if (result.status === 200) {
+          response.status(200).send(true);
+        }
+      })
+      .catch((err: any) => {
+        if (err.response.statusText === 'Not Found')
+          response.status(200).send(false);
+        else
+          response.status(400).send(err);
+      });
   }
 });
 
 function helper(inputString: string): string {
-  
+
   if (inputString === undefined)
     return "";
 
-  if (inputString.includes(`rel="next"`) && !inputString.includes(`rel="previous"`)) {
-      // split by comma b/c , indicates split between next/prev
-      var linkArr = inputString.split(',');
-      if (!inputString.includes(`rel="previous"`))
-        var nextString = linkArr[0];
-      else 
-        var nextString = linkArr[1];
-      // split by semi colon to remove rel={next}
-      linkArr = nextString.split(';');
-      nextString = linkArr[0];
-      // remove < and >
-      nextString = nextString.slice(9, nextString.length-1);
+  if (inputString.includes(`rel="next"`)) {
+    // split by comma b/c , indicates split between next/prev
+    var linkArr = inputString.split(',');
+    if (!inputString.includes(`rel="previous"`))
+      var nextString = linkArr[0];
+    else
+      var nextString = linkArr[1];
+    // split by semi colon to remove rel={next}
+    linkArr = nextString.split(';');
+    nextString = linkArr[0];
+    nextString = nextString.trim();
+    // remove < and >
+    nextString = nextString.slice(9, nextString.length - 1);
 
-      return nextString;
-    } else {
-      return "";
-    }
+    return nextString;
+  } else {
+    return "";
+  }
 }
 
 

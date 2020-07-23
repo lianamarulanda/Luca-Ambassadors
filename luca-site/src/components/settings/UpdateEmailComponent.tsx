@@ -56,7 +56,7 @@ export default function UpdateEmail() {
       [event.target.name]: event.target.value.trim()
     });
   };
-  
+
   const handleUpdate = async (event: any) => {
     event.preventDefault()
     setLoad(false);
@@ -72,6 +72,10 @@ export default function UpdateEmail() {
         setLoad(false);
       });
   };
+
+  if (!loaded) {
+    return (<LoadComponent message={"Updating Email..."} />);
+  }
 
   return (
     <Paper

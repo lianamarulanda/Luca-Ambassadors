@@ -14,13 +14,13 @@ export default class orders {
         "customer": {
           "first_name": "",
           "last_name": "",
-          "email" : "",
+          "email": "",
         },
         "test": true,
-        "email": "", 
+        "email": "",
         "send_receipt": true,
         "send_fullfillment_receipt": true,
-        "shipping_address": {          
+        "shipping_address": {
           "first_name": "",
           "last_name": "",
           "address1": "",

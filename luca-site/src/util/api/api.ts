@@ -16,8 +16,6 @@ export default class Api {
   private bannerRef: any;
   public userData: any;
   public dashboardData: any;
-  
-
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -57,127 +55,135 @@ export default class Api {
   }
 
   public async sendPassReset(email: string): Promise<void> {
-    return new Promise ((resolve, reject) => {
-      this.authentication.sendPasswordResetEmail(email).then(function() {
+    return new Promise((resolve, reject) => {
+      this.authentication.sendPasswordResetEmail(email).then(function () {
         resolve();
-      }).catch(function(error: any) {
+      }).catch(function (error: any) {
         if (error.code === "auth/user-not-found")
           reject("There is no account tied to this email!");
-        if (error.code === "auth/invalid-email")
+        else if (error.code === "auth/invalid-email")
           reject("Invalid email address!")
-        reject("An error occurred!");
+        else
+          reject("An error occurred!");
       });
     });
   }
 
-  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<string> {
-    return new Promise ((resolve, reject) => {
+  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<void> {
+    return new Promise((resolve, reject) => {
       // first, check if valid discount code 
       this.checkDiscountCode(discountCode)
-        .then((isValid: boolean) => {
-          if (!isValid)
-            reject("The ambassador code provided does not exist!");
-          else {
-            // create user in firebase authentication
-            this.authentication.createUserWithEmailAndPassword(email, password)
-              // create ambassador object in db
-              .then(() => { // A
-                this.amRef.add({ // B
-                  discountCode: discountCode
-                })
-                  // after adding the ambassador object, create the user object
-                  .then((ref: { id: any; }) => { // B
-                    this.usersRef.add({ // C
-                      firstName: firstName,
-                      lastName: lastName,
-                      email: email,
-                      ambassadorID: ref.id
-                    })
-                      // after creating user object, send an email verification - needs a then/catch?
-                      .then(() => { // C
-                        this.sendEmailVerification();
-                        resolve("");
-                      })
-                      .catch((error: any) => { // C
-                        reject("An error has occurred!");
-                      });                          
-                  })
-                  .catch((error: any) => { // B
-                    reject("An error has occurred!");
-                  });
+        .then(() => {
+          // create user in firebase authentication
+          this.authentication.createUserWithEmailAndPassword(email, password)
+            // create ambassador object in db
+            .then(() => {
+              this.amRef.add({
+                discountCode: discountCode
               })
-              // catch firebase authentication user creation errors
-              .catch(function(error: any) { // A
-                if (error.code === "auth/weak-password")
-                  reject("The passsword is too weak.");
-                if (error.code === "auth/email-already-in-use")
-                  reject("The email is already in use.");
-                if (error.code === "auth/invalid-email")
-                  reject("The email is invalid.");
+                // after adding the ambassador object, create the user object
+                .then((ref: { id: any; }) => {
+                  this.usersRef.add({ // C
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    ambassadorID: ref.id
+                  })
+                    // after creating user object, send an email verification
+                    .then(() => {
+                      this.sendEmailVerification();
+                      resolve();
+                    })
+                    // error with creating user db object
+                    .catch((error: any) => {
+                      reject("An error has occurred!");
+                    });
+                })
+                // error with creating ambassador db object
+                .catch((error: any) => {
+                  reject("An error has occurred!");
+                });
+            })
+            // catch firebase authentication user creation errors
+            .catch(function (error: any) {
+              if (error.code === "auth/weak-password")
+                reject("The passsword is too weak.");
+              else if (error.code === "auth/email-already-in-use")
+                reject("The email is already in use.");
+              else if (error.code === "auth/invalid-email")
+                reject("The email is invalid.");
+              else
                 reject("An error has occurred!");
-              });
-          }
+            });
         })
+        // handle error with discount code check
         .catch((error: any) => {
-          if (error === "already-in-use") {
+          if (error === "does-not-exist")
+            reject("The ambassador code does not exist!");
+          else if (error === "already-in-use")
             reject("The ambassador code is already in use!")
-          }
-          reject("An error has occurred!");
+          else
+            reject("An error has occurred!");
         });
     });
   }
 
-  public async checkDiscountCode(discountCode: string) : Promise<boolean> {
+  public async checkDiscountCode(discountCode: string): Promise<void> {
     return new Promise((resolve, reject) => {
       var request = {
         "title": discountCode
       }
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getDiscountCodes', request)
-      .then((response: any) => {
-        if (response.data) {
-          // check if already in use
-          this.amRef.get().then(function(snapshot: any) {
-            snapshot.forEach(function(doc: any) {
-              if (doc.data().discountCode.toLowerCase() === discountCode.toLowerCase()) {
-                reject("already-in-use");
-              }
+        .then((response: any) => {
+          if (response.data) {
+            // check if already in use
+            this.amRef.get().then(function (snapshot: any) {
+              snapshot.forEach(function (doc: any) {
+                if (doc.data().discountCode.toLowerCase() === discountCode.toLowerCase()) {
+                  reject("already-in-use");
+                }
+              })
+              resolve();
             })
-            resolve(true);
-          })
-          .catch((error: any) => {
-            reject(error);
-          })
-        }
-        else
-          resolve(false);
-      })
-      .catch((error: any) => {
-        reject(error);
-      });
+              .catch((error: any) => {
+                reject(error);
+              })
+          }
+          else
+            reject("does-not-exist");
+        })
+        .catch((error: any) => {
+          reject(error);
+        });
     })
   }
 
   public async sendEmailVerification(): Promise<void> {
     return new Promise((resolve, reject) => {
       var user = firebase.auth().currentUser;
-      user.sendEmailVerification().then(function() {
+      user.sendEmailVerification().then(function () {
         resolve();
-      }).catch(function(error: any) {
-        reject();
+      }).catch(function (error: any) {
+        reject(error);
       });
     })
   }
 
-  public async loginUser(email: string, password: string): Promise<string> {
+  public async loginUser(email: string, password: string): Promise<void> {
     return new Promise((resolve, reject) => {
       // firebase authentication login
       this.authentication.signInWithEmailAndPassword(email, password)
-        .then(async (user: any) => {
-          await this.loadUserData();
-          resolve("");
+        .then(async () => {
+          this.loadUserData()
+            .then(() => {
+              resolve();
+            })
+            .catch(() => {
+              reject("An error occurred!");
+            })
         })
         // handle login errors
-        .catch(function(error: any) {
+        .catch(function (error: any) {
           reject("Invalid email and/or password!")
         });
     })
@@ -185,9 +191,9 @@ export default class Api {
 
   public async logout(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.authentication.signOut().then(function() {
+      this.authentication.signOut().then(function () {
         resolve();
-      }).catch(function(error: any) {
+      }).catch(function (error: any) {
         // catch error with signing out
         reject();
       });
@@ -286,31 +292,18 @@ export default class Api {
 
   public async getOrders(discountCode: string): Promise<[]> {
     return new Promise((resolve, reject) => {
-      // local array to store all the orders filtered by user discount code - should i do this in the cloud function instead?
-      var codeOrders: any = [];
-      // array to store the orders that the user has made
-      var userOrders = [] as object[];
-
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders')
-      .then((response: any) => {
-        response.data.forEach((order: any) => {
-          if (order.discount_codes[0].code.toLowerCase() === discountCode.toLowerCase())
-            codeOrders.push(order);
-          if (order.customer !== undefined && order.customer.email !== null && order.customer.email === this.authentication.currentUser.email) {
-            var date = new Date(order.created_at);
-            userOrders.push({
-              id: order.id,
-              date: date.toUTCString(),
-              number: order.name
-            })
-          }
+      var orders = {
+        discountCode: discountCode,
+        email: this.authentication.currentUser.email
+      }
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders', orders)
+        .then((response: any) => {
+          this.dashboardData.userOrders = response.data.userOrders;
+          resolve(response.data.codeOrders);
         })
-        this.dashboardData.userOrders = userOrders;
-        resolve(codeOrders);
-      })
-      .catch((error: any) => {
-        reject(error);
-      });
+        .catch((error: any) => {
+          reject(error);
+        });
     });
   }
 
@@ -330,11 +323,11 @@ export default class Api {
         // .getMonth will return actual month - 1, which fits our indexes 
         if (typeof monthlyCommissions[date.getMonth()] === 'undefined') {
           monthlyCommissions[date.getMonth()] = 0;
-        } 
+        }
         monthlyCommissions[date.getMonth()] += (.20 * parseFloat(order.subtotal_price));
       }
       // handle product mapping
-      order.line_items.forEach((product: any) =>{
+      order.line_items.forEach((product: any) => {
         if (productMap.has(product.title)) {
           productMap.set(product.title, productMap.get(product.title) + product.quantity);
         } else {
@@ -353,7 +346,7 @@ export default class Api {
     }
 
     // sort productMap by value -> so highest values (counts) go first 
-    const sortedProducts= new Map(
+    const sortedProducts = new Map(
       Array
         .from(productMap)
         .sort((a, b) => {
@@ -382,39 +375,38 @@ export default class Api {
       );
 
       // Prompt the user to re-provide their sign-in credentials
-      user.reauthenticateWithCredential(credential).then(function() {
+      user.reauthenticateWithCredential(credential).then(function () {
         // User re-authenticated.
         // can now update the password
         var newPass = newPassword;
-    
-        user.updatePassword(newPass).then(function() {
+
+        user.updatePassword(newPass).then(function () {
           // Update successful.
           resolve("Password updated successfully!");
         }).catch((err: any) => {
           // an error happened w/update password
           if (err.code === "auth/weak-password")
             reject("Password is not strong enough!")
-          reject("An error has occurred.");
+          else
+            reject("An error has occurred.");
         });
-
-      }).catch(function(error: any) {
+      }).catch(function (error: any) {
         // An error happened w/reauthentication- perhaps old password is wrong
         if (error.code === "auth/wrong-password")
           reject("Invalid old password!");
-        reject("An error has occurred.")
+        else
+          reject("An error has occurred.")
       });
     });
   }
 
-  public async updateEmail(newEmail: string, confirmEmail: string, password: string) : Promise<string> {
+  public async updateEmail(newEmail: string, confirmEmail: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (confirmEmail !== newEmail) {
         reject("Emails not equal!");
         return;
       }
 
-      // include check to see if email already equals curr email? 
-      
       var user = this.authentication.currentUser;
       var oldEmail = user.email;
       var credential = firebase.auth.EmailAuthProvider.credential(
@@ -432,35 +424,45 @@ export default class Api {
             .then((snapshot: any) => {
               if (snapshot.empty) {
                 reject("An error has occurred.");
-                // do i need to return here?
+                return;
               }
-            
-              snapshot.forEach(async (doc : any) => {
-                // do i need a .then() / .catch() here?
-                await this.usersRef.doc(doc.id).update({email: newEmail});
-                await this.loadUserData();
-                resolve(`Successfully updated email! Please check your inbox to verify ${newEmail}`);
-                this.sendEmailVerification();
+              snapshot.forEach(async (doc: any) => {
+                this.usersRef.doc(doc.id).update({ email: newEmail })
+                  .then(() => {
+                    this.loadUserData()
+                      .then(() => {
+                        resolve(`Successfully updated email! Please check your inbox to verify ${newEmail}`);
+                        this.sendEmailVerification();
+                      })
+                      .catch((error: any) => {
+                        reject("An error has occurred.")
+                      })
+                  })
+                  .catch((error: any) => {
+                    reject("An error has occurred.")
+                  })
               });
             })
             .catch((err: any) => {
-              // Error happened w database update
+              // Error happened w database query
               reject("An error has occurred.");
             });
-
-        }).catch(function(error: any) {
+        }).catch(function (error: any) {
           // An error happened w/updating email in authentication
           if (error.code === "auth/invalid-email")
             reject("Invalid email!");
-          if (error.code === "auth/email-already-in-use")
+          else if (error.code === "auth/email-already-in-use")
             reject("Email already in use!");
-          reject("An error has occurred.")
+          else
+            reject("An error has occurred.")
         });
 
-      }).catch(function(error: any) {
-        // An error happened w/reauthenticating - perhaps pass is wrong
-          if (error.code === "auth/wrong-password")
+      }).catch(function (error: any) {
+        // An error happened w/reauthenticating
+        if (error.code === "auth/wrong-password") {
           reject("Invalid password!");
+          return;
+        }
         reject("An error has occurred.")
       });
     });
@@ -468,11 +470,11 @@ export default class Api {
 
   public async updatePersonalInfo(firstName: string, lastName: string, amCode: string, password: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
+      var updatedUser = {} as any;
 
       if (firstName === "" && lastName === "" && amCode === "") {
         reject("Please fill out at least one of the fields!")
       }
-
       var user = this.authentication.currentUser;
       var credential = firebase.auth.EmailAuthProvider.credential(
         user.email,
@@ -481,40 +483,74 @@ export default class Api {
 
       // re-authenticate user using given password
       user.reauthenticateWithCredential(credential).then(async () => {
-        // query user in database baed on the current logged in user email 
+        // query user in database based on the current logged in user email 
         this.usersRef.where('email', '==', user.email).get()
           .then((snapshot: any) => {
             if (snapshot.empty) {
               reject("An error has occurred.");
               return;
-            } snapshot.forEach(async (doc : any) => {
-              // update database for filled in fields
+            } snapshot.forEach(async (doc: any) => {
+              updatedUser = doc.data();
+
               if (firstName !== "") {
-                // update firstName - do i need to await?
-                this.usersRef.doc(doc.id).update({firstName: firstName});
+                // update firstName
+                updatedUser.firstName = firstName;
               }
               if (lastName !== "") {
-                // update lastName - await?
-                this.usersRef.doc(doc.id).update({lastName: lastName});
+                // update lastName
+                updatedUser.lastName = lastName;
               }
               if (amCode !== "") {
-                // update ambassador code - await?
-                this.amRef.doc(doc.data().ambassadorID).update({discountCode: amCode});
+                // update ambassador code
+                this.checkDiscountCode(amCode)
+                  .then(() => {
+                    this.amRef.doc(doc.data().ambassadorID).update({ discountCode: amCode })
+                      .then(() => {
+                        this.usersRef.doc(doc.id).update(updatedUser)
+                          .then(async () => {
+                            await this.loadUserData();
+                            resolve("Update successful!");
+                          })
+                          .catch((error: any) => {
+                            reject("An error has occurred.");
+                          })
+                      })
+                      .catch((error: any) => {
+                        reject("An error has occurred.");
+                      })
+                  })
+                  .catch((error: string) => {
+                    if (error === "does-not-exist") {
+                      reject("The ambassador code does not exist!");
+                    }
+                    else if (error === "already-in-use") {
+                      reject("The ambassador code is already in use!")
+                    }
+                    else
+                      reject("An error has occurred!");
+                  })
+              } else {
+                this.usersRef.doc(doc.id).update(updatedUser)
+                  .then(async () => {
+                    await this.loadUserData();
+                    resolve("Update successful!");
+                  })
+                  .catch((error: any) => {
+                    reject("An error has occurred.");
+                  })
               }
-              await this.loadUserData();
-              resolve("Update successful!");
             });
           }).catch((err: any) => {
-            // Error happened w database query
+            // Error happened w user database query
             reject("An error has occurred.");
             return;
           });
-      }).catch(function(error: any) {
+      }).catch(function (error: any) {
         // error occured w/reauthentication
         if (error.code === "auth/wrong-password")
           reject("Invalid password!");
         reject("An error has occurred.")
-      }); 
+      });
     });
   }
 
@@ -523,34 +559,37 @@ export default class Api {
       var allProducts = [] as object[];
 
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getProducts')
-      .then((response: any) => {
-        allProducts = response;
-        resolve(allProducts);
-      })
+        .then((response: any) => {
+          allProducts = response;
+          resolve(allProducts);
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
     });
   }
-  
+
   public placeOrder(orderRequest: object): Promise<number> {
     return new Promise((resolve, reject) => {
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
-      .then((response: any) => {
-        resolve(response.data.order.order_number);
-      })
-      .catch((error: any) => {
-        reject(error);
-      })
+        .then((response: any) => {
+          resolve(response.data.order.order_number);
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
     });
   }
 
   public async uploadPhoto(picture: any): Promise<string> {
     return new Promise((resolve, reject) => {
-
-      if (picture.title === ""){
+      if (picture.title === "") {
         reject("Please give the image a title!");
+        return;
       }
       if (picture.pictureName === "") {
-        console.log("I got to empty picture");
         reject("Please upload an image!");
+        return;
       }
 
       var currDate = new Date();
@@ -558,7 +597,6 @@ export default class Api {
       var imageRef = this.storage.ref().child(picture.pictureName);
       imageRef.put(picture.picture)
         .then(async (snapshot: any) => {
-          console.log(snapshot);
           snapshot.ref.getDownloadURL()
             .then((url: string) => {
               this.mediaRef.doc(picture.pictureName).set({
@@ -587,12 +625,12 @@ export default class Api {
     return new Promise((resolve, reject) => {
       this.storage.ref().child(picture.pictureName).delete().then(() => {
         // File deleted successfully in storage, now delete in database
-        this.mediaRef.doc(picture.pictureName).delete().then(function() {
+        this.mediaRef.doc(picture.pictureName).delete().then(function () {
           resolve();
-        }).catch(function(error: any) {
-            reject("An error occurred!");
+        }).catch(function (error: any) {
+          reject("An error occurred!");
         });
-      }).catch(function(error: any) {
+      }).catch(function (error: any) {
         reject("An error occurred!");
       });
     })
@@ -601,15 +639,14 @@ export default class Api {
   public async loadAllPhotos(): Promise<object[]> {
     return new Promise((resolve, reject) => {
       var images = [] as object[];
-      this.mediaRef.orderBy("date", "desc").get().then(function(querySnapshot: any) {
-        querySnapshot.forEach(function(image: any) {
+      this.mediaRef.orderBy("date", "desc").get().then(function (querySnapshot: any) {
+        querySnapshot.forEach(function (image: any) {
           images.push({
             title: image.data().title,
             url: image.data().url,
             name: image.id,
           })
         });
-        console.log(images);
         resolve(images);
       })
         .catch((error: any) => {
@@ -633,28 +670,28 @@ export default class Api {
           })
           .catch((error: any) => {
             reject("An error occurred!");
-          }) 
+          })
       }
     })
   }
 
-  public async loadAnnouncements(): Promise<void> { 
+  public async loadAnnouncements(): Promise<void> {
     return new Promise((resolve, reject) => {
       var announcements = [] as object[];
-        this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
-          querySnapshot.forEach(function(announcement: any) {
-            announcements.push({
-              description: announcement.data().description,
-              date: announcement.data().date,
-            })
-          });
-          this.dashboardData.announcements = announcements;
-          resolve();
-        })
-          .catch((error: any) => {
-            reject("An error occurred!");
+      this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
+        querySnapshot.forEach(function (announcement: any) {
+          announcements.push({
+            description: announcement.data().description,
+            date: announcement.data().date,
           })
+        });
+        this.dashboardData.announcements = announcements;
+        resolve();
       })
+        .catch((error: any) => {
+          reject("An error occurred!");
+        })
+    })
   }
 
   public async getBanner(): Promise<string> {
@@ -671,7 +708,7 @@ export default class Api {
 
   public async createBanner(banner: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.bannerRef.doc("currentBanner").set({ 
+      this.bannerRef.doc("currentBanner").set({
         description: banner
       })
         .then(() => {
@@ -686,21 +723,20 @@ export default class Api {
   public async deleteAnnouncement(announcement: any): Promise<string> {
     return new Promise((resolve, reject) => {
       this.announcements.where('date', '==', announcement.date).get()
-      .then((querySnapshot: any) => {
-        querySnapshot.forEach((announcement: any) =>{
-          this.announcements.doc(announcement.id).delete()
-            .then(() => {
-              resolve("Announcement successfully deleted!");
-            })
-            .catch((error: any) => {
-              reject("An error occurred with deleting the announcement.");
-            })
+        .then((querySnapshot: any) => {
+          querySnapshot.forEach((announcement: any) => {
+            this.announcements.doc(announcement.id).delete()
+              .then(() => {
+                resolve("Announcement successfully deleted!");
+              })
+              .catch((error: any) => {
+                reject("An error occurred with deleting the announcement.");
+              })
+          })
         })
-      })
-      .catch((error: any) => {
-        console.log(error.message);
-        reject("An error occurred with deleting the announcement.");
-      }) 
+        .catch((error: any) => {
+          reject("An error occurred with deleting the announcement.");
+        })
     });
   }
 
@@ -714,7 +750,7 @@ export default class Api {
           reject("An error occurred with deleting the announcement.");
         })
     })
-  } 
+  }
 
 }
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-    BrowserRouter,
-    Route,
-    Switch,
-  } from 'react-router-dom';
+  BrowserRouter,
+  Route,
+  Switch,
+} from 'react-router-dom';
 import LoginView from '../views/LoginView';
 import RegisterView from '../views/RegisterView';
 import Dashboard from '../views/DashboardView';
@@ -14,6 +14,7 @@ import VerifyEmailView from '../views/VerifyEmailView';
 import LoadComponent from '../components/layout/LoadComponent';
 import ResetPassView from '../views/ResetPassView';
 import MediaView from '../views/MediaView';
+import ErrorView from '../views/ErrorView';
 
 const Routes = (): JSX.Element => {
   const [firebaseInitialized, setFirebaseInitialized] = React.useState(false);
@@ -26,10 +27,10 @@ const Routes = (): JSX.Element => {
   });
 
   if (!firebaseInitialized) {
-    return(<LoadComponent />)
+    return (<LoadComponent message={"If not redirected in a few seconds, please refresh the page."} />)
   }
 
-  return(
+  return (
     <BrowserRouter>
       <Switch>
         <Route exact={true} path="/" component={Dashboard} />
@@ -41,6 +42,7 @@ const Routes = (): JSX.Element => {
         <Route exact={true} path="/verify" component={VerifyEmailView} />
         <Route exact={true} path="/resetpassword" component={ResetPassView} />
         <Route exact={true} path="/download" component={MediaView} />
+        <Route exact={true} path="/error" component={ErrorView} />
       </Switch>
     </BrowserRouter>
   );

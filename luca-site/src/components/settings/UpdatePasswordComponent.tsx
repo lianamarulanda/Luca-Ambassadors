@@ -56,7 +56,7 @@ export default function UpdatePassword() {
       [event.target.name]: event.target.value.trim()
     });
   };
-  
+
   const handleUpdate = async (event: any) => {
     event.preventDefault()
     setLoad(false);
@@ -74,7 +74,7 @@ export default function UpdatePassword() {
   };
 
   if (!loaded) {
-    return (<LoadComponent />);
+    return (<LoadComponent message={"Updating Password..."} />);
   }
 
   return (

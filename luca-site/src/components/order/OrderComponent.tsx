@@ -13,6 +13,7 @@ import { ordersContext } from '../../util/orders';
 import { DbContext } from '../../util/api';
 import LoadComponent from '../layout/LoadComponent';
 import VerifyComponent from './VerifyComponent';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -85,6 +86,8 @@ export default function OrderComponent() {
   const [allProducts, updateAllProducts] = React.useState([] as object[]);
   const [error, setError] = React.useState("");
   const [loaded, setLoaded] = React.useState(false);
+  const [loadMessage, setMessage] = React.useState("Fetching products...");
+  const history = useHistory();
 
   React.useEffect(() => {
     if (allProducts.length === 0) {
@@ -94,7 +97,7 @@ export default function OrderComponent() {
           setLoaded(true);
         })
         .catch((error: any) => {
-
+          history.push('/error');
         });
     }
   }, []);
@@ -140,8 +143,8 @@ export default function OrderComponent() {
       orderApi.orderRequest.order.customer.last_name = dbApi.userData.lastName;
       orderApi.orderRequest.order.customer.email = dbApi.userData.email;
       orderApi.orderRequest.order.email = dbApi.userData.email;
-      orderApi.orderRequest.order.discount_codes.amount = orderApi.subtotal;
-      orderApi.orderRequest.order.total_discounts = orderApi.subtotal;
+      orderApi.orderRequest.order.discount_codes[0].amount = orderApi.subtotal.toString();
+      orderApi.orderRequest.order.total_discounts = orderApi.subtotal.toString();
       setError("");
       return true;
     }
@@ -154,6 +157,7 @@ export default function OrderComponent() {
         resolve(false);
       } else {
         setError("");
+        setMessage("Placing order... do not refresh the page.");
         setLoaded(false);
         dbApi.placeOrder(orderApi.orderRequest).then((orderNum: any) => {
           orderApi.orderNumber = orderNum;
@@ -204,7 +208,7 @@ export default function OrderComponent() {
   }
 
   if (!loaded) {
-    return (<LoadComponent />);
+    return (<LoadComponent message={loadMessage} />);
   }
 
   if (!dbApi.checkEmailVerification())

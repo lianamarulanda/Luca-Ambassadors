@@ -12,8 +12,8 @@ const api: Api = new Api();
 
 ReactDOM.render(
   <React.StrictMode>
-    <DbContext.Provider value = {api}>
-      <ordersContext.Provider value = {Orders} >
+    <DbContext.Provider value={api}>
+      <ordersContext.Provider value={Orders} >
         <App />
       </ordersContext.Provider>
     </DbContext.Provider>

@@ -54,9 +54,11 @@ function MediaView() {
                 setLoaded(true);
               })
               .catch((error: any) => {
+                history.push('/error');
               })
           })
           .catch((error: any) => {
+            history.push('/error');
           })
       }
     }
@@ -64,7 +66,7 @@ function MediaView() {
 
 
   if (!loaded) {
-    return (<LoadComponent />)
+    return (<LoadComponent message={"If not redirected in a few seconds, please refresh the page."} />)
   }
 
   return (

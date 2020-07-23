@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function LoadComponent() {
+export default function LoadComponent(prop: any) {
   const classes = useStyles();
 
   return (
@@ -40,6 +40,11 @@ export default function LoadComponent() {
             </Typography>
             <Typography variant="h5" component="h2" style={{ fontWeight: 600, color: '#159897', fontFamily: 'helvetica', marginLeft: '6px' }}>
               change.
+            </Typography>
+          </Grid>
+          <Grid item style={{ marginTop: '100px' }}>
+            <Typography variant="subtitle1" style={{ fontWeight: 100, color: '#515c5c', fontFamily: 'helvetica' }}>
+              {prop.message}
             </Typography>
           </Grid>
         </Grid>

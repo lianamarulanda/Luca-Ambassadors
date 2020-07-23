@@ -75,7 +75,7 @@ export default function UpdatePersonalInfo() {
   };
 
   if (!loaded) {
-    return (<LoadComponent />);
+    return (<LoadComponent message={"Updating info..."} />);
   }
 
   return (
@@ -89,6 +89,7 @@ export default function UpdatePersonalInfo() {
               <CardHeader
                 subheader="Update personal info"
               />
+              <Typography variant="caption"> You do not have to fill out all fields. </Typography>
             </Grid>
             <CardContent>
               {error !== "" &&

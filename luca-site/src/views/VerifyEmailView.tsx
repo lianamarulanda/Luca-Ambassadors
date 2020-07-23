@@ -20,7 +20,6 @@ import image7 from '../images/image7.jpg';
 import image8 from '../images/image8.jpg';
 import image9 from '../images/image9.jpg';
 
-
 const tileData = [
   {
     img: image1
@@ -81,6 +80,8 @@ export default function VerifyEmail() {
   const api = React.useContext(DbContext);
   const [resend, setResend] = React.useState(false);
   const [verified, setVerified] = React.useState(false);
+  const [error, setError] = React.useState(false);
+
 
   React.useEffect(() => {
     if (api.checkEmailVerification()) {
@@ -95,8 +96,15 @@ export default function VerifyEmail() {
   }
 
   const resendEmail = async () => {
-    await api.sendEmailVerification();
-    setResend(true);
+    api.sendEmailVerification()
+      .then(() => {
+        setError(false);
+        setResend(true);
+      })
+      .catch((error: any) => {
+        setResend(false);
+        setError(true);
+      })
   };
 
   return (
@@ -128,6 +136,13 @@ export default function VerifyEmail() {
         {resend &&
           <Grid item className={classes.resend}>
             <Typography variant="overline"> Email has been resent! It may take a few minutes to arrive.</Typography>
+          </Grid>
+        }
+        {error &&
+          <Grid item>
+            <Typography variant="overline" color="error">
+              An error occurred with resending the email! Please try again.
+            </Typography>
           </Grid>
         }
       </Container>
