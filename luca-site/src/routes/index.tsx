@@ -43,6 +43,7 @@ const Routes = (): JSX.Element => {
         <Route exact={true} path="/resetpassword" component={ResetPassView} />
         <Route exact={true} path="/download" component={MediaView} />
         <Route exact={true} path="/error" component={ErrorView} />
+        <Route component={ErrorView} />
       </Switch>
     </BrowserRouter>
   );

@@ -59,7 +59,7 @@ const App: React.FC = () => {
   }
 
   if (!loaded) {
-    return (<LoadComponent message={"If not redirected in a few seconds, please refresh the page."} />)
+    return (<LoadComponent message={"If not redirected in ~20 seconds, please refresh the page."} />)
   }
 
   return (
