@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles, withStyles, Theme } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -24,10 +24,27 @@ const columns: Column[] = [
   { id: 'date', label: 'Date', minWidth: 100, maxWidth: 100 },
 ];
 
-interface Data {
-  name: string;
-  date: string;
-}
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      backgroundColor: '#83A672',
+      color: theme.palette.common.white,
+    },
+    body: {
+      fontSize: 14,
+    },
+  }),
+)(TableCell);
+
+const StyledTableRow = withStyles(() =>
+  createStyles({
+    root: {
+      '&:nth-of-type(odd)': {
+        backgroundColor: '#fcfcfc',
+      },
+    },
+  }),
+)(TableRow);
 
 const useStyles = makeStyles({
   root: {
@@ -64,30 +81,30 @@ export default function StickyHeadTable() {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell
+                <StyledTableCell
                   key={column.id}
                   align={column.align}
                   style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
                   className={classes.title}
                 >
                   {column.label}
-                </TableCell>
+                </StyledTableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
               return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                   {columns.map((column) => {
                     const value = row[column.id];
                     return (
-                      <TableCell key={column.id} align={column.align}>
+                      <StyledTableCell key={column.id} align={column.align}>
                         {column.format && typeof value === 'number' ? column.format(value) : value}
-                      </TableCell>
+                      </StyledTableCell>
                     );
                   })}
-                </TableRow>
+                </StyledTableRow>
               );
             })}
           </TableBody>

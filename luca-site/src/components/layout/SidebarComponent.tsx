@@ -79,6 +79,16 @@ export default function Sidebar() {
   const classes = useStyles();
   const dbContext = React.useContext(DbContext);
   const history = useHistory();
+  const [status, setStatus] = React.useState("Brand Ambassador");
+
+  React.useEffect(() => {
+    dbContext.checkAdminStatus()
+      .then((status: boolean) => {
+        if (status)
+          setStatus("Owner");
+      })
+
+  }, [dbContext]);
 
   function redirect(link: string) {
     history.push(`/${link}`);
@@ -104,7 +114,7 @@ export default function Sidebar() {
         <Toolbar />
         <img src={logo} className={classes.logo} alt="logo" />
         <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
-        <Typography variant="subtitle1" className={classes.subText}>Brand Ambassador</Typography>
+        <Typography variant="subtitle1" className={classes.subText}>{status}</Typography>
         <List>
           <ListItem button className={classes.buttonText} onClick={() => redirect("dashboard")}>
             <ListItemIcon className={classes.icon}> <DashboardIcon /> </ListItemIcon>
