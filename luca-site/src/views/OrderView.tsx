@@ -9,6 +9,8 @@ import { DbContext } from '../util/api';
 import { useHistory } from 'react-router-dom';
 import HeaderComponent from '../components/layout/HeaderComponent';
 import Divider from '@material-ui/core/Divider';
+import TierComponent from '../components/order/TierComponent';
+import LoadComponent from '../components/layout/LoadComponent';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -29,12 +31,24 @@ function OrderView() {
   const classes = useStyles();
   const api = React.useContext(DbContext);
   const history = useHistory();
+  const [component, updateComponent] = React.useState("TierComponent");
+  const [loaded, setLoaded] = React.useState(false);
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
       history.push('/login');
+    } else {
+      setLoaded(true);
     }
   }, [history, api]);
+
+  const changeComponent = (component: string) => {
+    updateComponent(component);
+  }
+
+  if (!loaded) {
+    return (<LoadComponent />);
+  }
 
   return (
     <div className={clsx(classes.root)}>
@@ -44,7 +58,12 @@ function OrderView() {
         <Container maxWidth="lg" className={classes.container}>
           <HeaderComponent title="Order Accessories" component="order" />
           <Divider light />
-          <OrderComponent />
+          {component === "OrderComponent" &&
+            <OrderComponent />
+          }
+          {component === "TierComponent" &&
+            <TierComponent changeComponent={changeComponent} />
+          }
         </Container>
       </main>
     </div>

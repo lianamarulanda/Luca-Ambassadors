@@ -1,9 +1,9 @@
 import axios from 'axios';
-
 const firebaseConfig = require('../../config.json');
 
 // Might need to make this more efficient later
 var firebase = require("firebase");
+var salesTiers = require('../../saleTiers.json');
 
 export default class Api {
   private myDatabase: any;
@@ -79,7 +79,9 @@ export default class Api {
             // create ambassador object in db
             .then(() => {
               this.amRef.add({
-                discountCode: discountCode
+                discountCode: discountCode,
+                giftClaimStatus: false,
+                currTier: "0",
               })
                 // after adding the ambassador object, create the user object
                 .then((ref: { id: any; }) => {
@@ -191,7 +193,9 @@ export default class Api {
 
   public async logout(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.authentication.signOut().then(function () {
+      this.authentication.signOut().then(() => {
+        this.userData = {};
+        this.dashboardData = {};
         resolve();
       }).catch(function (error: any) {
         // catch error with signing out
@@ -250,6 +254,8 @@ export default class Api {
                     reject();
                   } else {
                     this.userData.discountCode = doc.data().discountCode;
+                    this.userData.giftClaimStatus = doc.data().giftClaimStatus;
+                    this.userData.currTier = doc.data().currTier;
                     resolve();
                   }
                 })
@@ -751,6 +757,79 @@ export default class Api {
         })
     })
   }
+
+  public async setGiftClaimStatus(newStatus: boolean, newTier: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.amRef.where("discountCode", "==", this.userData.discountCode).get()
+        .then((querySnapshot: any) => {
+          querySnapshot.forEach((doc: any) => {
+            this.amRef.doc(doc.id).update({
+              giftClaimStatus: newStatus,
+              currTier: newTier,
+            })
+              .then(() => {
+                this.userData.giftClaimStatus = newStatus;
+                this.userData.currTier = newTier;
+                resolve();
+              })
+              .catch((error: any) => {
+                reject(error);
+              })
+          })
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
+  }
+
+  public async getGiftClaimStatus(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      // can we optimize by not loading dashboard data?
+      this.loadDashboardData()
+        .then(() => {
+          if (!this.userData.giftClaimStatus) {
+            var totalCheckouts = this.dashboardData.totalCheckouts;
+            var currTier = this.userData.currTier;
+            var milestoneReached = false;
+
+            // check if user has reached a milestone
+            for (var i = 0; i < Object.keys(salesTiers).length; i++) {
+              var num = i.toString();
+              if (totalCheckouts === salesTiers[num]) {
+                if (currTier < Object.keys(salesTiers)[i]) {
+                  // milestone has been reached, update curr Tier
+                  milestoneReached = true;
+                }
+                break;
+              }
+            }
+
+            if (milestoneReached) {
+              this.setGiftClaimStatus(true, currTier)
+                .then(() => {
+                  this.userData.giftClaimStatus = true;
+                  resolve(true);
+                })
+                .catch((error: any) => {
+                  reject(error);
+                })
+            }
+            else {
+              resolve(false);
+            }
+          }
+          else {
+            resolve(true);
+          }
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
+  }
+
+
 
 }
 
