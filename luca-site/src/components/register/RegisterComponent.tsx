@@ -12,6 +12,9 @@ import { DbContext } from '../../util/api';
 import { useHistory } from 'react-router-dom';
 import LoadComponent from '../layout/LoadComponent';
 import register from '../../images/register.jpg';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton'
+import InfoIcon from '@material-ui/icons/Info';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,7 +87,8 @@ const initialFormData = Object.freeze({
   lastName: "",
   email: "",
   password: "",
-  discountCode: ""
+  discountCode: "",
+  specialCode: "",
 });
 
 export default function RegisterComponent() {
@@ -120,7 +124,7 @@ export default function RegisterComponent() {
       setError("Please fill out all required fields!");
     else {
       setLoad(true);
-      api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode)
+      api.createUser(formData.firstName, formData.lastName, formData.email, formData.password, formData.discountCode, formData.specialCode)
         .then(() => {
           history.push('/verify');
         })
@@ -160,7 +164,7 @@ export default function RegisterComponent() {
             </Grid>
             <form className={classes.form} noValidate>
               <Grid container spacing={2}>
-                <Grid item xs={false} sm={6}>
+                <Grid item xs={6}>
                   <TextField
                     autoComplete="fname"
                     name="firstName"
@@ -173,7 +177,7 @@ export default function RegisterComponent() {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid item xs={false} sm={6}>
+                <Grid item xs={6}>
                   <TextField
                     variant="outlined"
                     required
@@ -225,6 +229,28 @@ export default function RegisterComponent() {
                   autoComplete="discount-code"
                   onChange={handleChange}
                 />
+              </Grid>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    id="specialCode"
+                    label="Special Code"
+                    name="specialCode"
+                    autoComplete="special-code"
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Tooltip
+                  title={<Typography variant="subtitle1">If you have received a Special Code, type it in here. Otherwise, leave it blank</Typography>}
+                  style={{ backgroundColor: 'transparent' }}
+                >
+                  <IconButton aria-label="info">
+                    <InfoIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Grid>
               <Grid item>
                 <Button

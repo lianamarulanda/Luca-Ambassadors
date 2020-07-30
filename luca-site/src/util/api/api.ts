@@ -69,7 +69,7 @@ export default class Api {
     });
   }
 
-  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string): Promise<void> {
+  public async createUser(firstName: string, lastName: string, email: string, password: string, discountCode: string, influencerCode: string): Promise<void> {
     return new Promise((resolve, reject) => {
       // first, check if valid discount code 
       this.checkDiscountCode(discountCode)
@@ -85,11 +85,16 @@ export default class Api {
               })
                 // after adding the ambassador object, create the user object
                 .then((ref: { id: any; }) => {
+                  var influencer = false;
+                  if (influencerCode === '12345')
+                    influencer = true;
+
                   this.usersRef.add({ // C
                     firstName: firstName,
                     lastName: lastName,
                     email: email,
-                    ambassadorID: ref.id
+                    ambassadorID: ref.id,
+                    influencer: influencer
                   })
                     // after creating user object, send an email verification
                     .then(() => {
@@ -247,6 +252,7 @@ export default class Api {
               this.userData.firstName = doc.data().firstName;
               this.userData.lastName = doc.data().lastName;
               this.userData.email = doc.data().email;
+              this.userData.influencerStatus = doc.data().influencer;
               // query ambassador db to get discount code
               this.amRef.doc(doc.data().ambassadorID).get()
                 .then((doc: any) => {
@@ -796,12 +802,12 @@ export default class Api {
             // check if user has reached a milestone
             for (var i = 0; i < Object.keys(salesTiers).length; i++) {
               var num = i.toString();
-              if (totalCheckouts === salesTiers[num]) {
+              if (totalCheckouts >= salesTiers[num]) {
                 if (currTier < Object.keys(salesTiers)[i]) {
-                  // milestone has been reached, update curr Tier
+                  // milestone has been reached
                   milestoneReached = true;
+                  break;
                 }
-                break;
               }
             }
 
