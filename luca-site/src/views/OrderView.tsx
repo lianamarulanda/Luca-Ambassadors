@@ -11,6 +11,7 @@ import HeaderComponent from '../components/layout/HeaderComponent';
 import Divider from '@material-ui/core/Divider';
 import TierComponent from '../components/order/TierComponent';
 import LoadComponent from '../components/layout/LoadComponent';
+import VerifyComponent from '../components/order/VerifyComponent';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -33,11 +34,18 @@ function OrderView() {
   const history = useHistory();
   const [component, updateComponent] = React.useState("TierComponent");
   const [loaded, setLoaded] = React.useState(false);
+  const [influencer, setInfluencer] = React.useState(false);
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
       history.push('/login');
     } else {
+      if (!api.checkEmailVerification()) {
+        updateComponent("VerifyComponent")
+      } else if (api.userData.influencerStatus) {
+        updateComponent("OrderComponent");
+        setInfluencer(true);
+      }
       setLoaded(true);
     }
   }, [history, api]);
@@ -58,8 +66,11 @@ function OrderView() {
         <Container maxWidth="lg" className={classes.container}>
           <HeaderComponent title="Order Accessories" component="order" />
           <Divider light />
+          {component === "VerifyComponent" &&
+            <VerifyComponent />
+          }
           {component === "OrderComponent" &&
-            <OrderComponent />
+            <OrderComponent influencerStatus={influencer} />
           }
           {component === "TierComponent" &&
             <TierComponent changeComponent={changeComponent} />

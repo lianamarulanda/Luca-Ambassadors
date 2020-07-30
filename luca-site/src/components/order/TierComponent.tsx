@@ -149,7 +149,7 @@ export default function TierComponent(props: any) {
   return (
     <div className={classes.root}>
       {status &&
-        <ClaimItem name={api.userData.firstName} sale={nextTier} changeComponent={props.changeComponent} />
+        <ClaimItem name={api.userData.firstName} sale={nextTier} changeComponent={reset} />
       }
       <Grid container
         className={classes.main}

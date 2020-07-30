@@ -78,7 +78,7 @@ const orderState = Object.freeze({
   country: "",
 });
 
-export default function OrderComponent() {
+export default function OrderComponent(props: any) {
   const classes = useStyles();
   const orderApi = React.useContext(ordersContext);
   const dbApi = React.useContext(DbContext);
@@ -87,25 +87,18 @@ export default function OrderComponent() {
   const [error, setError] = React.useState("");
   const [loaded, setLoaded] = React.useState(false);
   const [loadMessage, setMessage] = React.useState("Fetching products...");
-  const [verified, setVerified] = React.useState(true);
   const history = useHistory();
 
   React.useEffect(() => {
-
-    if (!dbApi.checkEmailVerification()) {
-      setVerified(false);
-      setLoaded(true);
-    } else {
-      if (allProducts.length === 0) {
-        dbApi.getAllProducts()
-          .then((products) => {
-            updateAllProducts(products);
-            setLoaded(true);
-          })
-          .catch((error: any) => {
-            history.push('/error');
-          });
-      }
+    if (allProducts.length === 0) {
+      dbApi.getAllProducts()
+        .then((products) => {
+          updateAllProducts(products);
+          setLoaded(true);
+        })
+        .catch((error: any) => {
+          history.push('/error');
+        });
     }
   }, []);
 
@@ -217,9 +210,6 @@ export default function OrderComponent() {
   if (!loaded) {
     return (<LoadComponent message={loadMessage} />);
   }
-
-  if (!verified)
-    return (<VerifyComponent />);
 
   return (
     <React.Fragment>

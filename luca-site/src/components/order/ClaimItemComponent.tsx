@@ -34,7 +34,7 @@ export default function ClaimItem(props: any) {
   };
 
   const claimGift = () => {
-    props.changeComponent("OrderComponent");
+    props.changeComponent();
   };
 
   return (
