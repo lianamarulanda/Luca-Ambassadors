@@ -35,6 +35,11 @@ function OrderView() {
   const [component, updateComponent] = React.useState("TierComponent");
   const [loaded, setLoaded] = React.useState(false);
   const [influencer, setInfluencer] = React.useState(false);
+  const [sidebar, updateSidebar] = React.useState(false);
+
+  const sidebarToggle = () => {
+    updateSidebar(!sidebar);
+  }
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
@@ -61,10 +66,10 @@ function OrderView() {
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
-      <Sidebar />
+      <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <HeaderComponent title="Order Accessories" component="order" />
+          <HeaderComponent title="Order Accessories" component="order" sidebarToggle={sidebarToggle} />
           <Divider light />
           {component === "VerifyComponent" &&
             <VerifyComponent />

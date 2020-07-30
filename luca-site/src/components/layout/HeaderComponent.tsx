@@ -6,7 +6,9 @@ import Grid from '@material-ui/core/Grid';
 import flowerbg from '../../images/flowerbg.jpg';
 import dashboard from '../../images/dashboard2.jpg';
 import settings from '../../images/settings.jpg';
-import order from '../../images/settings.jpg';
+import order from '../../images/order.jpg';
+import MenuIcon from '@material-ui/icons/Menu';
+import IconButton from '@material-ui/core/IconButton';
 
 export default function HeaderComponent(props: any) {
 
@@ -53,9 +55,19 @@ export default function HeaderComponent(props: any) {
     mainFeaturedPostContent: {
       position: 'relative',
       padding: theme.spacing(3),
+      [theme.breakpoints.up('sm')]: {
+        padding: theme.spacing(3)
+      },
+
       [theme.breakpoints.up('md')]: {
         padding: theme.spacing(6),
         paddingRight: 0,
+      },
+    },
+    menuButton: {
+      marginLeft: theme.spacing(1),
+      [theme.breakpoints.up('sm')]: {
+        display: 'none',
       },
     },
   }));
@@ -65,8 +77,19 @@ export default function HeaderComponent(props: any) {
     <Paper className={classes.mainFeaturedPost}>
       {<img style={{ display: 'none' }} />}
       <div className={classes.overlay} />
-      <Grid container>
-        <Grid item md={6}>
+      <Grid container direction="row" alignItems="center">
+        <Grid item xs={12}>
+          <IconButton
+            color="inherit"
+            onClick={props.sidebarToggle}
+            aria-label="open drawer"
+            edge="start"
+            className={classes.menuButton}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Grid>
+        <Grid item xs={12}>
           <div className={classes.mainFeaturedPostContent}>
             <Typography component="h1" variant="h3" color="inherit" gutterBottom>
               {props.title}

@@ -36,7 +36,11 @@ function SettingsView() {
   const classes = useStyles();
   const api = React.useContext(DbContext);
   const history = useHistory();
+  const [sidebar, updateSidebar] = React.useState(false);
 
+  const sidebarToggle = () => {
+    updateSidebar(!sidebar);
+  }
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
@@ -48,10 +52,10 @@ function SettingsView() {
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
-      <Sidebar />
+      <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <HeaderComponent title="Settings" component="settings" />
+          <HeaderComponent title="Settings" component="settings" sidebarToggle={sidebarToggle} />
           <Divider light style={{ marginBottom: '40px' }} />
           <SettingsComponent />
         </Container>

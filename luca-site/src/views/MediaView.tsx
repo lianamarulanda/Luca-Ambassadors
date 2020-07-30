@@ -39,6 +39,11 @@ function MediaView() {
   const [admin, setAdmin] = React.useState(false);
   const [loaded, setLoaded] = React.useState(false);
   const [content, loadContent] = React.useState([] as object[]);
+  const [sidebar, updateSidebar] = React.useState(false);
+
+  const sidebarToggle = () => {
+    updateSidebar(!sidebar);
+  }
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
@@ -72,11 +77,12 @@ function MediaView() {
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
-      <Sidebar />
+      <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
           <HeaderComponent adminStatus={admin} title={admin ? "Upload and Delete Content" : "Download Social Media Content"}
             component="download"
+            sidebarToggle={sidebarToggle}
           />
           <Divider light />
           <MediaComponent adminStatus={admin} content={content} />

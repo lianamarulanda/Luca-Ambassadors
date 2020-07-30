@@ -9,6 +9,7 @@ import { ordersContext } from '../../util/orders';
 const useStyles = makeStyles((theme: any) => ({
   card: {
     padding: theme.spacing(2),
+    height: '80px',
     '&:hover': {
       backgroundColor: '#8CA888',
     },
@@ -21,7 +22,8 @@ const useStyles = makeStyles((theme: any) => ({
     backgroundColor: '#8CA888',
     textTransform: "none",
     width: '100%',
-    length: '100%'
+    length: '100%',
+    height: '80px',
   },
   title: {
     marginBottom: '30px'
@@ -157,7 +159,7 @@ export default function PackageComponent(props: any) {
         <Grid item xs={4}>
           <Button
             variant="outlined"
-            style={{ fontSize: '13px', padding: '18px' }}
+            style={{ fontSize: '13px' }}
             className={selectionState.packageSelection === "2 1 Bracelet + 1 Anklet" ? classes.selectedCard : classes.card}
             onClick={() => handleSelect("2 1 Bracelet + 1 Anklet")}>
             1 Bracelet + 1 Anklet
@@ -185,6 +187,7 @@ export default function PackageComponent(props: any) {
           <Button
             variant="outlined"
             className={selectionState.packageSelection === "1 Baseball Cap" ? classes.selectedCard : classes.card}
+            style={{ height: '70px' }}
             onClick={() => handleSelect("1 Baseball Cap")}
           >
             1 Baseball Cap

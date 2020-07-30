@@ -13,6 +13,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import BannerComponent from './BannerComponent';
+import HeaderComponent from '../layout/HeaderComponent';
+import Divider from '@material-ui/core/Divider';
 
 const initialFormData = Object.freeze({
   message: "",
@@ -62,6 +64,8 @@ const AdminComponent = (props: any) => {
 
   return (
     <Container maxWidth="lg" className={classes.container}>
+      <HeaderComponent title="Dashboard" component="dashboard" style={{ marginBottom: '30px' }} sidebarToggle={props.sidebarToggle} />
+        <Divider light style={{ marginBottom: '15px' }} />
       <Typography variant="h4" gutterBottom style={{ textAlign: 'left', fontWeight: 700, marginBottom: '30px' }}>
         Overview
       </Typography>

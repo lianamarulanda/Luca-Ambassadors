@@ -17,6 +17,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { useHistory } from 'react-router-dom';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import logo from '../../images/logo2.png'
+import Hidden from '@material-ui/core/Hidden';
 
 const drawerWidth = 240;
 
@@ -55,15 +56,20 @@ const useStyles = makeStyles((theme: Theme) =>
       color: 'white',
       fontWeight: 'bold',
       paddingTop: '15px',
+      textAlign:'center'
     },
     subText: {
       color: '#e3e6e6',
       paddingBottom: '70px',
       fontStyle: 'italic',
-      fontWeight: 'lighter'
+      fontWeight: 'lighter',
+      textAlign: 'center'
     },
     logoutButton: {
       marginTop: "300px",
+      [theme.breakpoints.down('sm')]: {
+        marginTop: "150px"
+      },
       color: 'white',
       '&:hover': {
         color: '#cfd3d3',
@@ -75,17 +81,46 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function Sidebar() {
+export default function Sidebar(props: any) {
   const classes = useStyles();
   const dbContext = React.useContext(DbContext);
   const history = useHistory();
-  const [status, setStatus] = React.useState("Brand Ambassador");
+  const [status, setStatus] = React.useState("");
+
+  const drawer = (
+    <List>
+      <ListItem button className={classes.buttonText} onClick={() => redirect("dashboard")}>
+        <ListItemIcon className={classes.icon}> <DashboardIcon /> </ListItemIcon>
+        <ListItemText primary={"Dashboard"} />
+      </ListItem>
+      <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
+        <ListItemIcon className={classes.icon}> <ShoppingCartIcon /> </ListItemIcon>
+        <ListItemText primary={"Order Accessories"} />
+      </ListItem>
+      <ListItem button className={classes.buttonText} onClick={() => redirect("download")}>
+        <ListItemIcon className={classes.icon}> <CloudDownloadIcon /> </ListItemIcon>
+        <ListItemText primary={"Download Media"} />
+      </ListItem>
+      <ListItem button className={classes.buttonText} onClick={() => redirect("settings")}>
+        <ListItemIcon className={classes.icon}> <SettingsIcon /> </ListItemIcon>
+        <ListItemText primary={"Settings"} />
+      </ListItem>
+      <ListItem button className={classes.logoutButton} onClick={() => logout()}>
+        <ListItemIcon className={classes.icon}> <LogoutIcon /> </ListItemIcon>
+        <ListItemText primary={"Logout"} />
+      </ListItem>
+    </List>
+  );
 
   React.useEffect(() => {
     dbContext.checkAdminStatus()
       .then((status: boolean) => {
         if (status)
           setStatus("Owner");
+        else if (dbContext.userData.influencerStatus)
+          setStatus("Influencer");
+        else
+          setStatus("Brand Ambassador");
       })
 
   }, [dbContext]);
@@ -103,41 +138,44 @@ export default function Sidebar() {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-        anchor="left"
-      >
-        <Toolbar />
-        <img src={logo} className={classes.logo} alt="logo" />
-        <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
-        <Typography variant="subtitle1" className={classes.subText}>{status}</Typography>
-        <List>
-          <ListItem button className={classes.buttonText} onClick={() => redirect("dashboard")}>
-            <ListItemIcon className={classes.icon}> <DashboardIcon /> </ListItemIcon>
-            <ListItemText primary={"Dashboard"} />
-          </ListItem>
-          <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
-            <ListItemIcon className={classes.icon}> <ShoppingCartIcon /> </ListItemIcon>
-            <ListItemText primary={"Order Accessories"} />
-          </ListItem>
-          <ListItem button className={classes.buttonText} onClick={() => redirect("download")}>
-            <ListItemIcon className={classes.icon}> <CloudDownloadIcon /> </ListItemIcon>
-            <ListItemText primary={"Download Media"} />
-          </ListItem>
-          <ListItem button className={classes.buttonText} onClick={() => redirect("settings")}>
-            <ListItemIcon className={classes.icon}> <SettingsIcon /> </ListItemIcon>
-            <ListItemText primary={"Settings"} />
-          </ListItem>
-          <ListItem button className={classes.logoutButton} onClick={() => logout()}>
-            <ListItemIcon className={classes.icon}> <LogoutIcon /> </ListItemIcon>
-            <ListItemText primary={"Logout"} />
-          </ListItem>
-        </List>
-      </Drawer>
+      <Hidden smUp implementation="css">
+        <Drawer
+          className={classes.drawer}
+          variant="temporary"
+          open={props.sidebarStatus}
+          anchor="left"
+          onClose={props.sidebarToggle}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+        >
+          <Toolbar />
+          <img src={logo} className={classes.logo} alt="logo" />
+          <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
+          <Typography variant="subtitle1" className={classes.subText}>{status}</Typography>
+          {drawer}
+        </Drawer>
+      </Hidden>
+
+      <Hidden xsDown implementation="css">
+        <Drawer
+          className={classes.drawer}
+          variant="permanent"
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          anchor="left"
+        >
+          <Toolbar />
+          <img src={logo} className={classes.logo} alt="logo" />
+          <Typography variant="h6" className={classes.nameText} component="h2">{dbContext.userData.firstName + " " + dbContext.userData.lastName}</Typography>
+          <Typography variant="subtitle1" className={classes.subText}>{status}</Typography>
+          {drawer}
+        </Drawer>
+      </Hidden>
     </div>
   );
 }

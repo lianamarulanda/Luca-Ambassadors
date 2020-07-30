@@ -15,6 +15,11 @@ const App: React.FC = () => {
   const api = React.useContext(DbContext);
   const [loaded, setLoaded] = React.useState(false);
   const [admin, setAdmin] = React.useState(false);
+  const [sidebar, updateSidebar] = React.useState(false);
+
+  const sidebarToggle = () => {
+    updateSidebar(!sidebar);
+  }
 
   React.useEffect(() => {
     if (!api.isLoggedIn()) {
@@ -65,13 +70,13 @@ const App: React.FC = () => {
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
-      <Sidebar />
+        <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle}/>
       <main className={classes.content}>
         {admin &&
-          <AdminComponent adminStatus={admin} />
+          <AdminComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
         }
         {!admin &&
-          <DashboardComponent adminStatus={admin} />
+          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle}/>
         }
       </main>
     </div>

@@ -58,7 +58,7 @@ const DashboardComponent = (props: any) => {
           </Alert>
         </Snackbar>
       }
-      <HeaderComponent title="Dashboard" component="dashboard" style={{ marginBottom: '30px' }} />
+      <HeaderComponent title="Dashboard" component="dashboard" style={{ marginBottom: '30px' }} sidebarToggle={props.sidebarToggle} />
       <Divider light style={{ marginBottom: '15px' }} />
       <Typography variant="h4" gutterBottom style={{ textAlign: 'left', fontWeight: 700, marginBottom: '30px' }}>
         Overview
@@ -69,32 +69,36 @@ const DashboardComponent = (props: any) => {
       >
         <Grid
           item
-          xs={4}
+          xs={12}
+          sm={4}
         >
           <TotalCheckouts />
         </Grid>
         <Grid
           item
-          xs={4}
+          xs={12}
+          sm={4}
         >
           <TotalSales />
         </Grid>
         <Grid
           item
-          xs={4}
+          xs={12}
+          sm={4}
         >
           <TotalCommission />
         </Grid>
         <Grid
           item
-          xs={6}
+          xs={12}
+          sm={6}
         >
           <MonthlyCommissionsComponent />
         </Grid>
         <Grid
           item
-          xs={6}
-
+          xs={12}
+          sm={6}
         >
           <TopProductsComponent />
         </Grid>
