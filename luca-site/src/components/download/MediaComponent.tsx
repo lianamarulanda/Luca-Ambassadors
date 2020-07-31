@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { createStyles, Theme, makeStyles, useTheme } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import GridListTileBar from '@material-ui/core/GridListTileBar';
@@ -10,7 +10,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { useTheme } from '@material-ui/core/styles';
 import { DbContext } from '../../util/api';
 import ImageUploader from 'react-images-upload';
 import Grid from '@material-ui/core/Grid';
@@ -233,7 +232,7 @@ export default function ViewMediaComponent(props: any) {
           <Button variant="contained" onClick={() => openDialogForm()}>Upload Media</Button>
         }
       </Grid>
-      <GridList cellHeight={400} spacing={1} className={classes.gridList} cols={props.content.length <= 1 ? 1 : 3}>
+      <GridList cellHeight={400} spacing={1} className={classes.gridList} cols={fullScreen ? 1 : 3}>
         {props.content.map((tile: any) => (
           <GridListTile key={tile.title} cols={1} rows={1} className={classes.tile} onClick={() => openPreviewDialog(tile)}>
             <img src={tile.url} alt={tile.title} />

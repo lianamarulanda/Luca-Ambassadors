@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -10,6 +10,7 @@ import { ordersContext } from '../../util/orders';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import IconButton from '@material-ui/core/IconButton'
 import RemoveIcon from '@material-ui/icons/Remove';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const useStyles = makeStyles((theme) => ({
   listItem: {
@@ -32,6 +33,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ReviewComponent(orderData: any) {
   const classes = useStyles();
+  const theme = useTheme();
+  const smallScreen = useMediaQuery(theme.breakpoints.down('xs'));
   const addresses = [orderData.address1, orderData.city, orderData.province, orderData.zip, orderData.country];
   const orderApi = React.useContext(ordersContext);
   const [reload, setReload] = React.useState(false);
@@ -87,9 +90,11 @@ export default function ReviewComponent(orderData: any) {
         </div>
       }
       <Grid container direction="row" justify="space-between" alignItems="center">
-        <Typography variant="subtitle2" style={{ textAlign: 'left', fontWeight: 'bolder' }}>
-          All items in cart
-        </Typography>
+        <Grid item>
+          <Typography variant="subtitle2" style={{ textAlign: 'left', fontWeight: 'bolder' }}>
+            All items in cart
+          </Typography>
+        </Grid>
         <Grid item style={{ justifySelf: 'right' }}>
           <Typography variant="subtitle2" style={{ textAlign: 'right' }}>
             Selection: {orderApi.packageSelection}
@@ -99,14 +104,22 @@ export default function ReviewComponent(orderData: any) {
       <List disablePadding>
         {orderApi.orderRequest.order.line_items.map((product: any) => (
           <ListItem className={classes.listItem} key={product.variant_id}>
-            <ListItemText primary={product.title} />
-            <Typography variant="body2">Qty: {product.quantity}</Typography>
-            <IconButton className={classes.icon} aria-label="add quantity" onClick={() => increaseQuantity(product)}>
-              <AddBoxIcon />
-            </IconButton>
-            <IconButton className={classes.icon} aria-label="subtract quantity" onClick={() => decreaseQuantity(product)}>
-              <RemoveIcon />
-            </IconButton>
+            <Grid container direction="row" justify="space-between" alignItems="center">
+              <Grid item xs={12} md={8}>
+                <ListItemText primary={product.title} />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Grid container direction="row" alignItems="center" justify={smallScreen ? "flex-start" : "flex-end"}>
+                  <Typography variant="body2">Qty: {product.quantity}</Typography>
+                  <IconButton className={classes.icon} aria-label="add quantity" onClick={() => increaseQuantity(product)}>
+                    <AddBoxIcon />
+                  </IconButton>
+                  <IconButton className={classes.icon} aria-label="subtract quantity" onClick={() => decreaseQuantity(product)}>
+                    <RemoveIcon />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </Grid>
           </ListItem>
         ))}
         <ListItem className={classes.listItem}>
@@ -117,7 +130,7 @@ export default function ReviewComponent(orderData: any) {
         </ListItem>
       </List>
       <Grid container spacing={2} style={{ alignItems: 'left', justifyContent: 'left' }}/*style={{alignItems: 'center', justifyContent: 'center'}}*/>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={6}>
           <Typography variant="subtitle2" gutterBottom className={classes.title}>
             Shipping
           </Typography>

@@ -80,7 +80,7 @@ function MediaView() {
       <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
       <main className={classes.content}>
         <Container maxWidth="lg" className={classes.container}>
-          <HeaderComponent adminStatus={admin} title={admin ? "Upload and Delete Content" : "Download Social Media Content"}
+          <HeaderComponent adminStatus={admin} title={admin ? "Upload and Delete Content" : "Download Content"}
             component="download"
             sidebarToggle={sidebarToggle}
           />

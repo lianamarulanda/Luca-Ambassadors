@@ -65,7 +65,7 @@ const AdminComponent = (props: any) => {
   return (
     <Container maxWidth="lg" className={classes.container}>
       <HeaderComponent title="Dashboard" component="dashboard" style={{ marginBottom: '30px' }} sidebarToggle={props.sidebarToggle} />
-        <Divider light style={{ marginBottom: '15px' }} />
+      <Divider light style={{ marginBottom: '15px' }} />
       <Typography variant="h4" gutterBottom style={{ textAlign: 'left', fontWeight: 700, marginBottom: '30px' }}>
         Overview
       </Typography>
@@ -179,7 +179,7 @@ const AdminComponent = (props: any) => {
           lg={7}
           md={4}
           xl={6}
-          xs={4}
+          xs={12}
         >
           <BannerComponent />
         </Grid>

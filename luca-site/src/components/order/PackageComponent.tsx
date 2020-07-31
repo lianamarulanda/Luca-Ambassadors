@@ -10,6 +10,9 @@ const useStyles = makeStyles((theme: any) => ({
   card: {
     padding: theme.spacing(2),
     height: '80px',
+    [theme.breakpoints.down('sm')]: {
+      height: "120px"
+    },
     '&:hover': {
       backgroundColor: '#8CA888',
     },
@@ -19,11 +22,14 @@ const useStyles = makeStyles((theme: any) => ({
   },
   selectedCard: {
     padding: theme.spacing(2),
+    height: '80px',
+    [theme.breakpoints.down('sm')]: {
+      height: "120px"
+    },
     backgroundColor: '#8CA888',
     textTransform: "none",
     width: '100%',
     length: '100%',
-    height: '80px',
   },
   title: {
     marginBottom: '30px'
