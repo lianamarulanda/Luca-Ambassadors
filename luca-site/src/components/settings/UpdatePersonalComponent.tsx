@@ -93,7 +93,7 @@ export default function UpdatePersonalInfo() {
                 subheader="Update personal info"
               />
               <Tooltip title={<Typography variant="subtitle1">You need to fill out at least one field.</Typography>}>
-                <IconButton aria-label="delete" style={{  }}>
+                <IconButton aria-label="delete" style={{}}>
                   <InfoIcon fontSize="small" />
                 </IconButton>
               </Tooltip>

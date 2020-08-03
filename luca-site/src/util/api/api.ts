@@ -34,9 +34,11 @@ export default class Api {
 
   // True if user is logged in, false if user is not logged in
   public async isInitialized(): Promise<boolean> {
+    console.log("isInitialized has been called");
     return new Promise((resolve) => {
       this.authentication.onAuthStateChanged(async (user: any) => {
         if (user) {
+          console.log("user found, calling loadUserData()...");
           await this.loadUserData();
           resolve(true);
         } else {
@@ -49,6 +51,8 @@ export default class Api {
 
   public isLoggedIn(): boolean {
     if (this.userData.email && this.userData.email !== '') {
+      console.log("user is logged in");
+      console.log("User email is : " + this.userData.email);
       return true;
     }
     return false;
@@ -240,8 +244,10 @@ export default class Api {
   // function to load everything we need about a user -> their name, email, and discount code
   public async loadUserData(): Promise<void> {
     return new Promise((resolve, reject) => {
+      console.log("inside loadUserData()");
       // get current logged in user, then query in db
       var user = this.authentication.currentUser;
+      console.log("current logged in user : " + user);
       this.usersRef.where('email', '==', user.email).get()
         .then((snapshot: any) => {
           if (snapshot.empty) {
@@ -263,6 +269,7 @@ export default class Api {
                     this.userData.giftClaimStatus = doc.data().giftClaimStatus;
                     this.userData.currTier = doc.data().currTier;
                     resolve();
+                    console.log("user data is now: " + this.userData);
                   }
                 })
                 .catch((err: any) => {
@@ -278,22 +285,30 @@ export default class Api {
   }
 
   public async loadDashboardData(): Promise<void> {
+    console.log("entered function loadDashboardData()...");
     return new Promise((resolve, reject) => {
       // if the class dashboard data object is empty, then load it
       if (Object.keys(this.dashboardData).length === 0) {
+        console.log("our user discount code is " + this.userData.discountCode);
+        console.log("calling getOrders() using discount code...");
         this.getOrders(this.userData.discountCode)
           // then, get the actual code data and announcements
           .then(async (orders: []) => {
+            console.log("we have finished getOrders, so now we're formatting the order data");
             this.getCodeData(orders);
+            console.log("loading announcements...");
             this.loadAnnouncements().then(() => {
+              console.log("anouncements have been loaded and we are now going to resolve");
               resolve();
             })
               .catch((error: any) => {
+                console.log(error);
                 reject(error);
               })
           })
           // error with getting the associated orders
           .catch((error: any) => {
+            console.log(error);
             reject(error);
           });
       } else {
@@ -303,6 +318,7 @@ export default class Api {
   }
 
   public async getOrders(discountCode: string): Promise<[]> {
+    console.log("entering getOrders...");
     return new Promise((resolve, reject) => {
       var orders = {
         discountCode: discountCode,
@@ -310,10 +326,12 @@ export default class Api {
       }
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders', orders)
         .then((response: any) => {
+          console.log("getOrders post request has finished");
           this.dashboardData.userOrders = response.data.userOrders;
           resolve(response.data.codeOrders);
         })
         .catch((error: any) => {
+          console.log(error);
           reject(error);
         });
     });

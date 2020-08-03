@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: 'white',
       fontWeight: 'bold',
       paddingTop: '15px',
-      textAlign:'center'
+      textAlign: 'center'
     },
     subText: {
       color: '#e3e6e6',

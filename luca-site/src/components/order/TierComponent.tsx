@@ -104,18 +104,6 @@ export default function TierComponent(props: any) {
   const [salesLeft, setSales] = React.useState(0);
   const [loaded, setLoaded] = React.useState(false);
 
-  const reset = () => {
-    var newTier = parseInt(api.userData.currTier) + 1;
-    api.setGiftClaimStatus(false, newTier.toString())
-      .then(() => {
-        // change component
-        props.changeComponent("OrderComponent");
-      })
-      .catch((error: any) => {
-
-      })
-  }
-
   React.useEffect(() => {
     api.getGiftClaimStatus().then((status: boolean) => {
       var nextTier = parseInt(api.userData.currTier) + 1;
@@ -149,7 +137,7 @@ export default function TierComponent(props: any) {
   return (
     <div className={classes.root}>
       {status &&
-        <ClaimItem name={api.userData.firstName} sale={nextTier} changeComponent={reset} />
+        <ClaimItem name={api.userData.firstName} sale={nextTier} changeComponent={() => props.changeComponent("OrderComponent")} />
       }
       <Grid container
         className={classes.main}
@@ -170,7 +158,7 @@ export default function TierComponent(props: any) {
             <LinearProgressWithLabel value={progress} />
           </Grid>
           {status &&
-            <Button variant="contained" className={classes.button} onClick={reset}>
+            <Button variant="contained" className={classes.button} onClick={() => props.changeComponent("OrderComponent")}>
               Claim Free Gift
             </Button>
           }

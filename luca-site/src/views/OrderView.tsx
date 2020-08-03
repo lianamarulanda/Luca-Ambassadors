@@ -34,7 +34,6 @@ function OrderView() {
   const history = useHistory();
   const [component, updateComponent] = React.useState("TierComponent");
   const [loaded, setLoaded] = React.useState(false);
-  const [influencer, setInfluencer] = React.useState(false);
   const [sidebar, updateSidebar] = React.useState(false);
 
   const sidebarToggle = () => {
@@ -49,7 +48,6 @@ function OrderView() {
         updateComponent("VerifyComponent")
       } else if (api.userData.influencerStatus) {
         updateComponent("OrderComponent");
-        setInfluencer(true);
       }
       setLoaded(true);
     }
@@ -75,7 +73,7 @@ function OrderView() {
             <VerifyComponent />
           }
           {component === "OrderComponent" &&
-            <OrderComponent influencerStatus={influencer} />
+            <OrderComponent />
           }
           {component === "TierComponent" &&
             <TierComponent changeComponent={changeComponent} />

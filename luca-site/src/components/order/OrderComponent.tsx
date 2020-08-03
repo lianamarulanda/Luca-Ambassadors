@@ -12,7 +12,6 @@ import ReviewComponent from './ReviewComponent';
 import { ordersContext } from '../../util/orders';
 import { DbContext } from '../../util/api';
 import LoadComponent from '../layout/LoadComponent';
-import VerifyComponent from './VerifyComponent';
 import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
@@ -181,8 +180,11 @@ export default function OrderComponent(props: any) {
       if (submitProducts())
         setActiveStep(orderData.activeStep + 1);
     } else if (orderData.activeStep === 2) {
-      if (await placeOrder())
+      if (await placeOrder()) {
         setActiveStep(orderData.activeStep + 1);
+        if (!dbApi.userData.influencerStatus)
+          resetTier();
+      }
     }
   };
 
@@ -191,6 +193,17 @@ export default function OrderComponent(props: any) {
       setError("");
     setActiveStep(orderData.activeStep - 1);
   };
+
+  const resetTier = () => {
+    var newTier = parseInt(dbApi.userData.currTier) + 1;
+    dbApi.setGiftClaimStatus(false, newTier.toString())
+      .then(() => {
+
+      })
+      .catch((error: any) => {
+
+      })
+  }
 
   const getStepContent = (step: any) => {
     switch (step) {

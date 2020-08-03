@@ -70,13 +70,13 @@ const App: React.FC = () => {
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
-        <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle}/>
+      <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
       <main className={classes.content}>
         {admin &&
           <AdminComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
         }
         {!admin &&
-          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle}/>
+          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
         }
       </main>
     </div>
