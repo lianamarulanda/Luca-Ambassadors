@@ -33,7 +33,6 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
 
 function getTierString(tier: string): string {
   var newTier = "";
-  console.log("I got here");
   switch (tier) {
     case "0": {
       newTier = "Starting";
@@ -64,7 +63,6 @@ function getTierString(tier: string): string {
       break;
     }
   }
-  console.log(newTier);
   return newTier;
 }
 
