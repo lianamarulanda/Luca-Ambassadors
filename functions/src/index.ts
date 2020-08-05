@@ -86,10 +86,10 @@ export const getOrders = functions.https.onRequest((request, response) => {
           console.log("count is: " + count);
         }
         console.log(orders.codeOrders.length);
-        response.set('Access-Control-Allow-Origin', '*').status(200).send(orders);
+        response.status(200).send(orders);
       })
       .catch((err: string) => {
-        response.set('Access-Control-Allow-Origin', '*').status(200).send(err);
+        response.status(200).send(err);
       });
   }
 });
