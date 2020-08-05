@@ -50,7 +50,6 @@ export const getOrders = functions.https.onRequest((request, response) => {
       userOrders: [] as object[],
     }
 
-    console.log("discount code passed in - " + request.body.discountCode);
     axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json?limit=250')
       .then(async result => {
         // get all results that have a discount code applied
@@ -67,10 +66,7 @@ export const getOrders = functions.https.onRequest((request, response) => {
           }
         })
 
-        console.log("first next: " + result.headers.link);
         var url = helper(result.headers.link);
-        console.log("first url: " + url);
-        var count = 0;
         while (url !== "") {
           var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
           nextOrders.data.orders.forEach((order: any) => {
@@ -79,13 +75,8 @@ export const getOrders = functions.https.onRequest((request, response) => {
             if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email)
               orders.userOrders.push(order);
           })
-          console.log("while next: " + nextOrders.headers.link);
           url = helper(nextOrders.headers.link);
-          console.log("while loop url: " + url);
-          count++;
-          console.log("count is: " + count);
         }
-        console.log(orders.codeOrders.length);
         response.status(200).send(orders);
       })
       .catch((err: string) => {
