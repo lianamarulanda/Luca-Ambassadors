@@ -109,46 +109,68 @@ export const createOrder = functions.https.onRequest((request, response) => {
 });
 
 export const getProducts = functions.https.onRequest((request, response) => {
-  var allProducts = [] as object[];
-  axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?limit=250')
-    .then(async (result: any) => {
-      result.data.products.forEach((product: any) => {
-        if (product.variants.length > 1) {
-          for (var i = 0; i < product.variants.length; i++) {
-            if (product.variants[i].inventory_quantity !== 0 && product.image !== null) {
-              allProducts.push(product);
-              break;
-            }
-          }
-        } else if (product.variants[0].inventory_quantity !== 0 && product.image !== null) {
-          allProducts.push(product);
-        }
-      })
-      /*
-      helper ->
-        input result.headers.link
-        output: the "next" link if its there, else, empty
-      */
-      var url = helper(result.headers.link);
-      while (url !== "") {
-        var nextProducts: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
-        nextProducts.data.products.forEach((product: any) => {
+  const origin = request.headers.origin as string;
+  if (whitelist.indexOf(origin) > -1) {
+    response.set('Access-Control-Allow-Origin', origin);
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.set('Access-Control-Allow-Methods', 'POST')
+      .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+      .status(200)
+      .send();
+  } else {
+    var allProducts = [] as object[];
+    var apiURL = "";
+
+    // if the user is an influencer, we load all products
+    if (request.body.influencerStatus) {
+      apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?limit=250';
+    } else {
+   // otherwise, if the user is not an influencer, we only load from the ambassador specific collection
+      apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=165959073895';
+    }
+ 
+    axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + apiURL)
+      .then(async (result: any) => {
+        result.data.products.forEach((product: any) => {
           if (product.variants.length > 1) {
             for (var i = 0; i < product.variants.length; i++) {
-              if (product.variants[i].inventory_quantity !== 0 && product.image !== null) {
+              if (product.variants[i].inventory_quantity !== 0) {
                 allProducts.push(product);
                 break;
               }
             }
-          } else if (product.variants[0].inventory_quantity !== 0 && product.image !== null) {
+          } else if (product.variants[0].inventory_quantity !== 0) {
             allProducts.push(product);
           }
         })
+        /*
+        helper ->
+          input result.headers.link
+          output: the "next" link if its there, else, empty
+        */
+        var url = helper(result.headers.link);
+        while (url !== "") {
+          var nextProducts: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
+          nextProducts.data.products.forEach((product: any) => {
+            if (product.variants.length > 1) {
+              for (var i = 0; i < product.variants.length; i++) {
+                if (product.variants[i].inventory_quantity !== 0) {
+                  allProducts.push(product);
+                  break;
+                }
+              }
+            } else if (product.variants[0].inventory_quantity !== 0) {
+              allProducts.push(product);
+            }
+          })
 
-        url = helper(nextProducts.headers.link);
-      }
-      response.set('Access-Control-Allow-Origin', '*').status(200).send(allProducts);
-    })
+          url = helper(nextProducts.headers.link);
+        }
+        response.set('Access-Control-Allow-Origin', '*').status(200).send(allProducts);
+      })
+  }
 });
 
 export const getDiscountCodes = functions.https.onRequest((request, response) => {
