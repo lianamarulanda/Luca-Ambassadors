@@ -10,13 +10,14 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { DbContext } from '../../util/api';
 import { useHistory } from 'react-router-dom';
+import loginPhoto from '../../images/loginPhoto.jpg';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
   },
   image: {
-    backgroundImage: 'url(https://scontent-iad3-1.cdninstagram.com/v/t51.2885-15/104958300_299363731109248_9195902582336997418_n.jpg?_nc_cat=109&_nc_sid=8ae9d6&_nc_ohc=iBhOpKOghQQAX_8IcDZ&_nc_ht=scontent-iad3-1.cdninstagram.com&oh=44d8c81dcadb0155220565cc7fae0bdf&oe=5F2B8539)',
+    backgroundImage: `url(${loginPhoto})`,
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
