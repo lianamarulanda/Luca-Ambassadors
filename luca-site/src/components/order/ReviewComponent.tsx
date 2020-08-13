@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
   total: {
     fontWeight: 700,
-    color: '#3ace3a'
+    color: '#427340'
   },
   title: {
     marginTop: theme.spacing(2),
@@ -97,7 +97,7 @@ export default function ReviewComponent(orderData: any) {
         </Grid>
         <Grid item style={{ justifySelf: 'right' }}>
           <Typography variant="subtitle2" style={{ textAlign: 'right' }}>
-            Selection: {orderApi.packageSelection}
+            {orderApi.packageSelection}
           </Typography>
         </Grid>
       </Grid>

@@ -13,6 +13,7 @@ import { ordersContext } from '../../util/orders';
 import { DbContext } from '../../util/api';
 import LoadComponent from '../layout/LoadComponent';
 import { useHistory } from 'react-router-dom';
+import SelectFreeGiftComponent from './SelectFreeGiftComponent';
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -210,7 +211,10 @@ export default function OrderComponent(props: any) {
       case 0:
         return <AddressComponent handleChange={handleAddress} {...orderData} />;
       case 1: {
-        return <PackageComponent {...allProducts} />;
+        if (dbApi.userData.influencerStatus)
+          return <PackageComponent {...allProducts} />;
+        else
+          return <SelectFreeGiftComponent currTier={dbApi.userData.currTier} {...allProducts} />;
       }
       case 2: {
         return <ReviewComponent {...orderData} />;

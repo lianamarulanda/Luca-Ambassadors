@@ -12,6 +12,9 @@ import square from '../../images/square5.png';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { Grid } from '@material-ui/core';
+import LoadComponent from '../layout/LoadComponent'; 
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,50 +47,95 @@ const useStyles = makeStyles((theme: Theme) =>
       '&:hover': {
         boxShadow: theme.shadows[15],
       },
+    },
+    snackbar: {
+      width: '100%'
     }
   }),
 );
 
-const initialState = Object.freeze({
-  productsSelected: [] as string[],
-  currentPackage: "",
-  maxQuantity: 0,
-  loadedProducts: [] as object[]
-});
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
-export default function ProductsComponent(props: any) {
+export default function SelectFreeGiftComponent(props: any) {
   const classes = useStyles();
   const orderApi = React.useContext(ordersContext);
-  const [selectionState, setProductSelection] = React.useState(initialState);
+  const [loaded, setLoaded] = React.useState(false);
+  const [announcement, setOpen] = React.useState(false);
+  const [selectionState, setProductSelection] = React.useState({
+    productsSelected: initProductsSelected(),
+    maxQuantity: 0,
+    loadedProducts: [] as object[]
+  });
 
-  // if we select a new package, clear out the products selected from component and the order request
-  // load the new filtered products
-  if (props.packageSelection !== selectionState.currentPackage) {
-    const newProducts = [] as any;
-    var max = parseInt(props.packageSelection.charAt(0));
-    var filteredProducts = props[props.packageSelection];
+  function initProductsSelected(): string[] {
+    var itemsSelected = [] as string[];
+    // clear products from order request
+    orderApi.orderRequest.order.line_items.forEach((product: any) => {
+      itemsSelected.push(product.variant_id);
+    })
+    return itemsSelected;
+  }
+
+  React.useEffect(() => {
+    if (selectionState.loadedProducts.length === 0) {
+      filterProducts(props.currTier, props.data);
+      setLoaded(true);
+    }
+  }, []);
+
+  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const filterProducts = (currTier: string, allProducts: any) => {
+    var products = [] as object[];
+    var productTag = "";
+    var max = 1;
+    switch(currTier)
+    {
+      case "0": {
+        productTag = "First Sale";
+        orderApi.packageSelection = "2 Exclusive Bracelets";
+        max = 2; 
+        break;
+      }
+      case "1": {
+        productTag = "Third Sale";
+        setOpen(true);
+        orderApi.packageSelection = "1 Natural Stone Bracelet + Sticker Pack";
+        break;
+      }
+      case "2": {
+        productTag = "Tenth Sale";
+        orderApi.packageSelection = "1 Luca Love T-Shirt";
+        break;
+      }
+      case "3": {
+        productTag = "Fifteenth Sale";
+        orderApi.packageSelection = "1 Travel Sized Care Package";
+        break;
+      }
+    }
+
+    allProducts.forEach((product: any) => {
+      if (product.tags.includes(productTag))
+        products.push(product);
+    })
+    orderApi.maxQuantity = max;
 
     setProductSelection({
       ...selectionState,
-      productsSelected: newProducts,
-      currentPackage: props.packageSelection,
-      maxQuantity: max,
-      loadedProducts: filteredProducts
+      loadedProducts: products,
+      maxQuantity: max
     });
-    // clear products from order request
-    orderApi.orderRequest.order.line_items = newProducts;
-    orderApi.inventoryProductMap.clear();
-    orderApi.subtotal = 0;
-
-    // set max quantity in order context
-    if (orderApi.packageSelection === "1 Bracelet + 1 Anklet")
-      orderApi.maxQuantity = 1;
-    else
-      orderApi.maxQuantity = max;
   }
 
   const handleSelect = (productTile: any) => {
-    var canAdd = true;
     var newProducts = selectionState.productsSelected.slice();
     // if our products selected already includes the product, it is being deselcted, so delete it
     if (newProducts.includes(productTile.variants[0].id)) {
@@ -98,23 +146,15 @@ export default function ProductsComponent(props: any) {
       orderApi.subtotal -= parseFloat(productTile.variants[0].price);
       // it is possible to add the new product bc not yet reached max capacity
     } else if (newProducts.length < selectionState.maxQuantity) {
-      if (selectionState.currentPackage === "2 1 Bracelet + 1 Anklet" && newProducts.length === 1) {
-        if (orderApi.orderRequest.order.line_items[0].title.includes("Anklet") && productTile.title.includes("Anklet"))
-          canAdd = false;
-        else if (orderApi.orderRequest.order.line_items[0].title.includes("Bracelet") && productTile.title.includes("Bracelet"))
-          canAdd = false;
-      }
 
-      if (canAdd) {
-        newProducts.push(productTile.variants[0].id);
-        orderApi.orderRequest.order.line_items.push({
-          title: productTile.title,
-          variant_id: productTile.variants[0].id,
-          quantity: 1
-        });
-        orderApi.inventoryProductMap.set(productTile.variants[0].id, productTile.variants[0].inventory_quantity);
-        orderApi.subtotal += parseFloat(productTile.variants[0].price);
-      }
+      newProducts.push(productTile.variants[0].id);
+      orderApi.orderRequest.order.line_items.push({
+        title: productTile.title,
+        variant_id: productTile.variants[0].id,
+        quantity: 1
+      });
+      orderApi.inventoryProductMap.set(productTile.variants[0].id, productTile.variants[0].inventory_quantity);
+      orderApi.subtotal += parseFloat(productTile.variants[0].price);
 
       // we reached max capacity, so if the max capacity is one, replace the item
     } else if (newProducts.length === selectionState.maxQuantity && selectionState.maxQuantity === 1) {
@@ -137,8 +177,26 @@ export default function ProductsComponent(props: any) {
     });
   };
 
+  if (!loaded)
+    return (<LoadComponent />);
+
   return (
     <div className={classes.root}>
+      {announcement &&
+        <Snackbar
+          open={announcement}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          className={classes.snackbar}
+        >
+          <Alert onClose={handleClose} severity="info">
+            <Typography variant="subtitle1" style={{ fontWeight: "bolder" }}>
+              The sticker pack will be mailed to you along with the selected bracelet!
+            </Typography>
+          </Alert>
+        </Snackbar>
+      }
+      <Typography variant="h6" style={{textAlign: 'left'}}> Free Gift: {orderApi.packageSelection} </Typography>
       <GridList cellHeight={180} className={classes.gridList}>
         <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
           <Grid container style={{ justifyContent: 'center' }}>
@@ -172,16 +230,12 @@ export default function ProductsComponent(props: any) {
       <Grid style={{ marginTop: '25px' }}>
         <Typography variant="overline">Number of items selected: {orderApi.orderRequest.order.line_items.length} </Typography>
         <br />
-        <Typography variant="overline">
-          {selectionState.currentPackage === '2 1 Bracelet + 1 Anklet' ?
-            "Max Quantity: 1 Bracelet and 1 Anklet" :
-            `Max Quantity: ${selectionState.maxQuantity}`}
-        </Typography>
       </Grid>
     </div>
   );
 }
 
-ProductsComponent.propTypes = {
+SelectFreeGiftComponent.propTypes = {
   packageSelection: PropTypes.any,
+  currTier: PropTypes.string,
 }

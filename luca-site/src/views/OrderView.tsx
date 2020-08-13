@@ -12,6 +12,7 @@ import Divider from '@material-ui/core/Divider';
 import TierComponent from '../components/order/TierComponent';
 import LoadComponent from '../components/layout/LoadComponent';
 import VerifyComponent from '../components/order/VerifyComponent';
+import HighSalesTierComponent from '../components/order/HighSalesTier';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -53,8 +54,13 @@ function OrderView() {
     }
   }, [history, api]);
 
+  // only gets called when we claim free gift
   const changeComponent = (component: string) => {
-    updateComponent(component);
+
+    if (parseInt(api.userData.currTier) >= 4)
+      updateComponent("HighSales");
+    else
+      updateComponent(component);
   }
 
   if (!loaded) {
@@ -77,6 +83,9 @@ function OrderView() {
           }
           {component === "TierComponent" &&
             <TierComponent changeComponent={changeComponent} />
+          }
+          {component === "HighSales" &&
+            <HighSalesTierComponent />
           }
         </Container>
       </main>

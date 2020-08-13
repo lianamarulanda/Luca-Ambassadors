@@ -86,7 +86,7 @@ export default class Api {
                 // after adding the ambassador object, create the user object
                 .then((ref: { id: any; }) => {
                   var influencer = false;
-                  if (influencerCode === '12345')
+                  if (influencerCode === 'LL4E')
                     influencer = true;
 
                   this.usersRef.add({ // C
@@ -230,6 +230,10 @@ export default class Api {
   public getMonthCreated(): any {
     var dateString = this.authentication.currentUser.metadata.creationTime;
     var date = new Date(dateString);
+    var currDate = new Date();
+
+    if (date.getFullYear() < currDate.getFullYear())
+      return 0; 
     return date.getMonth();
   }
 
@@ -569,8 +573,11 @@ export default class Api {
   public async getAllProducts(): Promise<object[]> {
     return new Promise((resolve, reject) => {
       var allProducts = [] as object[];
+      var request = {
+        "influencerStatus": this.userData.influencerStatus 
+      }
 
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getProducts')
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getProducts', request)
         .then((response: any) => {
           allProducts = response;
           resolve(allProducts);
