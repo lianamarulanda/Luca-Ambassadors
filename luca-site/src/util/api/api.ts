@@ -798,11 +798,10 @@ export default class Api {
 
   public async getGiftClaimStatus(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      // can we optimize by not loading dashboard data?
       this.loadDashboardData()
         .then(() => {
           if (!this.userData.giftClaimStatus) {
-            var totalCheckouts = this.dashboardData.totalCheckouts;
+            var totalCheckouts = this.dashboardData.totalCheckouts % 50;
             var currTier = this.userData.currTier;
             var milestoneReached = false;
 

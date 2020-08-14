@@ -116,7 +116,7 @@ export default function TierComponent(props: any) {
           progress = 100;
         }
         setProgress(progress);
-        var salesLeft = tierLookup[nextTier.toString()] - api.dashboardData.totalCheckouts;
+        var salesLeft = tierLookup[nextTier.toString()] - (api.dashboardData.totalCheckouts % 50);
         setSales(salesLeft);
       }
       var tier = getTierString(api.userData.currTier);
