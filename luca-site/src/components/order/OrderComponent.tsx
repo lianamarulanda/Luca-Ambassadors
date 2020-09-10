@@ -143,7 +143,6 @@ export default function OrderComponent(props: any) {
       orderApi.orderRequest.order.customer.last_name = dbApi.userData.lastName;
       orderApi.orderRequest.order.customer.email = dbApi.userData.email;
       orderApi.orderRequest.order.email = dbApi.userData.email;
-      orderApi.orderRequest.order.discount_codes[0].amount = orderApi.subtotal.toString();
       orderApi.orderRequest.order.total_discounts = orderApi.subtotal.toString();
       setError("");
       return true;

@@ -34,7 +34,7 @@ export default class orders {
         "discount_codes": [
           {
             "code": "influencer%",
-            "amount": "",
+            "amount": "100",
             "type": "percentage"
           }
         ],
