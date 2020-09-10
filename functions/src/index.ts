@@ -107,14 +107,19 @@ export const createOrder = functions.https.onRequest((request, response) => {
       .status(200)
       .send();
   } else {
-
-    axios.post('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json', request.body)
-      .then(result => {
-        response.status(200).send(result.data);
+    admin.auth().verifyIdToken(request.body.idToken)
+      .then(() => {
+        axios.post('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json', request.body)
+          .then(result => {
+            response.status(200).send(result.data);
+          })
+          .catch((err: string) => {
+            response.status(400).send(err);
+          });
       })
-      .catch((err: string) => {
-        response.status(400).send(err);
-      });
+      .catch((err: any) => {
+        response.status(400).send(`Unauthorized: ${err}`);
+      })
   }
 });
 
