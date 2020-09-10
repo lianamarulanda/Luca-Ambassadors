@@ -14,6 +14,7 @@ import { DbContext } from '../../util/api';
 import LoadComponent from '../layout/LoadComponent';
 import { useHistory } from 'react-router-dom';
 import SelectFreeGiftComponent from './SelectFreeGiftComponent';
+import orderConfirm from '../../images/orderConfirm.png';
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -61,6 +62,10 @@ const useStyles = makeStyles((theme) => ({
     "&$completedIcon": {
       color: "#8CA888"
     }
+  },
+  image: {
+    width: '60%',
+    height: '60%',
   },
   activeIcon: {}, //needed so that the &$active tag works
   completedIcon: {},
@@ -258,6 +263,7 @@ export default function OrderComponent(props: any) {
           <React.Fragment>
             {orderData.activeStep === steps.length ? (
               <React.Fragment>
+                <img src={orderConfirm} alt="thank-you" className={classes.image} />
                 <Typography variant="h5" gutterBottom>
                   Thank you for your order, {dbApi.userData.firstName}!
                 </Typography>
