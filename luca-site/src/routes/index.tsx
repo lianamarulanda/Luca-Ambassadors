@@ -15,6 +15,7 @@ import LoadComponent from '../components/layout/LoadComponent';
 import ResetPassView from '../views/ResetPassView';
 import MediaView from '../views/MediaView';
 import ErrorView from '../views/ErrorView';
+import AmbassadorDataView from '../views/AmbassadorDataView';
 
 const Routes = (): JSX.Element => {
   const [firebaseInitialized, setFirebaseInitialized] = React.useState(false);
@@ -42,6 +43,7 @@ const Routes = (): JSX.Element => {
         <Route exact={true} path="/verify" component={VerifyEmailView} />
         <Route exact={true} path="/resetpassword" component={ResetPassView} />
         <Route exact={true} path="/download" component={MediaView} />
+        <Route exact={true} path="/ambassadorData" component={AmbassadorDataView} />
         <Route exact={true} path="/error" component={ErrorView} />
         <Route component={ErrorView} />
       </Switch>

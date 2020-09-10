@@ -183,6 +183,7 @@ export default class Api {
         .then(async () => {
           this.loadUserData()
             .then(() => {
+              console.log(this.authentication.currentUser.getIdToken());
               resolve();
             })
             .catch(() => {
@@ -593,6 +594,22 @@ export default class Api {
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
         .then((response: any) => {
           resolve(response.data.order.order_number);
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    });
+  }
+
+  public getAllCodes(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      var codes = [] as string[];
+      this.amRef.get()
+        .then((querySnapshot: any) => {
+          querySnapshot.forEach((doc: any) => {
+            codes.push(doc.data().discountCode);
+          })
+          resolve(codes);
         })
         .catch((error: any) => {
           reject(error);

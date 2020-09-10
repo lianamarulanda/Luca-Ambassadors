@@ -18,6 +18,7 @@ import { useHistory } from 'react-router-dom';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import logo from '../../images/logo2.png'
 import Hidden from '@material-ui/core/Hidden';
+import AssessmentIcon from '@material-ui/icons/Assessment';
 
 const drawerWidth = 240;
 
@@ -87,16 +88,37 @@ export default function Sidebar(props: any) {
   const history = useHistory();
   const [status, setStatus] = React.useState("");
 
+  React.useEffect(() => {
+    dbContext.checkAdminStatus()
+      .then((status: boolean) => {
+        if (status)
+          setStatus("Owner");
+        else if (dbContext.userData.influencerStatus)
+          setStatus("Influencer");
+        else
+          setStatus("Brand Ambassador");
+      })
+
+  }, [dbContext]);
+
   const drawer = (
     <List>
       <ListItem button className={classes.buttonText} onClick={() => redirect("dashboard")}>
         <ListItemIcon className={classes.icon}> <DashboardIcon /> </ListItemIcon>
         <ListItemText primary={"Dashboard"} />
       </ListItem>
-      <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
-        <ListItemIcon className={classes.icon}> <ShoppingCartIcon /> </ListItemIcon>
-        <ListItemText primary={"Order Accessories"} />
-      </ListItem>
+      {status === "Owner" &&
+        <ListItem button className={classes.buttonText} onClick={() => redirect("ambassadorData")}>
+          <ListItemIcon className={classes.icon}> <AssessmentIcon /> </ListItemIcon>
+          <ListItemText primary={"Ambassador Data"} />
+        </ListItem>
+      }
+      {status !== "Owner" &&
+        <ListItem button className={classes.buttonText} onClick={() => redirect("order")}>
+          <ListItemIcon className={classes.icon}> <ShoppingCartIcon /> </ListItemIcon>
+          <ListItemText primary={"Order Accessories"} />
+        </ListItem>
+      }
       <ListItem button className={classes.buttonText} onClick={() => redirect("download")}>
         <ListItemIcon className={classes.icon}> <CloudDownloadIcon /> </ListItemIcon>
         <ListItemText primary={"Download Media"} />
@@ -111,19 +133,6 @@ export default function Sidebar(props: any) {
       </ListItem>
     </List>
   );
-
-  React.useEffect(() => {
-    dbContext.checkAdminStatus()
-      .then((status: boolean) => {
-        if (status)
-          setStatus("Owner");
-        else if (dbContext.userData.influencerStatus)
-          setStatus("Influencer");
-        else
-          setStatus("Brand Ambassador");
-      })
-
-  }, [dbContext]);
 
   function redirect(link: string) {
     history.push(`/${link}`);
