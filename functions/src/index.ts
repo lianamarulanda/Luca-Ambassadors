@@ -20,16 +20,26 @@ const whitelist = [
 
 // request parameter is a json object
 export const addAdminRole = functions.https.onRequest((request, response) => {
+  const idToken = request.body.idToken;
 
-  admin.auth().getUserByEmail(request.body.email)
-    .then((user: any) => admin.auth().setCustomUserClaims(user.uid, {
-      admin: true,
-    }))
-    .then(() => {
-      response.status(200).send("Successfully set admin to true")
+  admin.auth().verifyIdToken(idToken)
+    .then((decodedToken: any) => {
+      if (decodedToken.admin === true) {
+        admin.auth().getUserByEmail(request.body.email)
+          .then((user: any) => admin.auth().setCustomUserClaims(user.uid, {
+            admin: true,
+          }))
+          .then(() => {
+            response.status(200).send("Successfully set admin to true")
+          })
+          .catch((err: any) => {
+            response.status(400).send(err);
+          });
+      }
     })
-    .catch((err: any) => response.status(400).send(err));
-
+    .catch((err: any) => {
+      response.status(400).send(`Unauthorized: ${err}`);
+    });
 });
 
 export const getOrders = functions.https.onRequest((request, response) => {
