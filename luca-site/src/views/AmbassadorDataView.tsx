@@ -10,8 +10,12 @@ import { DbContext } from '../util/api';
 import { useHistory } from 'react-router-dom';
 import HeaderComponent from '../components/layout/HeaderComponent';
 import Divider from '@material-ui/core/Divider';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid'
 import LoadComponent from '../components/layout/LoadComponent';
+import DataComponent from '../components/ambassadorData/DataComponent';
+import dataPic from '../images/dataPic2.png';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -31,6 +35,10 @@ const useStyles = makeStyles(theme => ({
     fontFamily: 'Helvetica',
     textAlign: 'left',
     marginBottom: '50px'
+  },
+  image: {
+    width: '70%',
+    height: '70%'
   }
 }));
 
@@ -39,7 +47,9 @@ function AmbassadorDataView() {
   const api = React.useContext(DbContext);
   const history = useHistory();
   const [sidebar, updateSidebar] = React.useState(false);
-  const[codes, updateCodes] = React.useState([] as string[]);
+  const [codes, updateCodes] = React.useState([] as string[]);
+  const [selectedCode, updateSelect] = React.useState("");
+  const [loaded, setLoad] = React.useState(true);
 
   const sidebarToggle = () => {
     updateSidebar(!sidebar);
@@ -54,7 +64,7 @@ function AmbassadorDataView() {
           var ambassadorCodes = [] as string[];
           codes.forEach((code: string) => {
             ambassadorCodes.push(code);
-          })
+          }) 
           updateCodes(ambassadorCodes);
         })
         .catch((error: any) => {
@@ -64,33 +74,64 @@ function AmbassadorDataView() {
 
   }, [history, api]);
 
-  if (codes.length === 0)
-  {
-    return (<LoadComponent message={"Fetching ambassador codes..."} />);
+  const selectCode = (code: string) => {
+    if (code !== "") {
+      updateSelect("");
+      setLoad(false);
+      api.getDataForCode(code)
+        .then(() => {
+          updateSelect(code);
+          setLoad(true);
+        })
+        .catch((error: any) => {
+        })
+    } else {
+      updateSelect(code);
+    }
   }
 
+  if (codes.length === 0)
+    return (<LoadComponent message={"Fetching ambassador codes..."} />);
+  
   return (
     <div className={clsx(classes.root)}>
       <CssBaseline />
       <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
       <main className={classes.content}>
-        <Container maxWidth="lg" className={classes.container}>
-          <HeaderComponent title="Settings" component="settings" sidebarToggle={sidebarToggle} />
+        <Container maxWidth="xl" className={classes.container}>
+          <HeaderComponent title="Ambassador Data" component="ambassadorsData" sidebarToggle={sidebarToggle} />
           <Divider light style={{ marginBottom: '40px' }} />
           <Grid
             container
             direction="row"
             justify="space-between"
-            alignItems="center"
+            alignItems="flex-start"
           >
-            <Grid item>
-              <Typography variant="h5" gutterBottom>
-                All Ambassador Codes
-              </Typography>
-              <ListComponent codes={codes}/> 
+            <Grid item xs={12} sm={3}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h5" style={{fontFamily: 'helvetica', fontWeight: 600, marginBottom:'20px'}}>
+                    All Ambassador Codes
+                  </Typography>
+                  <Divider />
+                  <ListComponent codes={codes} codeSelection={selectCode} load={loaded}/> 
+                </CardContent>
+              </Card>
             </Grid>
-            <Grid item>
-              <Typography>hello world</Typography>
+            <Grid item xs={12} sm={9}>
+              {!loaded && 
+                <LoadComponent message="Loading ambassador code data..." />
+              }
+              {selectedCode != "" && 
+                <Card>
+                  <CardContent>
+                    <DataComponent selectedCode={selectedCode} />
+                  </CardContent>
+                </Card>
+              }
+              {(selectedCode === "" && loaded) &&
+                <img src={dataPic} className={classes.image}/>
+              }
             </Grid>         
           </Grid>
         </Container>

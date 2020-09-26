@@ -9,6 +9,7 @@ import settings from '../../images/settings.jpg';
 import order from '../../images/order.jpg';
 import MenuIcon from '@material-ui/icons/Menu';
 import IconButton from '@material-ui/core/IconButton';
+import office from '../../images/office2.jpg';
 
 export default function HeaderComponent(props: any) {
 
@@ -29,6 +30,9 @@ export default function HeaderComponent(props: any) {
     case "dashboard": {
       imageUrl = dashboard;
       break;
+    }
+    case "ambassadorsData": {
+      imageUrl = office;
     }
   }
 

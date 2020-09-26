@@ -25,14 +25,20 @@ export default function ListComponent(props: any) {
   const [selected, setSelected] = React.useState("");
 
   const selectCode = (code: string) => {
-    setSelected(code);
+    if (selected !== code) {
+      setSelected(code);
+      props.codeSelection(code);
+    } else {
+      setSelected("");
+      props.codeSelection("");
+    }
   }
 
   return (
     <div className={classes.root}>
       <List>
         {props.codes.map((code: any) => (
-          <ListItem button className={selected === code ? classes.selected : classes.listItem} onClick={() => selectCode(code)}>
+          <ListItem disabled={!props.load} button className={selected === code ? classes.selected : classes.listItem} onClick={() => selectCode(code)}>
             <ListItemText primary={code} /> 
           </ListItem>
         ))}

@@ -183,7 +183,6 @@ export default class Api {
         .then(async () => {
           this.loadUserData()
             .then(() => {
-              console.log(this.authentication.currentUser.getIdToken());
               resolve();
             })
             .catch(() => {
@@ -615,6 +614,20 @@ export default class Api {
           reject(error);
         })
     });
+  }
+
+  // admin function
+  public getDataForCode(discountCode: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.getOrders(discountCode)
+        .then((codeOrders: []) => {
+          this.getCodeData(codeOrders);
+          resolve();
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
   }
 
   public async uploadPhoto(picture: any): Promise<string> {
