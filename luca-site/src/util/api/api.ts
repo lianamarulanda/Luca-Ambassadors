@@ -54,6 +54,18 @@ export default class Api {
     return false;
   }
 
+  public async getAuthToken(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.authentication.currentUser.getIdToken()
+        .then((token: any) => {
+          resolve(token);
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
+  }
+
   public async sendPassReset(email: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.authentication.sendPasswordResetEmail(email).then(function () {
@@ -136,11 +148,17 @@ export default class Api {
   }
 
   public async checkDiscountCode(discountCode: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      var userToken = await this.getAuthToken();
+      var config = {
+        headers: {
+          "authorization": `Bearer ${userToken}`,
+        }
+      }
       var request = {
         "title": discountCode
       }
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getDiscountCodes', request)
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getDiscountCodes', request, config)
         .then((response: any) => {
           if (response.data) {
             // check if already in use
@@ -307,12 +325,18 @@ export default class Api {
   }
 
   public async getOrders(discountCode: string): Promise<[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      var userToken = await this.getAuthToken();
+      var config = {
+        headers: {
+          "authorization": `Bearer ${userToken}`,
+        }
+      }
       var orders = {
         discountCode: discountCode,
         email: this.authentication.currentUser.email
       }
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders', orders)
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders', orders, config)
         .then((response: any) => {
           this.dashboardData.userOrders = response.data.userOrders;
           resolve(response.data.codeOrders);
@@ -571,13 +595,19 @@ export default class Api {
   }
 
   public async getAllProducts(): Promise<object[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
+      var userToken = await this.getAuthToken();
+      var config = {
+        headers: {
+          "authorization": `Bearer ${userToken}`,
+        }
+      }
       var allProducts = [] as object[];
       var request = {
         "influencerStatus": this.userData.influencerStatus 
       }
 
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getProducts', request)
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getProducts', request, config)
         .then((response: any) => {
           allProducts = response;
           resolve(allProducts);
@@ -589,8 +619,14 @@ export default class Api {
   }
 
   public placeOrder(orderRequest: object): Promise<number> {
-    return new Promise((resolve, reject) => {
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest)
+    return new Promise(async(resolve, reject) => {
+      var userToken = await this.getAuthToken();
+      var config = {
+        headers: {
+          "authorization": `Bearer ${userToken}`,
+        }
+      }
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/createOrder', orderRequest, config)
         .then((response: any) => {
           resolve(response.data.order.order_number);
         })
@@ -614,20 +650,6 @@ export default class Api {
           reject(error);
         })
     });
-  }
-
-  // admin function
-  public getDataForCode(discountCode: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.getOrders(discountCode)
-        .then((codeOrders: []) => {
-          this.getCodeData(codeOrders);
-          resolve();
-        })
-        .catch((error: any) => {
-          reject(error);
-        })
-    })
   }
 
   public async uploadPhoto(picture: any): Promise<string> {
@@ -871,7 +893,18 @@ export default class Api {
     })
   }
 
-
-
+  // admin functions
+  public getDataForCode(discountCode: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.getOrders(discountCode)
+        .then((codeOrders: []) => {
+          this.getCodeData(codeOrders);
+          resolve();
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
+  }
 }
 
