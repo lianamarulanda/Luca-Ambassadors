@@ -21,7 +21,18 @@ const whitelist = [
 
 // request parameter is a json object
 export const addAdminRole = functions.https.onRequest((request, response) => {
-  isAdmin(admin.auth(), request.headers.authorization)
+  const origin = request.headers.origin as string;
+  if (whitelist.indexOf(origin) > -1) {
+    response.set('Access-Control-Allow-Origin', origin);
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.set('Access-Control-Allow-Methods', 'POST')
+      .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+      .status(200)
+      .send();
+  } else {
+    isAdmin(admin.auth(), request.headers.authorization)
     .then(() => {
       admin.auth().getUserByEmail(request.body.email)
         .then((user: any) => admin.auth().setCustomUserClaims(user.uid, {
@@ -37,6 +48,7 @@ export const addAdminRole = functions.https.onRequest((request, response) => {
     .catch((err: any) => {
       response.status(401).send(`Unauthorized: ${err}`);
     });
+  }
 });
 
 export const getOrders = functions.https.onRequest((request, response) => {
@@ -144,7 +156,7 @@ export const getProducts = functions.https.onRequest((request, response) => {
 
         // if the user is an influencer, we load all products
         if (request.body.influencerStatus) {
-          apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?limit=250';
+          apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=166999425127';
         } else {
           // otherwise, if the user is not an influencer, we only load from the ambassador specific collection
           apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=165959073895';
@@ -211,9 +223,7 @@ export const getDiscountCodes = functions.https.onRequest((request, response) =>
       .status(200)
       .send();
   } else {
-    isUser(admin.auth(), request.headers.authorization)
-      .then(() => {
-        axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + `@luca-bracelets.myshopify.com/admin/api/2020-04/discount_codes/lookup.json?code=${request.body.title}`)
+      axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + `@luca-bracelets.myshopify.com/admin/api/2020-04/discount_codes/lookup.json?code=${request.body.title}`)
         .then((result: any) => {
           if (result.status === 200) {
             response.status(200).send(true);
@@ -225,10 +235,6 @@ export const getDiscountCodes = functions.https.onRequest((request, response) =>
           else
             response.status(400).send(err);
         });
-      })
-      .catch((err: any) => {
-        response.status(401).send(`Unauthorized: ${err}`);
-      });
   }
 });
 

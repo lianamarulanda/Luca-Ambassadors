@@ -13,6 +13,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import BannerComponent from './BannerComponent';
+import SetAdminComponent from './SetAdminComponent';
 import HeaderComponent from '../layout/HeaderComponent';
 import Divider from '@material-ui/core/Divider';
 
@@ -76,8 +77,6 @@ const AdminComponent = (props: any) => {
         <Grid
           item
           lg={12}
-          sm={6}
-          xl={12}
           xs={12}
         >
           <Typography variant="body1"> Feature coming soon! </Typography>
@@ -176,12 +175,18 @@ const AdminComponent = (props: any) => {
         </Grid>
         <Grid
           item
-          lg={7}
-          md={4}
+          sm={12}
+          md={7}
           xl={6}
           xs={12}
         >
           <BannerComponent />
+        </Grid>
+        <Grid item xs={12} md={7} style={{}}>
+          <Typography variant="h4" style={{ fontWeight: 700, textAlign:'left', marginBottom:'20px'}} gutterBottom>
+            Add Admin Users
+          </Typography>
+          <SetAdminComponent />
         </Grid>
       </Grid>
     </Container>

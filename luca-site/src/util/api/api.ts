@@ -149,16 +149,10 @@ export default class Api {
 
   public async checkDiscountCode(discountCode: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
-      var userToken = await this.getAuthToken();
-      var config = {
-        headers: {
-          "authorization": `Bearer ${userToken}`,
-        }
-      }
       var request = {
         "title": discountCode
       }
-      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getDiscountCodes', request, config)
+      axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getDiscountCodes', request)
         .then((response: any) => {
           if (response.data) {
             // check if already in use
@@ -901,6 +895,40 @@ export default class Api {
           this.getCodeData(codeOrders);
           resolve();
         })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
+  }
+
+  public addAdminUser(email: string): Promise<boolean> {
+    return new Promise(async(resolve, reject) => {
+      // check if the email is valid
+      this.usersRef.where("email", "==", email).get()
+        .then(async(snapshot: any) => {
+          if (snapshot.empty) {
+            reject(false);
+            return;
+          } else {
+            var userToken = await this.getAuthToken();
+            var config = {
+              headers: {
+                "authorization": `Bearer ${userToken}`,
+              }
+            }
+            var request = {
+              "email": email,
+            }
+            axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/addAdminRole', request, config)
+              .then(() => {
+                resolve(true);
+              })
+              .catch((error: any) => {
+                reject(error);
+              })
+          }   
+        })
+        // error w finding the email in the db
         .catch((error: any) => {
           reject(error);
         })
