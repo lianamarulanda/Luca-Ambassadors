@@ -154,12 +154,12 @@ export const getProducts = functions.https.onRequest((request, response) => {
         var allProducts = [] as object[];
         var apiURL = "";
 
-        // if the user is an influencer, we load all products
+        // if the user is an influencer, we load influencer specific collection
         if (request.body.influencerStatus) {
-          apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=166999425127';
+          apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=166999425127&limit=250';
         } else {
           // otherwise, if the user is not an influencer, we only load from the ambassador specific collection
-          apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=165959073895';
+          apiURL = '@luca-bracelets.myshopify.com/admin/api/2020-04/products.json?collection_id=165959073895&limit=250';
         }
 
         axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + apiURL)
