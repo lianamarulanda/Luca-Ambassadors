@@ -43,7 +43,7 @@ const initialState = Object.freeze({
 });
 
 const productFilters = Object.freeze({
-  "1 Bracelet Set": [] as object[],
+  "1 Eyeglass Chain": [] as object[],
   "2 Single Bracelets": [] as object[],
   "2 Anklets": [] as object[],
   "2 1 Bracelet + 1 Anklet": [] as object[],
@@ -59,13 +59,13 @@ export default function PackageComponent(props: any) {
   const [filteredProducts, updateFilters] = React.useState(productFilters);
 
   React.useEffect(() => {
-    if (filteredProducts["1 Bracelet Set"].length === 0) {
+    if (filteredProducts["2 Single Bracelets"].length === 0) {
       filterProducts(props.data);
     }
   }, []);
 
   const filterProducts = (allProducts: any) => {
-    var braceletSets = [] as object[];
+    var glassesChains = [] as object[];
     var singleBracelets = [] as object[];
     var anklets = [] as object[];
     var braceletAnklet = [] as object[];
@@ -74,8 +74,8 @@ export default function PackageComponent(props: any) {
     var baseballCaps = [] as object[];
 
     allProducts.forEach((product: any) => {
-      if (product.tags.includes("Sets")) {
-        braceletSets.push(product);
+      if (product.product_type == "Eyeglass Chain") {
+        glassesChains.push(product);
       } else if (product.product_type === "Bracelet" && !product.tags.includes("Sets")) {
         singleBracelets.push(product);
         braceletAnklet.push(product);
@@ -93,7 +93,7 @@ export default function PackageComponent(props: any) {
 
     updateFilters({
       ...filteredProducts,
-      "1 Bracelet Set": braceletSets,
+      "1 Eyeglass Chain": glassesChains,
       "2 Single Bracelets": singleBracelets,
       "2 Anklets": anklets,
       "2 1 Bracelet + 1 Anklet": braceletAnklet,
@@ -138,10 +138,10 @@ export default function PackageComponent(props: any) {
         <Grid item xs={4} >
           <Button
             variant="outlined"
-            className={selectionState.packageSelection === "1 Bracelet Set" ? classes.selectedCard : classes.card}
-            onClick={() => handleSelect("1 Bracelet Set")}
+            className={selectionState.packageSelection === "1 Eyeglass Chain" ? classes.selectedCard : classes.card}
+            onClick={() => handleSelect("1 Eyeglass Chain")}
           >
-            1 Bracelet Set
+            1 Eyeglass Chain
           </Button>
         </Grid>
         <Grid item xs={4}>
