@@ -19,6 +19,32 @@ const whitelist = [
   'https://luca-ambassadors.web.app',
 ];
 
+// remove admin role
+export const removeAdminRole = functions.https.onRequest((request, response) => {
+  const origin = request.headers.origin as string;
+  if (whitelist.indexOf(origin) > -1) {
+    response.set('Access-Control-Allow-Origin', origin);
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.set('Access-Control-Allow-Methods', 'POST')
+      .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+      .status(200)
+      .send();
+  } else {
+    admin.auth().getUserByEmail(request.body.email)
+      .then((user: any) => admin.auth().setCustomUserClaims(user.uid, {
+        admin: false,
+      }))
+      .then(() => {
+        response.status(200).send("Successfully set admin to false")
+      })
+      .catch((err: any) => {
+        response.status(400).send(err);
+      });
+  }
+});
+
 // request parameter is a json object
 export const addAdminRole = functions.https.onRequest((request, response) => {
   const origin = request.headers.origin as string;
