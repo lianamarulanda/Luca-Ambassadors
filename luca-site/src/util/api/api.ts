@@ -194,7 +194,9 @@ export default class Api {
       this.authentication.signInWithEmailAndPassword(email, password)
         .then(async () => {
           this.loadUserData()
-            .then(() => {
+            .then(async() => {
+              var userToken = await this.getAuthToken();
+              console.log(userToken);
               resolve();
             })
             .catch(() => {
@@ -394,6 +396,68 @@ export default class Api {
     this.dashboardData.totalCommissions = (.20 * totalSales);
     this.dashboardData.monthlyCommissions = monthlyCommissions;
     this.dashboardData.productMap = sortedProducts;
+  }
+
+  public async getBiMonthlyStatus(): Promise<boolean> {
+    return new Promise ((resolve, reject) => {
+      // if dashboard data is empty, load dashboard data
+      if (Object.keys(this.dashboardData).length === 0) {
+        this.loadDashboardData()
+          .then(() => {
+            var canOrder = this.getAppOrders();
+            resolve(canOrder);
+          })
+          .catch((error: any) => {
+            reject();
+          })
+      }
+      else {
+        var canOrder = this.getAppOrders();
+        resolve(canOrder);
+      }
+    }) 
+  }
+
+  public getAppOrders(): boolean {
+    var currDate = new Date();
+    var limit = new Date();
+    limit.setMonth(limit.getMonth() - 2);
+    var appOrders = [];
+
+    // go thru orders and see if last app order was placed at least 2 months ago
+    for (var i = 0; i < this.dashboardData.userOrders.length; i++) {
+      if (this.dashboardData.userOrders[i].appOrder) 
+        appOrders.push(this.dashboardData.userOrders[i]);
+    }
+
+    console.log('I started getAppOrders()');
+
+    if (appOrders.length > 0) {
+      // sort by date
+      appOrders.sort(function(a: any, b: any) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        // @ts-ignore
+        return new Date(b.date) - new Date(a.date);
+      });
+
+      console.log("limit: " + limit);
+      var latestDate = new Date(appOrders[0].date);
+
+      var inRange = this.inRange(latestDate, limit, currDate) as any;
+      console.log(typeof(inRange));
+      console.log(inRange);
+      if (inRange) {
+        console.log('I ended getAppOrders() and returned true (1)');
+        return true;
+      } else {
+        console.log('I ended getAppOrders() and returned false');
+        return false;
+      }
+    } else {
+      console.log('I ended getAppOrders() and returned true (2)');
+      return true;
+    }
   }
 
   public async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<string> {
@@ -933,6 +997,17 @@ export default class Api {
           reject(error);
         })
     })
+  }
+
+  private inRange(d:Date, start:Date, end:Date): any {
+    console.log('I started inRange');
+    return (
+      isFinite(d.valueOf()) &&
+      isFinite(start.valueOf()) &&
+      isFinite(end.valueOf()) ?
+      start <= d && d <= end :
+      NaN
+    );
   }
 }
 

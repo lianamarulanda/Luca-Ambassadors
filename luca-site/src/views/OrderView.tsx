@@ -48,9 +48,15 @@ function OrderView() {
       if (!api.checkEmailVerification()) {
         updateComponent("VerifyComponent")
       } else if (api.userData.influencerStatus) {
-        updateComponent("OrderComponent");
+        api.getBiMonthlyStatus().then((canOrder: boolean) => {
+          console.log("Can order: " + canOrder);
+          updateComponent("OrderComponent");
+          setLoaded(true);
+        })
+        .catch((error: any) => {
+          setLoaded(true);
+        })
       }
-      setLoaded(true);
     }
   }, [history, api]);
 

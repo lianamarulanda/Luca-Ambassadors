@@ -19,8 +19,10 @@ const whitelist = [
   'https://luca-ambassadors.web.app',
 ];
 
+const cors = require('cors')({origin: true});
+
 // remove admin role
-export const removeAdminRole = functions.https.onRequest((request, response) => {
+export const removeAdminRole = functions.https.onRequest((request: any, response: any) => {
   const origin = request.headers.origin as string;
   if (whitelist.indexOf(origin) > -1) {
     response.set('Access-Control-Allow-Origin', origin);
@@ -46,7 +48,7 @@ export const removeAdminRole = functions.https.onRequest((request, response) => 
 });
 
 // request parameter is a json object
-export const addAdminRole = functions.https.onRequest((request, response) => {
+export const addAdminRole = functions.https.onRequest((request: any, response: any) => {
   const origin = request.headers.origin as string;
   if (whitelist.indexOf(origin) > -1) {
     response.set('Access-Control-Allow-Origin', origin);
@@ -77,65 +79,71 @@ export const addAdminRole = functions.https.onRequest((request, response) => {
   }
 });
 
-export const getOrders = functions.https.onRequest((request, response) => {
-  const origin = request.headers.origin as string;
-  if (whitelist.indexOf(origin) > -1) {
-    response.set('Access-Control-Allow-Origin', origin);
-  }
+export const getOrders = functions.https.onRequest((request: any, response: any) => {
+  //const origin = request.headers.origin as string;
+  //if (whitelist.indexOf(origin) > -1) {
+  //  response.set('Access-Control-Allow-Origin', origin);
+  //}
 
-  if (request.method === 'OPTIONS') {
-    response.set('Access-Control-Allow-Methods', 'POST')
-      .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-      .status(200)
-      .send();
-  } else {
+  //if (request.method === 'OPTIONS') {
+  //  response.set('Access-Control-Allow-Methods', 'POST')
+  //    .set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  //    .status(200)
+  //    .send();
+  //} else {
+  cors(request, response, () => {
     isUser(admin.auth(), request.headers.authorization)
-      .then(() => {
-        var orders = {
-          codeOrders: [] as object[],
-          userOrders: [] as object[],
-        }
+    .then(() => {
+      var orders = {
+        codeOrders: [] as object[],
+        userOrders: [] as object[],
+      }
 
-        axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json?limit=250')
-          .then(async result => {
-            // get all results that have a discount code applied
-            result.data.orders.forEach((order: any) => {
+      axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json?limit=250')
+        .then(async (result: any) => {
+          // get all results that have a discount code applied
+          result.data.orders.forEach((order: any) => {
+            if (order.discount_codes.length !== 0 && order.discount_codes[0].code.toLowerCase() === request.body.discountCode.toLowerCase())
+              orders.codeOrders.push(order);
+            if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email) {
+              var date = new Date(order.created_at);
+              var fromApp = false;
+              if (order.app_id == 3898003)
+                fromApp = true;
+              orders.userOrders.push({
+                id: order.id,
+                date: date.toUTCString(),
+                number: order.name,
+                appOrder: fromApp
+              });
+            }
+          })
+
+          var url = helper(result.headers.link);
+          while (url !== "") {
+            var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
+            nextOrders.data.orders.forEach((order: any) => {
               if (order.discount_codes.length !== 0 && order.discount_codes[0].code.toLowerCase() === request.body.discountCode.toLowerCase())
                 orders.codeOrders.push(order);
-              if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email) {
-                var date = new Date(order.created_at);
-                orders.userOrders.push({
-                  id: order.id,
-                  date: date.toUTCString(),
-                  number: order.name,
-                });
-              }
+              if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email)
+                orders.userOrders.push(order);
             })
-
-            var url = helper(result.headers.link);
-            while (url !== "") {
-              var nextOrders: any = await axios.get('https://' + shopify.apiKey + ':' + shopify.apiPass + '@' + url);
-              nextOrders.data.orders.forEach((order: any) => {
-                if (order.discount_codes.length !== 0 && order.discount_codes[0].code.toLowerCase() === request.body.discountCode.toLowerCase())
-                  orders.codeOrders.push(order);
-                if (order.customer !== undefined && order.customer.email !== null && order.customer.email === request.body.email)
-                  orders.userOrders.push(order);
-              })
-              url = helper(nextOrders.headers.link);
-            }
-            response.status(200).send(orders);
-          })
-          .catch((err: any) => {
-            response.status(200).send(err);
-          });
-      })
-      .catch((err: any) => {
-        response.status(401).send(`Unauthorized: ${err}`);
-      });
-  }
+            url = helper(nextOrders.headers.link);
+          }
+          response.status(200).send(orders);
+        })
+        .catch((err: any) => {
+          response.status(200).send(err);
+        });
+    })
+    .catch((err: any) => {
+      response.status(401).send(`Unauthorized: ${err}`);
+    });
+  })
+  //}
 });
 
-export const createOrder = functions.https.onRequest((request, response) => {
+export const createOrder = functions.https.onRequest((request: any, response: any) => {
   const origin = request.headers.origin as string;
   if (whitelist.indexOf(origin) > -1) {
     response.set('Access-Control-Allow-Origin', origin);
@@ -150,7 +158,7 @@ export const createOrder = functions.https.onRequest((request, response) => {
     isUser(admin.auth(), request.headers.authorization)
       .then(() => {
         axios.post('https://' + shopify.apiKey + ':' + shopify.apiPass + '@luca-bracelets.myshopify.com/admin/api/2020-04/orders.json', request.body)
-          .then(result => {
+          .then((result: any) => {
             response.status(200).send(result.data);
           })
           .catch((err: any) => {
@@ -163,7 +171,7 @@ export const createOrder = functions.https.onRequest((request, response) => {
   }
 });
 
-export const getProducts = functions.https.onRequest((request, response) => {
+export const getProducts = functions.https.onRequest((request: any, response: any) => {
   const origin = request.headers.origin as string;
   if (whitelist.indexOf(origin) > -1) {
     response.set('Access-Control-Allow-Origin', origin);
@@ -237,7 +245,7 @@ export const getProducts = functions.https.onRequest((request, response) => {
   }
 });
 
-export const getDiscountCodes = functions.https.onRequest((request, response) => {
+export const getDiscountCodes = functions.https.onRequest((request: any, response: any) => {
   const origin = request.headers.origin as string;
   if (whitelist.indexOf(origin) > -1) {
     response.set('Access-Control-Allow-Origin', origin);
