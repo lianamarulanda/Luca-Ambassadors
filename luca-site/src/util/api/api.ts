@@ -196,7 +196,6 @@ export default class Api {
           this.loadUserData()
             .then(async() => {
               var userToken = await this.getAuthToken();
-              console.log(userToken);
               resolve();
             })
             .catch(() => {
@@ -430,8 +429,6 @@ export default class Api {
         appOrders.push(this.dashboardData.userOrders[i]);
     }
 
-    console.log('I started getAppOrders()');
-
     if (appOrders.length > 0) {
       // sort by date
       appOrders.sort(function(a: any, b: any) {
@@ -441,23 +438,32 @@ export default class Api {
         return new Date(b.date) - new Date(a.date);
       });
 
-      console.log("limit: " + limit);
       var latestDate = new Date(appOrders[0].date);
+      latestDate.setHours(0,0,0,0);
+      limit.setHours(0,0,0,0);
 
-      var inRange = this.inRange(latestDate, limit, currDate) as any;
-      console.log(typeof(inRange));
-      console.log(inRange);
-      if (inRange) {
-        console.log('I ended getAppOrders() and returned true (1)');
+      if (latestDate <= limit) {
         return true;
       } else {
-        console.log('I ended getAppOrders() and returned false');
         return false;
       }
     } else {
-      console.log('I ended getAppOrders() and returned true (2)');
       return true;
     }
+  }
+
+  public getLastOrderDate(): string[] {
+
+    var lastOrderDate = new Date(this.dashboardData.userOrders[0].date);
+    var nextOrderDate = new Date(lastOrderDate);
+    nextOrderDate.setMonth(lastOrderDate.getMonth() + 2);
+    nextOrderDate.setHours(0,0,0,0);
+
+    var dates = [] as string[];
+    dates.push(lastOrderDate.toLocaleString());
+    dates.push(nextOrderDate.toLocaleString());
+
+    return dates;
   }
 
   public async updatePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<string> {
@@ -792,7 +798,7 @@ export default class Api {
         var currDate = new Date();
         this.announcements.add({
           description: announcement.message,
-          date: currDate.toUTCString()
+          date: currDate.toLocaleString()
         })
           .then(() => {
             resolve("Announcement successfully created!");
@@ -997,17 +1003,6 @@ export default class Api {
           reject(error);
         })
     })
-  }
-
-  private inRange(d:Date, start:Date, end:Date): any {
-    console.log('I started inRange');
-    return (
-      isFinite(d.valueOf()) &&
-      isFinite(start.valueOf()) &&
-      isFinite(end.valueOf()) ?
-      start <= d && d <= end :
-      NaN
-    );
   }
 }
 

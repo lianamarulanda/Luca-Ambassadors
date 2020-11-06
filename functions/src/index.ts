@@ -112,7 +112,7 @@ export const getOrders = functions.https.onRequest((request: any, response: any)
                 fromApp = true;
               orders.userOrders.push({
                 id: order.id,
-                date: date.toUTCString(),
+                date: date.toLocaleString(),
                 number: order.name,
                 appOrder: fromApp
               });

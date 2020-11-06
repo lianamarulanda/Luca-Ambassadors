@@ -13,6 +13,7 @@ import TierComponent from '../components/order/TierComponent';
 import LoadComponent from '../components/layout/LoadComponent';
 import VerifyComponent from '../components/order/VerifyComponent';
 import HighSalesTierComponent from '../components/order/HighSalesTier';
+import OrderLater from '../components/order/OrderLater';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -28,6 +29,7 @@ const useStyles = makeStyles((theme: any) => ({
     paddingBottom: theme.spacing(4),
   },
 }));
+
 
 function OrderView() {
   const classes = useStyles();
@@ -46,16 +48,23 @@ function OrderView() {
       history.push('/login');
     } else {
       if (!api.checkEmailVerification()) {
-        updateComponent("VerifyComponent")
+        updateComponent("VerifyComponent");
+        setLoaded(true);
       } else if (api.userData.influencerStatus) {
         api.getBiMonthlyStatus().then((canOrder: boolean) => {
           console.log("Can order: " + canOrder);
-          updateComponent("OrderComponent");
+          if (canOrder)
+            updateComponent("OrderComponent");
+          else {
+            updateComponent("OrderLater");
+          }
           setLoaded(true);
         })
         .catch((error: any) => {
           setLoaded(true);
         })
+      } else {
+        setLoaded(true);
       }
     }
   }, [history, api]);
@@ -92,6 +101,9 @@ function OrderView() {
           }
           {component === "HighSales" &&
             <HighSalesTierComponent />
+          }
+          {component === "OrderLater" &&
+            <OrderLater />
           }
         </Container>
       </main>
