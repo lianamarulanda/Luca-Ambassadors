@@ -95,7 +95,7 @@ export const getOrders = functions.https.onRequest((request: any, response: any)
             response.status(200).send(orders);
           })
           .catch((err: any) => {
-            response.status(200).send(err);
+            response.status(400).send(err);
           });
       })
       .catch((err: any) => {
