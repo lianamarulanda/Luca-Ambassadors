@@ -302,12 +302,7 @@ export default class Api {
           // then, get the actual code data and announcements
           .then(async (orders: []) => {
             this.getCodeData(orders);
-            this.loadAnnouncements().then(() => {
-              resolve();
-            })
-              .catch((error: any) => {
-                reject(error);
-              })
+            resolve();
           })
           // error with getting the associated orders
           .catch((error: any) => {

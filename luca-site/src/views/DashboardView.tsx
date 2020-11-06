@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [loaded, setLoaded] = React.useState(false);
   const [admin, setAdmin] = React.useState(false);
   const [sidebar, updateSidebar] = React.useState(false);
+  const [loadMsg, setLoadMsg] = React.useState("");
 
   const sidebarToggle = () => {
     updateSidebar(!sidebar);
@@ -46,15 +47,17 @@ const App: React.FC = () => {
   }, [history, api]);
 
   const getDashboardData = async () => {
+    setLoadMsg("Fetching orders and discount code data...");
     api.loadDashboardData()
       .then(() => {
-        setLoaded(true);
+        getAnnouncements();
       })
       .catch((error: any) => {
       })
   }
 
   const getAnnouncements = async () => {
+    setLoadMsg("Fetching latest announcements...");
     api.loadAnnouncements()
       .then(() => {
         setLoaded(true);
@@ -64,7 +67,7 @@ const App: React.FC = () => {
   }
 
   if (!loaded) {
-    return (<LoadComponent message={"If not redirected in ~20 seconds, please refresh the page."} />)
+    return (<LoadComponent message={loadMsg} />)
   }
 
   return (
