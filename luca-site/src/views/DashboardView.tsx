@@ -30,14 +30,9 @@ const App: React.FC = () => {
         .then((status: boolean) => {
           if (status) {
             setAdmin(true);
-            if (!loaded) {
-              getAnnouncements();
-            }
-          }
-          else {
-            if (!loaded) {
-              getDashboardData();
-            }
+            getAnnouncements();
+          } else {
+            setLoaded(true);
           }
         })
         .catch((error: any) => {
@@ -46,15 +41,16 @@ const App: React.FC = () => {
     }
   }, [history, api]);
 
-  const getDashboardData = async () => {
-    setLoadMsg("Fetching orders and discount code data...");
-    api.loadDashboardData()
-      .then(() => {
-        getAnnouncements();
-      })
-      .catch((error: any) => {
-      })
-  }
+  // const getDashboardData = async () => {
+  //   await getAnnouncements();
+    
+  //   api.loadDashboardData()
+  //     .then(() => {
+  //       console.log("dashboard data has been loaded");
+  //     })
+  //     .catch((error: any) => {
+  //     })
+  // }
 
   const getAnnouncements = async () => {
     setLoadMsg("Fetching latest announcements...");

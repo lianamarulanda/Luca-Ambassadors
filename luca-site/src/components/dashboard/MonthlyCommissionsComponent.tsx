@@ -2,12 +2,14 @@ import React from 'react';
 import Chart from "react-apexcharts";
 import { Card, CardContent } from '@material-ui/core';
 import { DbContext } from '../../util/api';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-const MonthlyCommissionsComponent = () => {
+const MonthlyCommissionsComponent = (props: any) => {
+  const [loaded, setLoad] = React.useState(false);
   const api = React.useContext(DbContext);
   var monthCreated = api.getMonthCreated();
-  var data = api.dashboardData.monthlyCommissions as any;
   var currDate = new Date();
+  var data = props.data;
 
   const monthLookup = {
     0: "Jan",
@@ -26,12 +28,22 @@ const MonthlyCommissionsComponent = () => {
 
   var monthLabels: string[] = [];
 
-  for (var i = monthCreated; i < data.length; i++) {
-    monthLabels.push(monthLookup[i]);
-  }
+  React.useEffect(() => {
+    console.log(props.data);
+    if (props.data !== undefined) {
+      console.log("i am not undefined!");
 
-  data = data.slice(monthCreated);
+      for (var i = monthCreated; i < props.data.length; i++) {
+        monthLabels.push(monthLookup[i]);
+      }
+    
+      data = props.data.slice(monthCreated);
+      console.log(data);
 
+      setLoad(true);
+    }
+  });
+  
   const state = {
     series: [{
       name: "Commissions Amount ($)",
@@ -74,15 +86,19 @@ const MonthlyCommissionsComponent = () => {
       }
     },
 
-
   } as any;
 
   return (
     <Card>
       <CardContent>
-        <div id="chart">
+        {!loaded &&
+          <CircularProgress />
+        }
+        {loaded &&
+          <div id="chart">
           <Chart options={state.options} series={state.series} type="line" height={350} />
-        </div>
+          </div>
+        }
       </CardContent>
     </Card>
   );

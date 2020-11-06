@@ -24,15 +24,18 @@ const DashboardComponent = (props: any) => {
   const api = React.useContext(DbContext);
   const [announcement, setOpen] = React.useState(true);
   const [banner, setBanner] = React.useState("");
+  const [monthlyCommissions, setMonthlyCommissions] = React.useState();
 
   React.useEffect(() => {
-    api.getBanner()
-      .then((banner: string) => {
-        setBanner(banner);
+    api.loadDashboardData()
+      .then(() => {
+        console.log("dashboard data loaded");
+        console.log(api.dashboardData);
+        setMonthlyCommissions(api.dashboardData.monthlyCommissions)
       })
       .catch(() => {
-        // no banner was found.
-      });
+
+      })
   }, []);
 
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
@@ -72,35 +75,34 @@ const DashboardComponent = (props: any) => {
           xs={12}
           sm={4}
         >
-          <TotalCheckouts />
         </Grid>
         <Grid
           item
           xs={12}
           sm={4}
         >
-          <TotalSales />
+
         </Grid>
         <Grid
           item
           xs={12}
           sm={4}
         >
-          <TotalCommission />
+
         </Grid>
         <Grid
           item
           xs={12}
           sm={6}
         >
-          <MonthlyCommissionsComponent />
+          <MonthlyCommissionsComponent data={monthlyCommissions}/>
         </Grid>
         <Grid
           item
           xs={12}
           sm={6}
         >
-          <TopProductsComponent />
+
         </Grid>
         <Grid container>
           <Grid item>
@@ -113,7 +115,7 @@ const DashboardComponent = (props: any) => {
           item
           xs={12}
         >
-          <OrdersComponent />
+
         </Grid>
         <Grid container>
           <Typography variant="h4" style={{ fontWeight: 700, padding: '22px' }}>
@@ -129,7 +131,7 @@ const DashboardComponent = (props: any) => {
           item
           xs={12}
         >
-          <AnnouncementsComponent adminStatus={props.adminStatus} />
+
         </Grid>
       </Grid>
     </Container>

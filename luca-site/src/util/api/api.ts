@@ -796,7 +796,7 @@ export default class Api {
           date: currDate.toLocaleString()
         })
           .then(() => {
-            resolve("Announcement successfully created!");
+            resolve("Announcement successfully created! Refresh to view.");
           })
           .catch((error: any) => {
             reject("An error occurred!");
