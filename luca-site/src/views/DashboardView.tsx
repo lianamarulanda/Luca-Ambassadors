@@ -5,17 +5,17 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import Sidebar from '../components/layout/SidebarComponent'
 import { useHistory } from 'react-router-dom'
 import { DbContext } from '../util/api';
-import LoadComponent from '../components/layout/LoadComponent';
 import AdminComponent from '../components/dashboard/AdminComponent';
 import DashboardComponent from '../components/dashboard/DashboardComponent';
 
 const dashboardState = Object.freeze({
-  totalSales: 0,
-  totalCheckouts: 0,
-  totalCommissions: 0,
-  monthlyCommissions: [],
-  productMap: new Map(),
-  announcements: [],
+  totalSales: undefined,
+  totalCheckouts: undefined,
+  totalCommissions: undefined,
+  monthlyCommissions: undefined,
+  productMap: undefined,
+  announcements: undefined,
+  userOrders: undefined,
 });
 
 
@@ -23,7 +23,6 @@ const App: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const api = React.useContext(DbContext);
-  const [loaded, setLoaded] = React.useState(false);
   const [admin, setAdmin] = React.useState(false);
   const [sidebar, updateSidebar] = React.useState(false);
   const [dashboardData, updateState] = React.useState(dashboardState);
@@ -42,10 +41,7 @@ const App: React.FC = () => {
             setAdmin(true);
             getAnnouncements();
           } else {
-            console.log('Starting loadDashboardData because status is false');
             loadDashboardData();
-            console.log('Setting setLoaded to true');
-            setLoaded(true);
           }
         })
         .catch((error: any) => {
@@ -57,15 +53,17 @@ const App: React.FC = () => {
   const getAnnouncements = async () => {
     api.loadAnnouncements()
       .then(() => {
-        setLoaded(true);
+        updateState({
+          ...dashboardData,
+          announcements: api.dashboardData.announcements,
+        })
       })
       .catch((error: any) => {
       })
   }
 
   const loadDashboardData = async () => {
-    console.log('Printing loadDashboardData');
-    await api.loadDashboardData().then(() => {
+    await api.loadDashboardData().then(async () => {
       updateState({
         ...dashboardData,
         totalSales: api.dashboardData.totalSales,
@@ -73,14 +71,9 @@ const App: React.FC = () => {
         monthlyCommissions: api.dashboardData.monthlyCommissions,
         totalCheckouts: api.dashboardData.totalCheckouts,
         productMap: api.dashboardData.productMap,
-        announcements: api.dashboardData.announcements
+        userOrders: api.dashboardData.userOrders
       })
     });
-    // how to make dashboard state refresh while api.loadDashboardData runs its course?
-  }
-
-  if (!loaded) {
-    return (<LoadComponent />)
   }
 
   console.log(dashboardData);

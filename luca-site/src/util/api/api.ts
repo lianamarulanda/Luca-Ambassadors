@@ -344,6 +344,7 @@ export default class Api {
     var monthlyCommissions: number[] = [];
     var totalSales = 0;
     var productMap = new Map();
+    var currDate = new Date();
 
     codeOrders.forEach((order: any) => {
       // accumulate the subtotal prices to see how much revenue was brought in
@@ -351,7 +352,6 @@ export default class Api {
 
       // handle monthly commissions
       var date = new Date(order.created_at);
-      var currDate = new Date();
       if (date.getFullYear() === currDate.getFullYear()) {
         // .getMonth will return actual month - 1, which fits our indexes 
         if (typeof monthlyCommissions[date.getMonth()] === 'undefined') {
@@ -370,7 +370,7 @@ export default class Api {
     })
 
     // clean up monthlyCommissions to replace undefined indexes w/0, and round defined elements 
-    for (let i = 0; i < monthlyCommissions.length; i++) {
+    for (let i = 0; i <= currDate.getMonth(); i++) {
       if (typeof monthlyCommissions[i] === 'undefined') {
         monthlyCommissions[i] = 0;
       } else {

@@ -7,6 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Zoom from '@material-ui/core/Zoom';
 import IconButton from '@material-ui/core/IconButton'
 import InfoIcon from '@material-ui/icons/Info';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -35,10 +36,16 @@ const useStyles = makeStyles((theme: any) => ({
   }
 }));
 
-const TotalSales = () => {
+const TotalSales = (props: any) => {
   const api = React.useContext(DbContext);
-  const totalSales = api.dashboardData.totalSales as any;
   const classes = useStyles();
+  const [loaded, setLoad] = React.useState(false);
+
+  React.useEffect(() => {
+    if (props.data !== undefined) {
+      setLoad(true);
+    }
+  });
 
   return (
     <Card
@@ -65,7 +72,12 @@ const TotalSales = () => {
                 </IconButton>
               </Tooltip>
             </Grid>
-            <Typography variant="h3" className={classes.data}>${totalSales.toFixed(2)}</Typography>
+            {!loaded &&
+              <CircularProgress />
+            }
+            {loaded &&
+              <Typography variant="h3" className={classes.data}>${props.data.toFixed(2)}</Typography>
+            }
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>

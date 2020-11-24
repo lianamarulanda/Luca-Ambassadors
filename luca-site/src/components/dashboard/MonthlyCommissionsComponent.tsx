@@ -7,9 +7,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 const MonthlyCommissionsComponent = (props: any) => {
   const [loaded, setLoad] = React.useState(false);
   const api = React.useContext(DbContext);
-  var monthCreated = api.getMonthCreated();
   var currDate = new Date();
-  var data = props.data;
+  var data = [] as any[];
+  var monthCreated = api.getMonthCreated(); 
 
   const monthLookup = {
     0: "Jan",
@@ -29,16 +29,13 @@ const MonthlyCommissionsComponent = (props: any) => {
   var monthLabels: string[] = [];
   
   React.useEffect(() => {
-    // console.log(props.data);
     if (props.data !== undefined) {
-
-      for (var i = monthCreated; i < props.data.length; i++) {
+      data = props.data;
+      for (var i = monthCreated; i <= currDate.getMonth(); i++) {
         monthLabels.push(monthLookup[i]);
       }
-    
-      data = props.data.slice(monthCreated);
-      console.log(data);
-      console.log(monthLabels);
+
+      data = data.splice(monthCreated);
 
       setLoad(true);
     }
