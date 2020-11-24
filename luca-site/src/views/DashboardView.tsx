@@ -42,8 +42,10 @@ const App: React.FC = () => {
             setAdmin(true);
             getAnnouncements();
           } else {
-            setLoaded(true);
+            console.log('Starting loadDashboardData because status is false');
             loadDashboardData();
+            console.log('Setting setLoaded to true');
+            setLoaded(true);
           }
         })
         .catch((error: any) => {
@@ -62,17 +64,19 @@ const App: React.FC = () => {
   }
 
   const loadDashboardData = async () => {
-    api.loadDashboardData();
+    console.log('Printing loadDashboardData');
+    await api.loadDashboardData().then(() => {
+      updateState({
+        ...dashboardData,
+        totalSales: api.dashboardData.totalSales,
+        totalCommissions: api.dashboardData.totalCommissions,
+        monthlyCommissions: api.dashboardData.monthlyCommissions,
+        totalCheckouts: api.dashboardData.totalCheckouts,
+        productMap: api.dashboardData.productMap,
+        announcements: api.dashboardData.announcements
+      })
+    });
     // how to make dashboard state refresh while api.loadDashboardData runs its course?
-    updateState({
-      ...dashboardData,
-      totalSales: api.dashboardData.totalSales,
-      totalCommissions: api.dashboardData.totalCommissions,
-      monthlyCommissions: api.dashboardData.monthlyCommissions,
-      totalCheckouts: api.dashboardData.totalCheckouts,
-      productMap: api.dashboardData.productMap,
-      announcements: api.dashboardData.announcements
-    })
   }
 
   if (!loaded) {
