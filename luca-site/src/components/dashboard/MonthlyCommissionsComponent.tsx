@@ -27,11 +27,10 @@ const MonthlyCommissionsComponent = (props: any) => {
   } as any;
 
   var monthLabels: string[] = [];
-
+  
   React.useEffect(() => {
-    console.log(props.data);
+    // console.log(props.data);
     if (props.data !== undefined) {
-      console.log("i am not undefined!");
 
       for (var i = monthCreated; i < props.data.length; i++) {
         monthLabels.push(monthLookup[i]);
@@ -39,6 +38,7 @@ const MonthlyCommissionsComponent = (props: any) => {
     
       data = props.data.slice(monthCreated);
       console.log(data);
+      console.log(monthLabels);
 
       setLoad(true);
     }

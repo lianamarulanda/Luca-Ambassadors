@@ -9,6 +9,16 @@ import LoadComponent from '../components/layout/LoadComponent';
 import AdminComponent from '../components/dashboard/AdminComponent';
 import DashboardComponent from '../components/dashboard/DashboardComponent';
 
+const dashboardState = Object.freeze({
+  totalSales: 0,
+  totalCheckouts: 0,
+  totalCommissions: 0,
+  monthlyCommissions: [],
+  productMap: new Map(),
+  announcements: [],
+});
+
+
 const App: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
@@ -16,7 +26,7 @@ const App: React.FC = () => {
   const [loaded, setLoaded] = React.useState(false);
   const [admin, setAdmin] = React.useState(false);
   const [sidebar, updateSidebar] = React.useState(false);
-  const [loadMsg, setLoadMsg] = React.useState("");
+  const [dashboardData, updateState] = React.useState(dashboardState);
 
   const sidebarToggle = () => {
     updateSidebar(!sidebar);
@@ -33,6 +43,7 @@ const App: React.FC = () => {
             getAnnouncements();
           } else {
             setLoaded(true);
+            loadDashboardData();
           }
         })
         .catch((error: any) => {
@@ -41,19 +52,7 @@ const App: React.FC = () => {
     }
   }, [history, api]);
 
-  // const getDashboardData = async () => {
-  //   await getAnnouncements();
-    
-  //   api.loadDashboardData()
-  //     .then(() => {
-  //       console.log("dashboard data has been loaded");
-  //     })
-  //     .catch((error: any) => {
-  //     })
-  // }
-
   const getAnnouncements = async () => {
-    setLoadMsg("Fetching latest announcements...");
     api.loadAnnouncements()
       .then(() => {
         setLoaded(true);
@@ -62,9 +61,25 @@ const App: React.FC = () => {
       })
   }
 
-  if (!loaded) {
-    return (<LoadComponent message={loadMsg} />)
+  const loadDashboardData = async () => {
+    api.loadDashboardData();
+    // how to make dashboard state refresh while api.loadDashboardData runs its course?
+    updateState({
+      ...dashboardData,
+      totalSales: api.dashboardData.totalSales,
+      totalCommissions: api.dashboardData.totalCommissions,
+      monthlyCommissions: api.dashboardData.monthlyCommissions,
+      totalCheckouts: api.dashboardData.totalCheckouts,
+      productMap: api.dashboardData.productMap,
+      announcements: api.dashboardData.announcements
+    })
   }
+
+  if (!loaded) {
+    return (<LoadComponent />)
+  }
+
+  console.log(dashboardData);
 
   return (
     <div className={clsx(classes.root)}>
@@ -75,7 +90,7 @@ const App: React.FC = () => {
           <AdminComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
         }
         {!admin &&
-          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
+          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} data={dashboardData} />
         }
       </main>
     </div>

@@ -16,6 +16,7 @@ export default class Api {
   private bannerRef: any;
   public userData: any;
   public dashboardData: any;
+  public ordersLoaded: boolean;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -30,6 +31,7 @@ export default class Api {
     this.bannerRef = this.myDatabase.collection('banner');
     this.userData = {};
     this.dashboardData = {};
+    this.ordersLoaded = false;
   }
 
   // True if user is logged in, false if user is not logged in
@@ -294,17 +296,17 @@ export default class Api {
     })
   }
 
+  // load the basic stats such as order count, products, etc
   public async loadDashboardData(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // if the class dashboard data object is empty, then load it
-      if (Object.keys(this.dashboardData).length === 0) {
+      // if we have called already, don't call this func
+      if (!this.ordersLoaded) {
         this.getOrders(this.userData.discountCode)
-          // then, get the actual code data and announcements
-          .then(async (orders: []) => {
-            this.getCodeData(orders);
+          .then(async(codeOrders: []) => {
+            this.getCodeData(codeOrders);
             resolve();
           })
-          // error with getting the associated orders
+          // error w/getting associated orders
           .catch((error: any) => {
             reject(error);
           });
@@ -329,6 +331,7 @@ export default class Api {
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders', orders, config)
         .then((response: any) => {
           this.dashboardData.userOrders = response.data.userOrders;
+          this.ordersLoaded = true;
           resolve(response.data.codeOrders);
         })
         .catch((error: any) => {

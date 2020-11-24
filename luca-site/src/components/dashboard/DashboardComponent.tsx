@@ -24,19 +24,10 @@ const DashboardComponent = (props: any) => {
   const api = React.useContext(DbContext);
   const [announcement, setOpen] = React.useState(true);
   const [banner, setBanner] = React.useState("");
-  const [monthlyCommissions, setMonthlyCommissions] = React.useState();
 
-  React.useEffect(() => {
-    api.loadDashboardData()
-      .then(() => {
-        console.log("dashboard data loaded");
-        console.log(api.dashboardData);
-        setMonthlyCommissions(api.dashboardData.monthlyCommissions)
-      })
-      .catch(() => {
+  // banner stuff?
 
-      })
-  }, []);
+  console.log(props.data);
 
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
@@ -95,7 +86,7 @@ const DashboardComponent = (props: any) => {
           xs={12}
           sm={6}
         >
-          <MonthlyCommissionsComponent data={monthlyCommissions}/>
+          <MonthlyCommissionsComponent data={props.data.monthlyCommissions}/>
         </Grid>
         <Grid
           item
