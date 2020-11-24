@@ -94,7 +94,7 @@ const DashboardComponent = (props: any) => {
           xs={12}
           sm={6}
         >
-
+          <TopProductsComponent data={props.data.productMap} />
         </Grid>
         <Grid container>
           <Grid item>
@@ -123,7 +123,7 @@ const DashboardComponent = (props: any) => {
           item
           xs={12}
         >
-
+          <AnnouncementsComponent data={props.data.announcements} />
         </Grid>
       </Grid>
     </Container>

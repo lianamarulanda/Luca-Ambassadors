@@ -181,60 +181,62 @@ export default function AnnouncementsComponent(props: any) {
           }
         </DialogActions>
       </Dialog>
-      {!loaded && 
+      {!loaded &&
         <CircularProgress />
       }
       {loaded &&
-        <><TableContainer className={classes.container}>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <StyledTableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
-                    className={classes.title}
-                  >
-                    {column.label}
-                  </StyledTableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
-                return (
-                  <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
-                      const original = row[column.id];
-                      var value = original;
+        <div>
+          <TableContainer className={classes.container}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <StyledTableCell
+                      key={column.id}
+                      align={column.align}
+                      style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
+                      className={classes.title}
+                    >
+                      {column.label}
+                    </StyledTableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {console.log(props.data)}
+                {props.data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
+                  return (
+                    <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                      {columns.map((column) => {
+                        const original = row[column.id];
+                        var value = original;
 
-                      if (value.length > 255) {
-                        value = value.substring(0, 253);
-                        value += '...';
-                      }
-                      return (
-                        <StyledTableCell key={column.id} align={column.align} onClick={() => openPopup(row)}>
-                          {column.format && typeof value === 'number' ? column.format(value) : value}
-                        </StyledTableCell>
-                      );
-                    })}
-                  </StyledTableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-          <>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 100]}
-              component="div"
-              count={props.data.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage} />
-          </></>
+                        if (value.length > 255) {
+                          value = value.substring(0, 253);
+                          value += '...';
+                        }
+                        return (
+                          <StyledTableCell key={column.id} align={column.align} onClick={() => openPopup(row)}>
+                            {column.format && typeof value === 'number' ? column.format(value) : value}
+                          </StyledTableCell>
+                        );
+                      })}
+                    </StyledTableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component="div"
+            count={props.data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        </div>
       }
     </Paper>
   );

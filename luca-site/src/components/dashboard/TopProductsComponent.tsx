@@ -11,31 +11,28 @@ const TopProductsComponent = (props: any) => {
   const [productQuantities, setQuantities] = React.useState([] as number[])
 
   React.useEffect(() => {
-    console.log(props.data);
-    if (props.data !== undefined) {
-      // populate the arrays of product labels and corresponding quantities for the graph
-      var labels = [] as string[];
-      var quants = [] as number[];
-
-      var count = 0;
-      for (let [key, value] of props.data) {
-        labels.push(key);
-        quants.push(value);
-        count++;
-        if (count === 5)
-          break;
+    if (!loaded) {
+      if (props.data !== undefined) {
+        // populate the arrays of product labels and corresponding quantities for the graph
+        var labels = [] as string[];
+        var quants = [] as number[];
+  
+        var count = 0;
+        for (let [key, value] of props.data) {
+          labels.push(key);
+          quants.push(value);
+          count++;
+          if (count === 5)
+            break;
+        }
+  
+        setLabels(labels);
+        setQuantities(quants);
+        setLoad(true);
       }
-
-      setLabels(labels);
-      setQuantities(quants);
-      setLoad(true);
     }
   });
   
-  // bug -- constantly re-rendering. idk why
-  console.log(productQuantities);
-  console.log(productLabels);
-
   const state = {
     series: [{
       name: "Quantities Sold",
@@ -89,5 +86,3 @@ const TopProductsComponent = (props: any) => {
   );
 }
 export default TopProductsComponent;
-
-

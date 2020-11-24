@@ -216,6 +216,7 @@ export default class Api {
       this.authentication.signOut().then(() => {
         this.userData = {};
         this.dashboardData = {};
+        this.ordersLoaded = false;
         resolve();
       }).catch(function (error: any) {
         // catch error with signing out

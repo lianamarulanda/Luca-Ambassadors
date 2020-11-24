@@ -67,7 +67,6 @@ export default function StickyHeadTable(props: any) {
   const api = React.useContext(DbContext);
 
   React.useEffect(() => {
-    console.log(props.data);
     if (props.data !== undefined) {
       setLoad(true);
     }

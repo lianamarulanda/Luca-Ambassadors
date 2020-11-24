@@ -42,6 +42,7 @@ const App: React.FC = () => {
             getAnnouncements();
           } else {
             loadDashboardData();
+            getAnnouncements();
           }
         })
         .catch((error: any) => {
@@ -71,7 +72,8 @@ const App: React.FC = () => {
         monthlyCommissions: api.dashboardData.monthlyCommissions,
         totalCheckouts: api.dashboardData.totalCheckouts,
         productMap: api.dashboardData.productMap,
-        userOrders: api.dashboardData.userOrders
+        userOrders: api.dashboardData.userOrders,
+        announcements: dashboardData.announcements,
       })
     });
   }
