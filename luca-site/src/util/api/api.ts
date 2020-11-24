@@ -811,20 +811,24 @@ export default class Api {
 
   public async loadAnnouncements(): Promise<void> {
     return new Promise((resolve, reject) => {
-      var announcements = [] as object[];
-      this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
-        querySnapshot.forEach(function (announcement: any) {
-          announcements.push({
-            description: announcement.data().description,
-            date: announcement.data().date,
-          })
-        });
-        this.dashboardData.announcements = announcements;
-        resolve();
-      })
-        .catch((error: any) => {
-          reject("An error occurred!");
+      if (this.dashboardData.announcements !== undefined) {
+        var announcements = [] as object[];
+        this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
+          querySnapshot.forEach(function (announcement: any) {
+            announcements.push({
+              description: announcement.data().description,
+              date: announcement.data().date,
+            })
+          });
+          this.dashboardData.announcements = announcements;
+          resolve();
         })
+          .catch((error: any) => {
+            reject("An error occurred!");
+          })
+      } else {
+        resolve();
+      }
     })
   }
 

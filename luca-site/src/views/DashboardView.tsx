@@ -14,7 +14,6 @@ const dashboardState = Object.freeze({
   totalCommissions: undefined,
   monthlyCommissions: undefined,
   productMap: undefined,
-  announcements: undefined,
   userOrders: undefined,
 });
 
@@ -39,10 +38,8 @@ const App: React.FC = () => {
         .then((status: boolean) => {
           if (status) {
             setAdmin(true);
-            getAnnouncements();
           } else {
             loadDashboardData();
-            getAnnouncements();
           }
         })
         .catch((error: any) => {
@@ -50,18 +47,6 @@ const App: React.FC = () => {
         })
     }
   }, [history, api]);
-
-  const getAnnouncements = async () => {
-    api.loadAnnouncements()
-      .then(() => {
-        updateState({
-          ...dashboardData,
-          announcements: api.dashboardData.announcements,
-        })
-      })
-      .catch((error: any) => {
-      })
-  }
 
   const loadDashboardData = async () => {
     await api.loadDashboardData().then(async () => {
@@ -73,7 +58,6 @@ const App: React.FC = () => {
         totalCheckouts: api.dashboardData.totalCheckouts,
         productMap: api.dashboardData.productMap,
         userOrders: api.dashboardData.userOrders,
-        announcements: dashboardData.announcements,
       })
     });
   }

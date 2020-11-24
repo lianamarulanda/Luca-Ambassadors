@@ -18,6 +18,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography'
 import { Grid } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { PhotoSizeSelectLargeRounded } from '@material-ui/icons';
 
 interface Column {
   id: 'date' | 'description';
@@ -89,12 +90,17 @@ export default function AnnouncementsComponent(props: any) {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
   const [loaded, setLoad] = React.useState(false);
+  const [announcements, setAnnouncements] = React.useState([] as object[]);
 
   React.useEffect(() => {
-    console.log(props.data)
-    if (props.data !== undefined) {
-      console.log(props.data);
-      setLoad(true);
+    if (!loaded) {
+      api.loadAnnouncements().then(() => {
+        setAnnouncements(api.dashboardData.annoncements);
+        console.log(announcements);
+        setLoad(true);
+      })
+      .catch(() => {
+      })
     }
   });
   
@@ -203,8 +209,8 @@ export default function AnnouncementsComponent(props: any) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {console.log(props.data)}
-                {props.data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
+                {console.log(announcements)}
+                {announcements.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
                   return (
                     <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
                       {columns.map((column) => {
@@ -230,7 +236,7 @@ export default function AnnouncementsComponent(props: any) {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={props.data.length}
+            count={announcements.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onChangePage={handleChangePage}
