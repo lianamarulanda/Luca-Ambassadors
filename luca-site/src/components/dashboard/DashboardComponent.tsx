@@ -123,7 +123,7 @@ const DashboardComponent = (props: any) => {
           item
           xs={12}
         >
-          <AnnouncementsComponent adminStatus={props.adminStatus}/>
+
         </Grid>
       </Grid>
     </Container>

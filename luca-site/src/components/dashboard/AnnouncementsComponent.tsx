@@ -19,6 +19,7 @@ import Typography from '@material-ui/core/Typography'
 import { Grid } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { PhotoSizeSelectLargeRounded } from '@material-ui/icons';
+import { convertToObject } from 'typescript';
 
 interface Column {
   id: 'date' | 'description';
@@ -93,6 +94,7 @@ export default function AnnouncementsComponent(props: any) {
   const [announcements, setAnnouncements] = React.useState([] as object[]);
 
   React.useEffect(() => {
+    console.log(announcements);
     if (!loaded) {
       api.loadAnnouncements().then(() => {
         setAnnouncements(api.dashboardData.annoncements);
@@ -103,6 +105,8 @@ export default function AnnouncementsComponent(props: any) {
       })
     }
   });
+
+  console.log(announcements);
   
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);

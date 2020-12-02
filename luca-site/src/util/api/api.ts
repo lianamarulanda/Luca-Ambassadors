@@ -106,7 +106,7 @@ export default class Api {
                   this.usersRef.add({ // C
                     firstName: firstName,
                     lastName: lastName,
-                    email: email,
+                    email: email.toLowerCase(),
                     ambassadorID: ref.id,
                     influencer: influencer
                   })
