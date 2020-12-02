@@ -811,7 +811,7 @@ export default class Api {
 
   public async loadAnnouncements(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (this.dashboardData.announcements !== undefined) {
+      if (this.dashboardData.announcements === undefined) {
         var announcements = [] as object[];
         this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
           querySnapshot.forEach(function (announcement: any) {

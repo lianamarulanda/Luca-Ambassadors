@@ -97,7 +97,7 @@ export default function AnnouncementsComponent(props: any) {
     console.log(announcements);
     if (!loaded) {
       api.loadAnnouncements().then(() => {
-        setAnnouncements(api.dashboardData.annoncements);
+        setAnnouncements(api.dashboardData.announcements);
         console.log(announcements);
         setLoad(true);
       })
