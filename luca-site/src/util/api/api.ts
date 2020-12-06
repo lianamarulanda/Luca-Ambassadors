@@ -505,6 +505,9 @@ export default class Api {
 
   public async updateEmail(newEmail: string, confirmEmail: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      confirmEmail = confirmEmail.toLowerCase();
+      newEmail = newEmail.toLowerCase();
+      
       if (confirmEmail !== newEmail) {
         reject("Emails not equal!");
         return;
