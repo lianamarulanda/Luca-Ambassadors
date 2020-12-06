@@ -94,11 +94,9 @@ export default function AnnouncementsComponent(props: any) {
   const [announcements, setAnnouncements] = React.useState([] as object[]);
 
   React.useEffect(() => {
-    console.log(announcements);
     if (!loaded) {
       api.loadAnnouncements().then(() => {
         setAnnouncements(api.dashboardData.announcements);
-        console.log(announcements);
         setLoad(true);
       })
       .catch(() => {
@@ -106,7 +104,6 @@ export default function AnnouncementsComponent(props: any) {
     }
   });
 
-  console.log(announcements);
   
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -213,7 +210,6 @@ export default function AnnouncementsComponent(props: any) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {console.log(announcements)}
                 {announcements.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
                   return (
                     <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>

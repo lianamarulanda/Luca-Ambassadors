@@ -25,9 +25,15 @@ const DashboardComponent = (props: any) => {
   const [announcement, setOpen] = React.useState(true);
   const [banner, setBanner] = React.useState("");
 
-  // banner stuff?
-
-  console.log(props.data);
+  React.useEffect(() => {
+    api.getBanner()
+      .then((banner: string) => {
+        setBanner(banner);
+      })
+      .catch(() => {
+        // no banner was found.
+      });
+  }, []);
 
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {

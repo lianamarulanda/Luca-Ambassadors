@@ -16,7 +16,7 @@ export default class orders {
           "last_name": "",
           "email": "",
         },
-        "test": true,
+        "test": false,
         "email": "",
         "send_receipt": true,
         "send_fullfillment_receipt": true,

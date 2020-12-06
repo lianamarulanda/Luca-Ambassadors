@@ -417,7 +417,6 @@ export default class Api {
   }
 
   public getAppOrders(): boolean {
-    var currDate = new Date();
     var limit = new Date();
     limit.setMonth(limit.getMonth() - 2);
     var appOrders = [];
@@ -441,7 +440,7 @@ export default class Api {
       latestDate.setHours(0,0,0,0);
       limit.setHours(0,0,0,0);
 
-      if (latestDate <= limit) {
+      if (latestDate <= limit && this.userData.hasPlacedOrder === undefined) {
         return true;
       } else {
         return false;
@@ -505,6 +504,9 @@ export default class Api {
 
   public async updateEmail(newEmail: string, confirmEmail: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      confirmEmail = confirmEmail.toLowerCase();
+      newEmail = newEmail.toLowerCase();
+
       if (confirmEmail !== newEmail) {
         reject("Emails not equal!");
         return;
