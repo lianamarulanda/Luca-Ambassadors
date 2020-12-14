@@ -47,7 +47,6 @@ export default function OrderLater(props: any) {
   React.useEffect(() => {
     var dates = api.getLastOrderDate();
     changeState(dates);
-    console.log(dates);
   }, [api]);
 
   const changeState = (newDates: string[]) => {
@@ -55,7 +54,7 @@ export default function OrderLater(props: any) {
 
     updateDates({
       ...dates,
-      "lastOrderDate" : newDates[0],
+      "lastOrderDate" : newDates[0].split(',')[0],
       "nextOrderDate" : str.substring(0, str.length-1),
     })
   }

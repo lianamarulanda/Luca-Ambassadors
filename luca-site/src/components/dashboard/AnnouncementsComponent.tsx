@@ -17,6 +17,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography'
 import { Grid } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { PhotoSizeSelectLargeRounded } from '@material-ui/icons';
+import { convertToObject } from 'typescript';
 
 interface Column {
   id: 'date' | 'description';
@@ -81,14 +84,27 @@ export default function AnnouncementsComponent(props: any) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [openDialog, setDialog] = React.useState(false);
   const api = React.useContext(DbContext);
-  const data = api.dashboardData.announcements as object[];
   const [announcement, setAnnouncement] = React.useState({
     description: "",
     date: ""
   });
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loaded, setLoad] = React.useState(false);
+  const [announcements, setAnnouncements] = React.useState([] as object[]);
 
+  React.useEffect(() => {
+    if (!loaded) {
+      api.loadAnnouncements().then(() => {
+        setAnnouncements(api.dashboardData.announcements);
+        setLoad(true);
+      })
+      .catch(() => {
+      })
+    }
+  });
+
+  
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -172,55 +188,62 @@ export default function AnnouncementsComponent(props: any) {
           }
         </DialogActions>
       </Dialog>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <StyledTableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
-                  className={classes.title}
-                >
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
-              return (
-                <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                  {columns.map((column) => {
-                    const original = row[column.id];
-                    var value = original;
+      {!loaded &&
+        <CircularProgress />
+      }
+      {loaded &&
+        <div>
+          <TableContainer className={classes.container}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <StyledTableCell
+                      key={column.id}
+                      align={column.align}
+                      style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
+                      className={classes.title}
+                    >
+                      {column.label}
+                    </StyledTableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {announcements.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
+                  return (
+                    <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                      {columns.map((column) => {
+                        const original = row[column.id];
+                        var value = original;
 
-                    if (value.length > 255) {
-                      value = value.substring(0, 253);
-                      value += '...';
-                    }
-                    return (
-                      <StyledTableCell key={column.id} align={column.align} onClick={() => openPopup(row)}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
-                      </StyledTableCell>
-                    );
-                  })}
-                </StyledTableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
-      />
+                        if (value.length > 255) {
+                          value = value.substring(0, 253);
+                          value += '...';
+                        }
+                        return (
+                          <StyledTableCell key={column.id} align={column.align} onClick={() => openPopup(row)}>
+                            {column.format && typeof value === 'number' ? column.format(value) : value}
+                          </StyledTableCell>
+                        );
+                      })}
+                    </StyledTableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component="div"
+            count={announcements.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        </div>
+      }
     </Paper>
   );
 }

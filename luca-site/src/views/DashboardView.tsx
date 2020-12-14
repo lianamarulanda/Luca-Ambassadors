@@ -5,18 +5,26 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import Sidebar from '../components/layout/SidebarComponent'
 import { useHistory } from 'react-router-dom'
 import { DbContext } from '../util/api';
-import LoadComponent from '../components/layout/LoadComponent';
 import AdminComponent from '../components/dashboard/AdminComponent';
 import DashboardComponent from '../components/dashboard/DashboardComponent';
+
+const dashboardState = Object.freeze({
+  totalSales: undefined,
+  totalCheckouts: undefined,
+  totalCommissions: undefined,
+  monthlyCommissions: undefined,
+  productMap: undefined,
+  userOrders: undefined,
+});
+
 
 const App: React.FC = () => {
   const classes = useStyles();
   const history = useHistory();
   const api = React.useContext(DbContext);
-  const [loaded, setLoaded] = React.useState(false);
   const [admin, setAdmin] = React.useState(false);
   const [sidebar, updateSidebar] = React.useState(false);
-  const [loadMsg, setLoadMsg] = React.useState("");
+  const [dashboardData, updateState] = React.useState(dashboardState);
 
   const sidebarToggle = () => {
     updateSidebar(!sidebar);
@@ -30,14 +38,8 @@ const App: React.FC = () => {
         .then((status: boolean) => {
           if (status) {
             setAdmin(true);
-            if (!loaded) {
-              getAnnouncements();
-            }
-          }
-          else {
-            if (!loaded) {
-              getDashboardData();
-            }
+          } else {
+            loadDashboardData();
           }
         })
         .catch((error: any) => {
@@ -46,29 +48,21 @@ const App: React.FC = () => {
     }
   }, [history, api]);
 
-  const getDashboardData = async () => {
-    setLoadMsg("Fetching orders and discount code data...");
-    api.loadDashboardData()
-      .then(() => {
-        getAnnouncements();
+  const loadDashboardData = async () => {
+    await api.loadDashboardData().then(async () => {
+      updateState({
+        ...dashboardData,
+        totalSales: api.dashboardData.totalSales,
+        totalCommissions: api.dashboardData.totalCommissions,
+        monthlyCommissions: api.dashboardData.monthlyCommissions,
+        totalCheckouts: api.dashboardData.totalCheckouts,
+        productMap: api.dashboardData.productMap,
+        userOrders: api.dashboardData.userOrders,
       })
-      .catch((error: any) => {
-      })
+    });
   }
 
-  const getAnnouncements = async () => {
-    setLoadMsg("Fetching latest announcements...");
-    api.loadAnnouncements()
-      .then(() => {
-        setLoaded(true);
-      })
-      .catch((error: any) => {
-      })
-  }
-
-  if (!loaded) {
-    return (<LoadComponent message={loadMsg} />)
-  }
+  console.log(dashboardData);
 
   return (
     <div className={clsx(classes.root)}>
@@ -79,7 +73,7 @@ const App: React.FC = () => {
           <AdminComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
         }
         {!admin &&
-          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
+          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} data={dashboardData} />
         }
       </main>
     </div>

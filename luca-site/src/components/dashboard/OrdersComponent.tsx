@@ -9,6 +9,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import { DbContext } from '../../util/api';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 interface Column {
   id: 'number' | 'date';
@@ -58,12 +59,18 @@ const useStyles = makeStyles({
   }
 });
 
-export default function StickyHeadTable() {
+export default function StickyHeadTable(props: any) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [loaded, setLoad] = React.useState(false);
   const api = React.useContext(DbContext);
-  const data = api.dashboardData.userOrders as object[];
+
+  React.useEffect(() => {
+    if (props.data !== undefined) {
+      setLoad(true);
+    }
+  });
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -76,49 +83,56 @@ export default function StickyHeadTable() {
 
   return (
     <Paper className={classes.root}>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <StyledTableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
-                  className={classes.title}
-                >
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
-              return (
-                <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <StyledTableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
-                      </StyledTableCell>
-                    );
-                  })}
-                </StyledTableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
-      />
+      {!loaded &&
+        <CircularProgress />
+      }
+      {loaded &&
+        <div>
+          <TableContainer className={classes.container}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <StyledTableCell
+                      key={column.id}
+                      align={column.align}
+                      style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
+                      className={classes.title}
+                    >
+                      {column.label}
+                    </StyledTableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {props.data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any) => {
+                  return (
+                    <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                      {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <StyledTableCell key={column.id} align={column.align}>
+                            {column.format && typeof value === 'number' ? column.format(value) : value}
+                          </StyledTableCell>
+                        );
+                      })}
+                    </StyledTableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component="div"
+            count={props.data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+        </div>
+      }
     </Paper>
   );
 }

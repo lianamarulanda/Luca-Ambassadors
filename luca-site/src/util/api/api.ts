@@ -16,6 +16,7 @@ export default class Api {
   private bannerRef: any;
   public userData: any;
   public dashboardData: any;
+  public ordersLoaded: boolean;
 
   constructor() {
     firebase.initializeApp(firebaseConfig);
@@ -30,6 +31,7 @@ export default class Api {
     this.bannerRef = this.myDatabase.collection('banner');
     this.userData = {};
     this.dashboardData = {};
+    this.ordersLoaded = false;
   }
 
   // True if user is logged in, false if user is not logged in
@@ -104,7 +106,7 @@ export default class Api {
                   this.usersRef.add({ // C
                     firstName: firstName,
                     lastName: lastName,
-                    email: email,
+                    email: email.toLowerCase(),
                     ambassadorID: ref.id,
                     influencer: influencer
                   })
@@ -214,6 +216,7 @@ export default class Api {
       this.authentication.signOut().then(() => {
         this.userData = {};
         this.dashboardData = {};
+        this.ordersLoaded = false;
         resolve();
       }).catch(function (error: any) {
         // catch error with signing out
@@ -294,17 +297,17 @@ export default class Api {
     })
   }
 
+  // load the basic stats such as order count, products, etc
   public async loadDashboardData(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // if the class dashboard data object is empty, then load it
-      if (Object.keys(this.dashboardData).length === 0) {
+      // if we have called already, don't call this func
+      if (!this.ordersLoaded) {
         this.getOrders(this.userData.discountCode)
-          // then, get the actual code data and announcements
-          .then(async (orders: []) => {
-            this.getCodeData(orders);
+          .then(async(codeOrders: []) => {
+            this.getCodeData(codeOrders);
             resolve();
           })
-          // error with getting the associated orders
+          // error w/getting associated orders
           .catch((error: any) => {
             reject(error);
           });
@@ -329,6 +332,7 @@ export default class Api {
       axios.post('https://us-central1-luca-ambassadors.cloudfunctions.net/getOrders', orders, config)
         .then((response: any) => {
           this.dashboardData.userOrders = response.data.userOrders;
+          this.ordersLoaded = true;
           resolve(response.data.codeOrders);
         })
         .catch((error: any) => {
@@ -341,6 +345,7 @@ export default class Api {
     var monthlyCommissions: number[] = [];
     var totalSales = 0;
     var productMap = new Map();
+    var currDate = new Date();
 
     codeOrders.forEach((order: any) => {
       // accumulate the subtotal prices to see how much revenue was brought in
@@ -348,7 +353,6 @@ export default class Api {
 
       // handle monthly commissions
       var date = new Date(order.created_at);
-      var currDate = new Date();
       if (date.getFullYear() === currDate.getFullYear()) {
         // .getMonth will return actual month - 1, which fits our indexes 
         if (typeof monthlyCommissions[date.getMonth()] === 'undefined') {
@@ -367,7 +371,7 @@ export default class Api {
     })
 
     // clean up monthlyCommissions to replace undefined indexes w/0, and round defined elements 
-    for (let i = 0; i < monthlyCommissions.length; i++) {
+    for (let i = 0; i <= currDate.getMonth(); i++) {
       if (typeof monthlyCommissions[i] === 'undefined') {
         monthlyCommissions[i] = 0;
       } else {
@@ -413,7 +417,6 @@ export default class Api {
   }
 
   public getAppOrders(): boolean {
-    var currDate = new Date();
     var limit = new Date();
     limit.setMonth(limit.getMonth() - 2);
     var appOrders = [];
@@ -437,7 +440,7 @@ export default class Api {
       latestDate.setHours(0,0,0,0);
       limit.setHours(0,0,0,0);
 
-      if (latestDate <= limit) {
+      if (latestDate <= limit && this.userData.hasPlacedOrder === undefined) {
         return true;
       } else {
         return false;
@@ -501,6 +504,8 @@ export default class Api {
 
   public async updateEmail(newEmail: string, confirmEmail: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      confirmEmail = confirmEmail.toLowerCase();
+      newEmail = newEmail.toLowerCase();
       if (confirmEmail !== newEmail) {
         reject("Emails not equal!");
         return;
@@ -796,7 +801,7 @@ export default class Api {
           date: currDate.toLocaleString()
         })
           .then(() => {
-            resolve("Announcement successfully created!");
+            resolve("Announcement successfully created! Refresh to view.");
           })
           .catch((error: any) => {
             reject("An error occurred!");
@@ -807,20 +812,24 @@ export default class Api {
 
   public async loadAnnouncements(): Promise<void> {
     return new Promise((resolve, reject) => {
-      var announcements = [] as object[];
-      this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
-        querySnapshot.forEach(function (announcement: any) {
-          announcements.push({
-            description: announcement.data().description,
-            date: announcement.data().date,
-          })
-        });
-        this.dashboardData.announcements = announcements;
-        resolve();
-      })
-        .catch((error: any) => {
-          reject("An error occurred!");
+      if (this.dashboardData.announcements === undefined) {
+        var announcements = [] as object[];
+        this.announcements.orderBy("date", "desc").get().then((querySnapshot: any) => {
+          querySnapshot.forEach(function (announcement: any) {
+            announcements.push({
+              description: announcement.data().description,
+              date: announcement.data().date,
+            })
+          });
+          this.dashboardData.announcements = announcements;
+          resolve();
         })
+          .catch((error: any) => {
+            reject("An error occurred!");
+          })
+      } else {
+        resolve();
+      }
     })
   }
 

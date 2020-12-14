@@ -69,7 +69,7 @@ export default function UpdateEmail() {
       .catch((error: string) => {
         setMessage("");
         setError(error);
-        setLoad(false);
+        setLoad(true);
       });
   };
 

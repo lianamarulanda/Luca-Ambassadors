@@ -166,6 +166,7 @@ export default function OrderComponent(props: any) {
         dbApi.placeOrder(orderApi.orderRequest).then((orderNum: any) => {
           orderApi.orderNumber = orderNum;
           setLoaded(true);
+          dbApi.userData.hasPlacedOrder = true;
           resolve(true);
         })
           .catch((error: any) => {

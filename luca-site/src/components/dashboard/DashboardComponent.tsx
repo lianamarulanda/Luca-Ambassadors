@@ -72,35 +72,35 @@ const DashboardComponent = (props: any) => {
           xs={12}
           sm={4}
         >
-          <TotalCheckouts />
+          <TotalCheckouts data={props.data.totalCheckouts} />
         </Grid>
         <Grid
           item
           xs={12}
           sm={4}
         >
-          <TotalSales />
+          <TotalSales data={props.data.totalSales} />
         </Grid>
         <Grid
           item
           xs={12}
           sm={4}
         >
-          <TotalCommission />
+          <TotalCommission data={props.data.totalCommissions} />
         </Grid>
         <Grid
           item
           xs={12}
           sm={6}
         >
-          <MonthlyCommissionsComponent />
+          <MonthlyCommissionsComponent data={props.data.monthlyCommissions}/>
         </Grid>
         <Grid
           item
           xs={12}
           sm={6}
         >
-          <TopProductsComponent />
+          <TopProductsComponent data={props.data.productMap} />
         </Grid>
         <Grid container>
           <Grid item>
@@ -113,7 +113,7 @@ const DashboardComponent = (props: any) => {
           item
           xs={12}
         >
-          <OrdersComponent />
+          <OrdersComponent data={props.data.userOrders} />
         </Grid>
         <Grid container>
           <Typography variant="h4" style={{ fontWeight: 700, padding: '22px' }}>
@@ -129,7 +129,7 @@ const DashboardComponent = (props: any) => {
           item
           xs={12}
         >
-          <AnnouncementsComponent adminStatus={props.adminStatus} />
+          <AnnouncementsComponent data={props.adminStatus} />
         </Grid>
       </Grid>
     </Container>
