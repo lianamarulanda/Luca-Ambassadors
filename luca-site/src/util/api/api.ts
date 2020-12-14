@@ -506,7 +506,6 @@ export default class Api {
     return new Promise((resolve, reject) => {
       confirmEmail = confirmEmail.toLowerCase();
       newEmail = newEmail.toLowerCase();
-
       if (confirmEmail !== newEmail) {
         reject("Emails not equal!");
         return;
