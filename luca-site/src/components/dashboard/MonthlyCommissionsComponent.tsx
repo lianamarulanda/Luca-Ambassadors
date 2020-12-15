@@ -73,20 +73,24 @@ const MonthlyCommissionsComponent = (props: any) => {
   var monthLabels: string[] = [];
   
   React.useEffect(() => {
+    console.log(props.data);
     if (!loaded && props.data !== undefined) {
       data = props.data;
       for (var i = monthCreated; i <= currDate.getMonth(); i++) {
         monthLabels.push(monthLookup[i]);
       }
 
-      data = data.splice(monthCreated);
+      var plotData = [];
+      for (var month = monthCreated; month < data.length; month++) {
+        plotData.push(data[month]);
+      }
 
       setPlotState({
         ...plotState,
 
         series: [{
           name: "Commissions Amount ($)",
-          data: data,
+          data: plotData,
           colors: ['#F44336']
         }],
         options: {
