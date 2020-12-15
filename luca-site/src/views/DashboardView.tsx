@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const [admin, setAdmin] = React.useState(false);
   const [sidebar, updateSidebar] = React.useState(false);
   const [dashboardData, updateState] = React.useState(dashboardState);
+  const [loaded, setLoad] = React.useState(false);
 
   const sidebarToggle = () => {
     updateSidebar(!sidebar);
@@ -41,6 +42,7 @@ const App: React.FC = () => {
           } else {
             loadDashboardData();
           }
+          setLoad(true);
         })
         .catch((error: any) => {
           history.push('/error');
@@ -62,22 +64,24 @@ const App: React.FC = () => {
     });
   }
 
-  console.log(dashboardData);
-
-  return (
-    <div className={clsx(classes.root)}>
-      <CssBaseline />
-      <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
-      <main className={classes.content}>
-        {admin &&
-          <AdminComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
-        }
-        {!admin &&
-          <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} data={dashboardData} />
-        }
-      </main>
-    </div>
-  )
+  if (loaded) {
+    return (
+      <div className={clsx(classes.root)}>
+        <CssBaseline />
+        <Sidebar sidebarStatus={sidebar} sidebarToggle={sidebarToggle} />
+        <main className={classes.content}>
+          {admin &&
+            <AdminComponent adminStatus={admin} sidebarToggle={sidebarToggle} />
+          }
+          {!admin &&
+            <DashboardComponent adminStatus={admin} sidebarToggle={sidebarToggle} data={dashboardData} />
+          }
+        </main>
+      </div>
+    )
+  } else {
+    return (<div></div>)
+  }
 }
 
 const useStyles = makeStyles(theme => ({
